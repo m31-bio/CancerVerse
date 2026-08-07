@@ -1,0 +1,2370 @@
+models:
+- id: erspc_rc3
+  disease: prostate
+  axis: detection
+  role: alternative
+  status: implemented
+  title: ERSPC RC3 (DRE-volume, biopsy-naïve)
+  code: mayo_baseline.prostate.detection.erspc_rc3
+  url: https://www.prostatecancer-riskcalculator.com/seven-prostate-cancer-risk-calculators
+  citation: Roobol MJ et al. World J Urol. 2012;30(2):149-155. PMC3321270
+  license: open
+  inputs:
+  - psa
+  - volume_ml
+  - dre_positive
+  equation_source: Roobol/PBCG World J Urol 2012 appendix; PMC3321270
+  upstream:
+  - doi: 10.1007/s00345-011-0804-y
+    note: PBCG validation; formulas in appendix
+  canonical_impl:
+    type: web
+    url: https://www.prostatecancer-riskcalculator.com/seven-prostate-cancer-risk-calculators
+    license: web-only
+  our_code: mayo_baseline.prostate.detection.erspc_rc3
+  parity_status: checked
+  open_source: web_only
+  parity_note: CHECKED 2026-08-05 by extracting the coefficients from SWOP's own Flash calculator (/2011/swf/c03dre.swf).
+    The tool cannot be run -- Flash is EOL -- so outputs are unobtainable, but the SWF still serves and
+    its ActionScript stores literals as IEEE-754 doubles. All six RC3 constants recovered; worst deviation
+    2.2e-06 (float round-tripping). Verifies the model itself rather than one output. See tests/parity/reference/swop_rc3_swf_extract.py.
+  architecture_family: Logistic regression
+  architecture: 'Multivariable logistic regression: weighted sum of 3 predictors (log2 PSA, log2 prostate
+    volume, DRE) pushed through a logistic link to a probability.'
+  n_parameters: 4
+  core_formula: "logit(p) = −1.826\n           + 1.024 · (log₂ PSA − 2.0)\n           − 1.500 · (log₂\
+    \ volume_class − 5.4)\n           + 0.992 · DRE"
+  evidence:
+    test: tests/parity/test_r_reference_parity.py
+    test_function: test_erspc_rc3_coefficients_match_swop_flash_calculator
+    script: tests/parity/reference/swop_rc3_swf_extract.py
+  public_repo: null
+  source_url: https://doi.org/10.1007/s00345-011-0804-y
+  year: 2012
+  entrypoint: erspc_rc3_predict
+  repro_tier: A
+  flagship_note: Prefer where the European calibration is the relevant one, or where prostate volume is
+    measured and PBCG's over-prediction in non-White groups is a concern. Its coefficients are also the
+    ones recoverable from SWOP's own calculator, so it is the better-provenanced of the two.
+  discrimination: AUC 0.61–0.77 across validation cohorts
+  discrimination_source: 'primary abstract, PMID 22203238, verbatim: "The AUCs of the ERSPC DRE-based
+    RC ranged from 0.61 to 0.77 and were substantially larger than the AUCs of a model based on only PSA
+    + DRE (ranging from 0.56 to 0.72)"'
+  equation_location:
+    numbered: false
+    where: Appendix, under the heading 'Formulas used to calculate volume classes and the DRE ERSPC RC
+      risks'. Printed there as lpDRE_ERSPC_riskcalc = -1.826 + 1.024 x (log2(PSA) - 2.0) - 1.50 x (log2(volumeclasses)
+      - 5.4) + 0.992 x DRE, which matches this library's coefficients term for term.
+    verified: read 2026-08-06 from PMC3321270
+- id: pbcg
+  disease: prostate
+  axis: detection
+  role: flagship
+  status: implemented
+  title: PBCG (Prostate Biopsy Collaborative Group; no cancer / low grade / high grade)
+  code: mayo_baseline.prostate.detection.pbcg
+  entrypoint: pbcg_predict
+  license: open
+  repro_tier: A
+  year: 2018
+  citation: Ankerst DP, Straubinger J, Selig K, et al. Eur Urol. 2018;74(2):197-203
+  source_url: https://doi.org/10.1016/j.eururo.2018.05.003
+  public_repo: https://github.com/ClevelandClinicQHS/riskcalc-website/tree/main/PBCG
+  equation_source: Coefficients from the deployed calculator's published R source at https://github.com/ClevelandClinicQHS/riskcalc-website/tree/main/PBCG.
+    Multinomial logistic with 'no cancer' as the reference outcome, and EIGHT coefficient sets -- one
+    per pattern of missing prior-biopsy / DRE / family-history data.
+  upstream:
+  - doi: 10.1016/j.eururo.2018.05.003
+    note: development, 15,611 men
+  - url: https://github.com/ClevelandClinicQHS/riskcalc-website/tree/main/PBCG
+    note: deployed model source, coefficients in plain text
+  canonical_impl:
+    type: open_source
+    url: https://github.com/ClevelandClinicQHS/riskcalc-website/tree/main/PBCG
+    license: see repository terms
+  our_code: mayo_baseline.prostate.detection.pbcg
+  architecture_family: Logistic regression
+  architecture: Multinomial logistic regression over three outcomes (no cancer, Gleason 6, Gleason 7+),
+    with eight fitted coefficient sets so a record missing prior biopsy, DRE or family history uses the
+    model fitted without it rather than an imputed value.
+  core_formula: "S₁ = β_low · x        S₂ = β_high · x\n\n  P(no cancer)  = 1 / (1 + e^S₁ + e^S₂)\n  P(low\
+    \ grade)  = e^S₁ / (1 + e^S₁ + e^S₂)\n  P(high grade) = e^S₂ / (1 + e^S₁ + e^S₂)\n\n  x = [1, log₂PSA,\
+    \ age, African ancestry, + known optionals]\n  one of 8 coefficient sets, by which optionals are known"
+  n_parameters: 88
+  discrimination: AUC 75.5% internal validation, 72.3% external (vs 72.3%/69.7% for PCPTRC 2.0)
+  discrimination_source: Eur Urol 2018 abstract and the validation literature reviewed 2026-08-06
+  development_cohort: 15,611 men undergoing 16,369 biopsies at eight North American institutions 2006-2017;
+    validated at three European institutions
+  parity_status: checked
+  parity_note: 'CHECKED 2026-08-06 against the vendor''s own deployed R, route 1. tests/parity/reference/pbcg_reference.R
+    copies the risk() function VERBATIM from riskcalc.org''s published source and adds risk_raw(), the
+    same function with only the two round() calls removed so unrounded probabilities can be compared.
+    12 patients x 3 outcomes = 36 probabilities, chosen so that ALL EIGHT coefficient sets are exercised;
+    worst absolute difference 4.8e-11 percentage points. The tool''s own display rounding is also reproduced
+    and tested: it rounds no-cancer and low-grade then derives high grade as 100 - no - low, so every
+    rounding error lands on the clinically decisive number. We return unrounded and expose rounded_like_riskcalc()
+    for comparison.'
+  scope_note: 'Men undergoing prostate biopsy. Predicts high-grade (Gleason 7+) separately from any cancer,
+    which is the actionable question. NOT strictly better than ERSPC RC3: external validation found PBCG
+    improved calibration in White men but OVER-PREDICTED in Black and other groups at most thresholds,
+    so both are kept.'
+  inputs:
+  - psa
+  - age
+  - african_ancestry
+  - prior_biopsy (optional)
+  - dre_abnormal (optional)
+  - family_history (optional)
+  open_source: available
+  evidence:
+    test: tests/parity/test_pbcg_parity.py
+    test_function: test_matches_the_vendor_r
+    script: tests/parity/reference/pbcg_reference.R
+    fixture: tests/parity/reference/pbcg_cases.json
+  flagship_note: 'Default. It separates high-grade (Gleason 7+) from any cancer, which is the question
+    a biopsy decision actually turns on, and it fits eight sub-models so an incomplete record still gets
+    a model rather than an imputed value. Discrimination is better too (AUC 75.5% internal). The caveat
+    is real and is why ERSPC RC3 is kept: external validation found PBCG over-predicts in Black and other
+    groups.'
+  equation_location:
+    numbered: null
+    where: NOT IN THE PAPER as a closed form. The coefficients are in the deployed calculator's R source,
+      ClevelandClinicQHS/riskcalc-website/tree/main/PBCG, as eight coefficient sets (one per missing-data
+      pattern). Establishing this by parity against that source is what verified the model.
+    verified: vendor R source; parity-verified 2026-08-05
+- id: erspc_rc45
+  disease: prostate
+  axis: detection
+  role: catalog
+  status: catalog
+  title: ERSPC RC4/5 (prior screen/biopsy)
+  code: mayo_baseline.prostate.detection.erspc_rc3
+  url: https://www.prostatecancer-riskcalculator.com/seven-prostate-cancer-risk-calculators
+  license: open
+  equation_source: PMC3321270 appendix (RC4/5)
+  canonical_impl:
+    type: web
+    url: https://www.prostatecancer-riskcalculator.com/seven-prostate-cancer-risk-calculators
+    license: web-only
+  our_code: mayo_baseline.prostate.detection.erspc_rc3
+  parity_status: not_checked
+  open_source: web_only
+- id: swop_rc1
+  disease: prostate
+  axis: detection
+  role: catalog
+  status: catalog
+  title: SWOP RC1 general health
+  url: https://www.prostatecancer-riskcalculator.com/seven-prostate-cancer-risk-calculators
+  equation_source: not in PMC3321270 appendix
+  canonical_impl:
+    type: web
+    url: https://www.prostatecancer-riskcalculator.com/seven-prostate-cancer-risk-calculators
+    license: web-only
+  our_code: null
+  parity_status: n/a
+  license: web-only
+  open_source: web_only
+- id: swop_rc2
+  disease: prostate
+  axis: detection
+  role: catalog
+  status: catalog
+  title: SWOP RC2 PSA
+  url: https://www.prostatecancer-riskcalculator.com/seven-prostate-cancer-risk-calculators
+  equation_source: not in PMC3321270 appendix
+  canonical_impl:
+    type: web
+    url: https://www.prostatecancer-riskcalculator.com/seven-prostate-cancer-risk-calculators
+    license: web-only
+  our_code: null
+  parity_status: n/a
+  license: web-only
+  open_source: web_only
+- id: swop_rc5
+  disease: prostate
+  axis: detection
+  role: catalog
+  status: catalog
+  title: SWOP RC5 indolent PCa
+  url: https://www.prostatecancer-riskcalculator.com/seven-prostate-cancer-risk-calculators
+  equation_source: not in PMC3321270 appendix
+  canonical_impl:
+    type: web
+    url: https://www.prostatecancer-riskcalculator.com/seven-prostate-cancer-risk-calculators
+    license: web-only
+  our_code: null
+  parity_status: n/a
+  license: web-only
+  open_source: web_only
+- id: swop_rc6
+  disease: prostate
+  axis: detection
+  role: catalog
+  status: catalog
+  title: SWOP RC6 4-year future risk
+  url: https://www.prostatecancer-riskcalculator.com/seven-prostate-cancer-risk-calculators
+  equation_source: not in PMC3321270 appendix
+  canonical_impl:
+    type: web
+    url: https://www.prostatecancer-riskcalculator.com/seven-prostate-cancer-risk-calculators
+    license: web-only
+  our_code: null
+  parity_status: n/a
+  license: web-only
+  open_source: web_only
+- id: pcpt_2
+  disease: prostate
+  axis: detection
+  role: catalog
+  status: catalog
+  title: PCPT Risk Calculator 2.0
+  license: web-only
+  open_source: none
+- id: msk_prostate_post_rp
+  disease: prostate
+  axis: prognosis
+  role: catalog
+  status: catalog
+  title: MSK prostate nomograms (portal)
+  url: https://www.mskcc.org/nomograms
+  license: web-only
+  equation_source: per-tool papers; coefficients generally not open
+  canonical_impl:
+    type: web
+    url: https://www.mskcc.org/nomograms
+    license: web-only
+  our_code: null
+  parity_status: n/a
+  open_source: web_only
+- id: dutasteride
+  disease: prostate
+  axis: response
+  role: flagship
+  status: implemented
+  title: Dutasteride chemoprevention (9 outcomes x 2 arms, benefit and harm)
+  code: mayo_baseline.prostate.response.dutasteride
+  entrypoint: dutasteride_predict
+  license: open
+  repro_tier: A
+  year: 2013
+  citation: Nguyen CT, Isariyawongse B, Yu C, Kattan MW — models for men with a prior negative biopsy
+    considering dutasteride (REDUCE)
+  source_url: https://pubmed.ncbi.nlm.nih.gov/23768723/
+  public_repo: https://github.com/ClevelandClinicQHS/riskcalc-website/tree/main/ProstateCancerConsideringDutasteride
+  equation_source: Coefficients machine-extracted from the deployed calculator's published R source at
+    https://github.com/ClevelandClinicQHS/riskcalc-website/tree/main/ProstateCancerConsideringDutasteride
+    by tests/parity/reference/dutasteride_extract.py. 17 Cox sub-models (9 outcomes x 2 arms, minus one
+    missing arm), 315 coefficients, each risk = 1 - S0^exp(score) with its own predictor subset, spline
+    knots and applicability bounds.
+  upstream:
+  - url: https://github.com/ClevelandClinicQHS/riskcalc-website/tree/main/ProstateCancerConsideringDutasteride
+    note: deployed model source, 711 lines of R
+  canonical_impl:
+    type: open_source
+    url: https://github.com/ClevelandClinicQHS/riskcalc-website/tree/main/ProstateCancerConsideringDutasteride
+    license: see repository terms
+  our_code: mayo_baseline.prostate.response.dutasteride
+  architecture_family: Survival (Cox)
+  architecture: 'Seventeen Cox sub-models: nine outcomes each predicted on and off dutasteride, with restricted
+    cubic splines and per-outcome applicability bounds, so the reported quantity is the treated-minus-untreated
+    difference rather than either risk.'
+  core_formula: "risk = 1 − S₀^exp(score)        per outcome, per arm\n\n  difference = on-drug − off-drug\n\
+    \               negative is benefit, positive is harm\n  9 outcomes × 2 arms (ASAP has only the on-drug\
+    \ arm)"
+  n_parameters: 315
+  development_cohort: 'REDUCE trial: men with a prior negative 6- to 12-core prostate biopsy'
+  parity_status: checked
+  parity_note: 'CHECKED 2026-08-06 against the vendor''s own deployed R, route 1. tests/parity/reference/dutasteride_reference.R
+    copies the 17 predict.* functions VERBATIM from riskcalc.org''s server.R and adds raw.* copies with
+    only the display rounding removed. 8 patients x 9 outcomes x 2 arms = 132 probabilities; worst absolute
+    difference 4.9e-11 percentage points, and the ''Not Applicable'' judgement agreed on every one. That
+    comparison is also what licenses MACHINE EXTRACTION of the coefficients: 315 is past the point where
+    hand-copying is safe (this project shipped a wrong ALBI coefficient from a far smaller transcription),
+    so they are parsed out of the R and this test proves the parse faithful. Two published asymmetries
+    are reproduced rather than smoothed: ASAP has no off-treatment arm in the source, so its difference
+    is None rather than 0; and HGPIN on dutasteride is a CONSTANT 3.838831% with no predictors while its
+    off-treatment arm is a full 28-term model.'
+  scope_note: Men with a prior negative 6- to 12-core biopsy in the past 6 months (REDUCE). Nine outcomes,
+    three of them harms (erectile dysfunction, gynecomastia, urinary tract infection). It reproduces REDUCE's
+    central finding that dutasteride LOWERS overall prostate cancer but RAISES high-grade disease -- a
+    model reporting only the overall reduction would answer half the question. Applicability bounds differ
+    per outcome, so a patient can be answerable for some outcomes and not others; unanswerable ones return
+    None rather than a guess.
+  inputs:
+  - age
+  - psa
+  - dre_abnormal
+  - sexually_active
+  - history_of_impotence
+  - history_of_libido_problems
+  - family_history_prostate_cancer
+  - percent_free_psa
+  - bmi
+  - ipss_score
+  - max_urinary_flow_ml_s
+  - biopsy_cores
+  - prostate_volume_ml
+  - residual_urine_ml
+  open_source: available
+  evidence:
+    test: tests/parity/test_dutasteride_parity.py
+    test_function: test_matches_the_vendor_r
+    script: tests/parity/reference/dutasteride_extract.py
+    fixture: tests/parity/reference/dutasteride_cases.json
+  equation_location:
+    numbered: null
+    where: NOT IN THE PAPER as a closed form. 315 coefficients across 17 Cox sub-models, machine-extracted
+      from ClevelandClinicQHS/riskcalc-website/tree/main/ProstateCancerConsideringDutasteride by tests/parity/reference/dutasteride_extract.py.
+    verified: vendor R source; parity-verified 2026-08-05
+- id: prostate_response_gap
+  disease: prostate
+  axis: response
+  role: catalog
+  status: catalog
+  title: (no open flagship — no published closed-form response equation found)
+  repro_tier: A
+  tier_note: 'CORRECTED and SUPERSEDED 2026-08-06. Was tier D, ''no published closed-form response equation
+    found''. Wrong: the REDUCE dutasteride chemoprevention models are published with full coefficients
+    in riskcalc.org''s source. Now implemented as `dutasteride`.'
+  open_source: none
+- id: capra
+  disease: prostate
+  axis: prognosis
+  role: flagship
+  status: implemented
+  title: UCSF-CAPRA (preoperative recurrence risk)
+  code: mayo_baseline.prostate.prognosis.capra
+  license: open
+  repro_tier: A
+  citation: Cooperberg MR et al. J Urol. 2005;173(6):1938-1942
+  equation_source: J Urol 2005;173(6):1938-1942, PMC2948569 Table 1 — PSA 0-4, Gleason 0/1/3, T-stage
+    0-1, percent positive cores 0-1, age 0-1; total 0-10
+  upstream:
+  - url: https://pmc.ncbi.nlm.nih.gov/articles/PMC2948569/
+    note: development + Table 1 point assignments
+  canonical_impl:
+    type: web
+    url: https://www.mdcalc.com/calc/2046/ucsf-capra-score-prostate-cancer-risk
+    license: web-only
+  our_code: mayo_baseline.prostate.prognosis.capra
+  parity_status: checked
+  scope_note: preoperative CAPRA only; CAPRA-S (postoperative, Cancer 2011) not implemented
+  inputs:
+  - psa
+  - gleason_primary
+  - gleason_secondary
+  - t_stage
+  - percent_positive_cores
+  - age
+  open_source: web_only
+  parity_note: CHECKED 2026-08-05 against MDCalc's published point schema, entry by entry across all five
+    fields (PSA 5 bands, Gleason 0/1/3 with no 2-point level, T-stage, percent cores, age). Full agreement.
+    Corroboration by an independent implementation rather than a worked example, which none is published
+    for.
+  architecture_family: Points table
+  architecture: Additive integer point score (0-10) distilled from a Cox model; at prediction time it
+    is table lookup and addition, with no regression evaluated.
+  n_parameters: 16
+  core_formula: "total = PSA + Gleason + T-stage + %positive-cores + age   (0–10)\n\n  PSA      2.1–6\
+    \ → 0, 6.1–10 → 1, 10.1–20 → 2, 20.1–30 → 3, >30 → 4\n  Gleason  0, 1 or 3 — there is no 2-point level\n\
+    \  0–2 low · 3–5 intermediate · 6–10 high"
+  evidence:
+    test: tests/parity/test_r_reference_parity.py
+    test_function: test_capra_point_table_matches_mdcalc
+    script: tests/parity/reference/mdcalc_extract.py
+  public_repo: null
+  source_url: https://pubmed.ncbi.nlm.nih.gov/15879786/
+  year: 2005
+  entrypoint: capra_predict
+  discrimination: Concordance index 0.66
+  discrimination_source: 'primary abstract, PMID 15879786, verbatim: "The concordance index for the UCSF-CAPRA
+    score was 0.66."'
+  equation_location:
+    numbered: false
+    where: 'Table 1, ''The UCSF-CAPRA scoring system''. Described in Methods under ''Development of the
+      UCSF Cancer of the Prostate Risk Assessment (UCSF-CAPRA)''. The printed points match this library:
+      PSA 0-4, Gleason 0/1/3 (no 2-point level), T stage 0-1, percent positive biopsies 0-1 at the 34%
+      threshold, age 0-1 at 50.'
+    verified: read 2026-08-06 from PMC2948569
+- id: prevent
+  disease: cvd
+  axis: detection
+  role: flagship
+  status: implemented
+  title: AHA PREVENT — all 5 variants (base/uacr/hba1c/sdi/full) x 10y/30y x 5 outcomes
+  code: mayo_baseline.cvd.detection.prevent
+  url: https://professional.heart.org/en/guidelines-and-statements/about-prevent-calculator
+  citation: Khan SS et al. Circulation. 2024;149(6):430-449
+  license: open
+  inputs:
+  - sex
+  - age
+  - total_cholesterol
+  - hdl
+  - sbp
+  - diabetes
+  - smoker
+  - bmi
+  - egfr
+  - htn_meds
+  - statin
+  - uacr (optional, extended variant)
+  - hba1c (optional, extended variant)
+  - sdi_decile (optional, extended variant)
+  equation_source: Khan et al. Circulation 2024 supplemental appendix; all 100 coefficient sets (5 variants
+    x 2 horizons x 5 outcomes x 2 sexes; base 10-year worked example is Table S25)
+  upstream:
+  - doi: 10.1161/CIRCULATIONAHA.123.067626
+    note: development + supplemental coefficient tables
+  - url: https://www.nature.com/articles/s41591-026-04437-z
+    note: multinational validation only (Nat Med 2026;32:2629-2638)
+  canonical_impl:
+    type: r_package
+    url: https://github.com/martingmayer/preventr
+    license: open
+    note: CRAN `preventr`, MIT; missing-lab handling for uacr/hba1c/sdi cross-checked against R/estimate_risk.R
+      source logic
+  our_code: mayo_baseline.cvd.detection.prevent
+  parity_status: checked
+  parity_note: matched applies to the base 10-year model only (Table S25). The 30-year model and the uacr/hba1c/sdi/full
+    extended variants use the same validated coefficient tables and confirmed missing-data logic, but
+    no published worked example with a numeric expected output has been found for them — an honest open
+    item, not a claim of matched parity.
+  scope_note: all published PREVENT variants and horizons are implemented; no scope gap remains
+  open_source: available
+  architecture_family: Logistic regression
+  architecture: Sex-specific logistic regressions with age-centred predictors and interaction terms; 100
+    fixed coefficient sets (5 variants x 2 horizons x 5 outcomes x 2 sexes).
+  n_parameters: 1200
+  core_formula: "logit(p) = Σ βᵢxᵢ\n\n  one of 100 coefficient sets:\n    5 variants × 2 horizons × 5\
+    \ outcomes × 2 sexes\n  continuous predictors are age-centred; several enter as interactions"
+  evidence:
+    test: tests/parity/test_canonical_parity.py
+    test_function: test_prevent_supplemental_table_s25_vignette
+  public_repo: https://github.com/martingmayer/preventr
+  source_url: https://doi.org/10.1161/CIRCULATIONAHA.123.067626
+  year: 2024
+  development_cohort: 46 datasets, 3,281,919 individuals (AHA PREVENT development)
+  entrypoint: prevent_predict
+  repro_tier: A
+  flagship_note: 'Default. Newest (2024), largest development base, race-free by design, and it predicts
+    five outcomes over two horizons rather than one. Choose SCORE2 instead for a European patient: the
+    two are regional standards recalibrated to their own populations, so this is a question of where the
+    patient is, not which model is better.'
+  discrimination: C-statistic 0.794 (women) and 0.757 (men) for CVD, external validation
+  discrimination_source: 'primary abstract, PMID 37947085, verbatim: "The median C-statistics in external
+    validation for CVD were 0.794 (interquartile interval, 0.763-0.809) in female and 0.757 (0.727-0.778)
+    in male participants."'
+  equation_location:
+    numbered: null
+    where: Supplemental appendix, all 100 coefficient sets; the base 10-year worked example is Table S25.
+      Circulation 2024.
+    verified: identified while implementing; NOT re-read against the source in the 2026-08-06 pass, so
+      treat the location as approximate
+- id: score2
+  disease: cvd
+  axis: detection
+  role: alternative
+  status: implemented
+  title: ESC SCORE2
+  code: mayo_baseline.cvd.detection.score2
+  citation: SCORE2 working group. Eur Heart J. 2021
+  license: open
+  equation_source: Eur Heart J 2021; Hageman comment 4 d.p. coeff + recalibration table
+  upstream:
+  - doi: 10.1093/eurheartj/ehab309
+    note: SCORE2 development
+  - url: https://www.nature.com/articles/s41591-026-04437-z
+    note: validation only
+  canonical_impl:
+    type: r_package
+    url: https://www.phpc.cam.ac.uk/ceu/erfc/programs/
+    license: open
+    note: Cambridge score2risk; also published charts
+  our_code: mayo_baseline.cvd.detection.score2
+  parity_status: checked
+  inputs:
+  - sex
+  - age
+  - sbp
+  - total_chol_mmol
+  - hdl_mmol
+  - smoker
+  - region
+  open_source: available
+  parity_note: CHECKED 2026-08-05 against CRAN RiskScorescvd::SCORE2 (MIT) across all four ESC risk regions;
+    agreement within that package's own 1-decimal rounding (it ends in round(x,1)). No web calculator
+    was needed -- an R implementation existed.
+  architecture_family: Survival (Cox)
+  architecture: 'Cox proportional hazards: 1 - S0^exp(sum of beta*x), followed by a region-specific recalibration
+    on the complementary log-log scale.'
+  core_formula: "risk_uncal = 1 − S₀^exp(Σβx)\n\n  risk       = 1 − exp( −exp( a + b · ln(−ln(1 − risk_uncal))\
+    \ ) )\n  a, b       region-specific recalibration constants (4 ESC risk regions)"
+  evidence:
+    test: tests/parity/test_r_reference_parity.py
+    test_function: test_score2_matches_riskscorescvd
+    script: tests/parity/reference/score2_reference.R
+  public_repo: https://cran.r-project.org/package=RiskScorescvd
+  source_url: https://doi.org/10.1093/eurheartj/ehab309
+  year: 2021
+  entrypoint: score2_predict
+  repro_tier: A
+  flagship_note: Prefer for European patients. It is the ESC standard and carries explicit recalibration
+    for four European risk regions, which PREVENT does not. Not a lesser model -- a differently targeted
+    one.
+  equation_location:
+    numbered: false
+    where: 'Not in the main text: the article says ''Details of statistical analysis are provided in Supplementary
+      material online, Methods'', and the coefficients, baseline survival and the four risk-region recalibration
+      constants live there rather than in a numbered main table.'
+    verified: read 2026-08-06 from PMC8248998 (main text checked; supplement is the actual location)
+- id: cvd_statin_benefit
+  disease: cvd
+  axis: response
+  role: flagship
+  status: implemented
+  title: 'LDL-lowering absolute benefit (DERIVED: CTT trial effect x a baseline risk)'
+  code: mayo_baseline.cvd.response.statin_benefit
+  entrypoint: cvd_statin_benefit_predict
+  license: open
+  repro_tier: B
+  year: 2010
+  citation: Cholesterol Treatment Trialists' Collaboration. Lancet. 2010;376(9753):1670-1681
+  source_url: https://pubmed.ncbi.nlm.nih.gov/21067804/
+  public_repo: null
+  equation_source: 'NOT a published prediction model. A composition of two published quantities: the CTT
+    2010 rate ratio per 1.0 mmol/L LDL-C reduction (major vascular events RR 0.78, 95% CI 0.76-0.80; all-cause
+    mortality RR 0.90, 0.87-0.93, read verbatim from the abstract, PMID 21067804) applied to an untreated
+    absolute risk supplied by a separate, verified model. ARR = baseline x (1 - RR^delta_LDL); NNT = 1/ARR.'
+  upstream:
+  - pmid: '21067804'
+    note: CTT 2010, 170,000 participants in 26 trials
+  canonical_impl:
+    type: none
+    license: n/a
+    note: there is no calculator for this because nobody published it as a model; it is the arithmetic
+      NICE, USPSTF and the AHA use
+  our_code: mayo_baseline.cvd.response.statin_benefit
+  architecture_family: Derived composition
+  architecture: Not a fitted model. A published trial rate ratio raised to the LDL reduction and applied
+    multiplicatively to a baseline absolute risk from another model, yielding absolute risk reduction
+    and number needed to treat.
+  core_formula: "ARR = baseline_risk × ( 1 − RR^ΔLDL )\n\n  NNT = 1 / ARR\n  RR  = 0.78 per 1.0 mmol/L\
+    \ LDL-C reduction   (CTT 2010)\n        0.90 for all-cause mortality\n  baseline_risk comes from a\
+    \ separate, verified model"
+  n_parameters: 6
+  discrimination: null
+  development_cohort: 'CTT 2010: 26 randomised trials, 169,138 participants, median follow-up 4.8-5.1
+    years'
+  parity_status: not_checked
+  parity_blocker: derived_not_published
+  parity_note: 'NOT VERIFIABLE BY COMPARISON, and deliberately not claimed to be. Every other model here
+    reproduces a published equation and is checked against an external source; this one has no external
+    target because we have not found it published as a model -- CTT published the effect estimate, not
+    a calculator. What IS checked: the CTT rate ratios match the abstract verbatim (0.78 / 0.76-0.80 and
+    0.90 / 0.87-0.93), the arithmetic identity holds by hand at delta = 1 mmol/L, the effect compounds
+    as RR^delta rather than linearly, the confidence interval inverts correctly (a smaller rate ratio
+    is a LARGER benefit), and the result carries its four assumptions. See tests/test_cvd_response_statin_benefit.py.
+    It counts against the verification rate rather than being excused from it.'
+  scope_note: 'The horizon and endpoint are whatever the baseline risk model''s were -- this function
+    takes the baseline risk as an argument rather than computing it, so that stays visible. Four assumptions
+    travel with every result: constant proportional effect across baseline risk (which is what CTT reports),
+    a ~5-year trial effect carried to a 10-year horizon, CTT''s major-vascular-events endpoint approximating
+    the baseline model''s endpoint, and a confidence interval covering the trial effect only, not baseline
+    uncertainty.'
+  inputs:
+  - baseline_risk
+  - ldl_reduction_mmol_l or ldl_reduction_mg_dl
+  - outcome
+  - baseline_risk_source
+  open_source: none
+  evidence:
+    test: tests/test_cvd_response_statin_benefit.py
+    test_function: test_rate_ratios_are_the_published_ctt_values
+  equation_location:
+    numbered: null
+    where: There is no source paper for this model because it is not a published prediction model -- it
+      is a composition this project defined from two published quantities (a CTT 2010 rate ratio and a
+      separately verified baseline risk). The rate ratio's location in CTT 2010 is the only paper citation
+      that applies.
+    verified: derived model, deliberately not claimed as published
+- id: cvd_response_gap
+  disease: cvd
+  axis: response
+  role: catalog
+  status: catalog
+  title: (derivable as risk difference on PREVENT/SCORE2 x trial RRR — no separate published equation)
+  repro_tier: B
+  tier_note: SUPERSEDED 2026-08-06 by the derived `cvd_statin_benefit`.
+  open_source: none
+- id: grace
+  disease: cvd
+  axis: prognosis
+  role: flagship
+  status: implemented
+  title: GRACE 2003 in-hospital mortality score (acute coronary syndromes)
+  code: mayo_baseline.cvd.prognosis.grace
+  license: open
+  repro_tier: A
+  citation: Granger CB, Goldberg RJ, Dabbous O, et al. Arch Intern Med. 2003;163(19):2345-2353
+  equation_source: Arch Intern Med 2003;163(19):2345-2353, Figure 4 nomogram — 8 predictors (Killip class,
+    SBP, heart rate, age, creatinine, cardiac arrest at admission, ST-segment deviation, elevated enzymes)
+    plus the points -> in-hospital mortality lookup
+  upstream:
+  - url: https://pubmed.ncbi.nlm.nih.gov/14581255/
+    note: development, GRACE registry
+  canonical_impl:
+    type: paper_only
+    license: open
+    note: Figure 4 carries the point tables AND two fully worked examples, which are what pin the ambiguous
+      band boundaries
+  our_code: mayo_baseline.cvd.prognosis.grace
+  parity_status: checked
+  parity_note: both published worked examples reproduce component-by-component. Example 2 matches exactly
+    (103 points, ~0.9%). Example 1's components match exactly (20+53+15+58+7+0+28+14) but the paper's
+    printed total of 196 is an arithmetic slip -- those components sum to 195. We assert the components,
+    not the misprinted total.
+  scope_note: GRACE 2003 IN-HOSPITAL mortality only. Not the Fox BMJ 2006 6-month post-discharge score,
+    and not GRACE 2.0 (which replaced the points with a non-linear model). Guidelines citing GRACE 2.0
+    expect different numbers.
+  inputs:
+  - killip_class
+  - sbp
+  - heart_rate
+  - age
+  - creatinine_mg_dl
+  - cardiac_arrest_at_admission
+  - st_segment_deviation
+  - elevated_cardiac_enzymes
+  open_source: none
+  architecture_family: Points table
+  architecture: 'Points nomogram: each of 8 predictors is banded and mapped to integer points; the total
+    indexes a published mortality table.'
+  core_formula: "total = Σ points( Killip, SBP, heart rate, age, creatinine,\n                  cardiac\
+    \ arrest, ST deviation, cardiac enzymes )\n\n  total → published in-hospital mortality, by lookup"
+  evidence:
+    test: tests/parity/test_canonical_parity.py
+    test_function: test_grace_published_worked_examples
+  public_repo: null
+  source_url: https://pubmed.ncbi.nlm.nih.gov/14581255/
+  year: 2003
+  entrypoint: grace_predict
+  flagship_note: 'Default for the cell, but read the note: GRACE and CHA2DS2-VASc do not compete. GRACE
+    estimates in-hospital mortality after an acute coronary syndrome. CHA2DS2-VASc estimates stroke risk
+    in atrial fibrillation. Different patients, different questions; the cell ''cardiovascular prognosis''
+    is simply too coarse to hold one answer.'
+  discrimination: C-statistic 0.83 derivation, 0.84 confirmation GRACE, 0.79 GUSTO-IIb
+  discrimination_source: 'primary abstract, PMID 14581255, verbatim: "The discrimination ability of the
+    simplified model was excellent with c statistics of 0.83 in the derived database, 0.84 in the confirmation
+    GRACE data set, and 0.79 in the GUSTO-IIb database"'
+  equation_location:
+    numbered: null
+    where: Figure 4, the nomogram, plus the points-to-mortality lookup. Arch Intern Med 2003;163(19):2345-2353.
+      Section not captured.
+    verified: identified while implementing; NOT re-read against the source in the 2026-08-06 pass, so
+      treat the location as approximate
+- id: cha2ds2_vasc
+  disease: cvd
+  axis: prognosis
+  role: alternative
+  status: implemented
+  title: CHA2DS2-VASc (stroke risk in atrial fibrillation)
+  code: mayo_baseline.cvd.prognosis.cha2ds2_vasc
+  license: open
+  repro_tier: A
+  citation: Lip GYH et al. Chest. 2010;137(2):263-272
+  equation_source: Chest 2010;137(2):263-272 — CHF 1, hypertension 1, age>=75 2, diabetes 1, prior stroke/TIA/TE
+    2, vascular disease 1, age 65-74 1, female 1; total 0-9. Point values cross-checked against MDCalc.
+  upstream:
+  - url: https://pubmed.ncbi.nlm.nih.gov/19762550/
+    note: Euro Heart Survey derivation
+  canonical_impl:
+    type: web
+    url: https://www.mdcalc.com/calc/801/cha2ds2-vasc-score-atrial-fibrillation-stroke-risk
+    license: web-only
+  our_code: mayo_baseline.cvd.prognosis.cha2ds2_vasc
+  parity_status: checked
+  scope_note: HAS-BLED and MAGGIC are catalogued separately, not implemented
+  inputs:
+  - heart_failure
+  - hypertension
+  - age
+  - diabetes
+  - prior_stroke_tia_thromboembolism
+  - vascular_disease
+  - female
+  open_source: web_only
+  parity_note: 'CHECKED 2026-08-05 against MDCalc''s published point schema: age <65/65-74/>=75 = 0/1/2,
+    female 1, CHF 1, hypertension 1, stroke 2, vascular 1, diabetes 1. Full agreement across all eight
+    components.'
+  architecture_family: Points table
+  architecture: 'Additive integer point score (0-9): one or two points per clinical feature, summed.'
+  n_parameters: 9
+  core_formula: "score = C + H + 2·A₂ + D + 2·S₂ + V + A + Sc      (0–9)\n\n  C  congestive heart failure\
+    \      S₂ prior stroke / TIA        (2 points)\n  H  hypertension                  V  vascular disease\n\
+    \  A₂ age ≥ 75                      A  age 65–74\n  D  diabetes                      Sc female sex"
+  evidence:
+    test: tests/parity/test_r_reference_parity.py
+    test_function: test_cha2ds2_vasc_point_table_matches_mdcalc
+    script: tests/parity/reference/mdcalc_extract.py
+  public_repo: null
+  source_url: https://pubmed.ncbi.nlm.nih.gov/19762550/
+  year: 2010
+  entrypoint: cha2ds2_vasc_predict
+  flagship_note: Not an alternative to GRACE in any real sense -- it is the answer to a different question
+    (stroke risk in atrial fibrillation, not mortality after acute coronary syndrome). Labelled this way
+    only because the cell allows one default. Pick by population, never by this label.
+  discrimination: C-statistic 0.606 — modest, and lower than several alternatives
+  discrimination_source: 'primary abstract, PMID 19762550, verbatim: "The Birmingham 2009 schema fared
+    marginally better (C-statistic, 0.606) than CHADS(2)." NOTE the paper introduces CHA2DS2-VASc under
+    the name "Birmingham 2009 schema", so this is its number. The score is used for its high negative
+    predictive value at a score of 0, not for discrimination.'
+  equation_location:
+    numbered: null
+    where: Chest 2010;137(2):263-272, the point list. Cross-checked against MDCalc's published schema.
+      Table number not captured.
+    verified: identified while implementing; NOT re-read against the source in the 2026-08-06 pass, so
+      treat the location as approximate
+- id: has_bled_maggic_catalog
+  disease: cvd
+  axis: prognosis
+  role: catalog
+  status: catalog
+  title: HAS-BLED / MAGGIC
+  license: open
+  repro_tier: A
+  equation_source: integer point tables, exactly specified in guidelines
+  open_source: none
+- id: framingham
+  disease: cvd
+  axis: detection
+  role: catalog
+  status: catalog
+  title: Framingham risk scores
+  license: open
+  open_source: none
+- id: bcrat
+  disease: breast
+  axis: detection
+  role: flagship
+  status: implemented
+  title: BCRAT / Gail model (absolute invasive breast cancer risk)
+  code: mayo_baseline.breast.detection.bcrat
+  url: https://bcrisktool.cancer.gov/
+  license: open
+  repro_tier: A
+  citation: Gail MH et al. J Natl Cancer Inst. 1989; NCI DCEG BCRAT algorithm
+  equation_source: NCI DCEG BCRAT algorithm; relative-risk and baseline-hazard (SEER incidence + NCHS
+    mortality) tables as shipped in the CRAN package BCRA, absolute-risk integration follows its absolute.risk.R
+  upstream:
+  - url: https://cran.r-project.org/package=BCRA
+    note: NCI DCEG reference implementation (open)
+  - url: https://dceg.cancer.gov/tools/risk-assessment/bcra
+    note: DCEG tool page
+  canonical_impl:
+    type: r_package
+    url: https://cran.r-project.org/package=BCRA
+    license: open
+    note: NCI DCEG `BCRA`; parity target for our port
+  our_code: mayo_baseline.breast.detection.bcrat
+  parity_status: checked
+  scope_note: Six published Asian-American subgroups collapsed to a single 'asian' stratum using Chinese
+    SEER rates as proxy — a deliberate simplification, documented in the module. Do not use for a specific
+    Asian subgroup without restoring its own hazard vector.
+  open_source: available
+  parity_note: CHECKED 2026-08-05 against CRAN BCRA 4 cases via absolute.risk(); worst absolute difference
+    3.7e-07 percentage points. R 4.6.1.
+  architecture_family: Logistic regression
+  architecture: Relative risks fitted by conditional logistic regression, applied to race-specific baseline
+    hazards and integrated year by year over the age interval against competing all-cause mortality, which
+    is what converts them into an absolute risk.
+  core_formula: "A(t₁,t₂) = Σₐ [h₁(a) / (h₁(a)+h₂(a))] · e^(−Λ(a)) · [1 − e^(−(h₁(a)+h₂(a)))]\n\n  h₁(a)\
+    \  breast-cancer hazard  = RR(a) × race-specific baseline\n  h₂(a)  competing all-cause mortality\
+    \ hazard\n  Λ(a)   cumulative hazard up to age a\n  a      runs year by year from t₁ to t₂"
+  evidence:
+    test: tests/parity/test_r_reference_parity.py
+    test_function: test_bcrat_matches_cran_bcra
+    script: tests/parity/reference/bcrat_reference.R
+  public_repo: https://cran.r-project.org/package=BCRA
+  source_url: https://pubmed.ncbi.nlm.nih.gov/2593165/
+  year: 1989
+  entrypoint: bcrat_predict
+  equation_location:
+    numbered: null
+    where: Not a single printed equation. The relative-risk and baseline-hazard tables (SEER incidence,
+      NCHS mortality) and the year-by-year competing-risk integration are as shipped in the CRAN package
+      BCRA; the integration follows its absolute.risk.R.
+    verified: CRAN package source; parity-verified 2026-08-05
+- id: predict_breast
+  disease: breast
+  axis: prognosis
+  role: flagship
+  status: implemented
+  title: PREDICT Breast v2.2 (prognosis + adjuvant treatment benefit)
+  code: mayo_baseline.breast.prognosis.predict_breast
+  url: https://breast.predict.nhs.uk/
+  license: open
+  repro_tier: A
+  citation: Candido dos Reis FJ et al. Breast Cancer Res. 2017;19(1):58; model by Paul Pharoah, University
+    of Cambridge
+  equation_source: MIT-licensed reference implementation WintonCentre/predictv30r, R/benefits22.R — two
+    prognostic indices with ER-stratified fractional polynomials, two published cumulative baseline hazards,
+    additive treatment log-HRs, and year-by-year competing-risk integration
+  upstream:
+  - url: https://github.com/WintonCentre/predictv30r
+    note: reference implementation (MIT, University of Cambridge)
+  - url: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5440946/
+    note: v2.0 development + independent validation
+  - url: https://www.nature.com/articles/s41523-024-00612-y
+    note: 2024 radiotherapy update (npj Breast Cancer, open access)
+  canonical_impl:
+    type: r_package
+    url: https://github.com/WintonCentre/predictv30r
+    license: open
+    note: MIT; also the live NHS tool at breast.predict.nhs.uk
+  our_code: mayo_baseline.breast.prognosis.predict_breast
+  parity_status: checked
+  scope_note: v2.2. Radiotherapy terms are present but gated off in the reference (r.enabled = 0) and
+    we mirror that exactly rather than enabling a pathway the reference disables. v3.x not implemented.
+  inputs:
+  - age
+  - size_mm
+  - nodes
+  - grade
+  - er_positive
+  - her2
+  - ki67
+  - screen_detected
+  - chemo_generation
+  - hormone
+  - trastuzumab
+  - bisphosphonate
+  open_source: available
+  parity_note: CHECKED 2026-08-05 against predictv30r:::benefits22 (the UNEXPORTED overall-survival function;
+    the exported benefits222 computes disease-free survival and must not be used). ER+ and ER- cases,
+    10y and 15y, untreated survival and treatment benefit; worst difference 5e-07 percentage points.
+  architecture_family: Survival (parametric)
+  architecture: Parametric survival model with a closed-form log-cumulative-hazard in time, plus additive
+    treatment log-hazard-ratios, one per therapy arm.
+  core_formula: "S(t) = exp( −H₀(t) · e^PI )\n\n  PI    = Σ βᵢxᵢ  +  Σ log(HR) over the treatments given\n\
+    \  H₀(t) closed form in t, separately for ER+ and ER−"
+  evidence:
+    test: tests/parity/test_r_reference_parity.py
+    test_function: test_predict_untreated_survival_er_positive
+    script: tests/parity/reference/predict_reference.R
+  public_repo: https://github.com/WintonCentre/predictv30r
+  source_url: https://doi.org/10.1186/s13058-017-0852-3
+  year: 2017
+  entrypoint: predict_breast
+  equation_location:
+    numbered: null
+    where: NOT IN THE PAPER as a closed form. Taken from the MIT-licensed reference implementation WintonCentre/predictv30r,
+      R/benefits22.R -- note this is the UNEXPORTED overall-survival function; the exported benefits222
+      computes disease-free survival and is a different model.
+    verified: reference implementation; parity-verified 2026-08-05
+- id: predict_breast_response
+  disease: breast
+  axis: response
+  role: flagship
+  status: implemented
+  title: PREDICT Breast v2.2 — adjuvant treatment benefit
+  code: mayo_baseline.breast.response
+  license: open
+  repro_tier: A
+  citation: Candido dos Reis FJ et al. Breast Cancer Res. 2017;19(1):58
+  equation_source: same model as predict_breast — absolute benefit is the difference in cumulative all-cause
+    mortality with vs without the specified adjuvant regimen (chemotherapy generation, endocrine, trastuzumab,
+    bisphosphonate)
+  upstream:
+  - url: https://github.com/WintonCentre/predictv30r
+    note: reference implementation (MIT)
+  canonical_impl:
+    type: r_package
+    url: https://github.com/WintonCentre/predictv30r
+    license: open
+    note: same package; benefits22() returns the treatment-benefit matrix
+  our_code: mayo_baseline.breast.response
+  parity_status: checked
+  scope_note: one model occupies two cells; the response cell re-exports the prognosis module rather than
+    duplicating the equation
+  open_source: available
+  parity_note: CHECKED 2026-08-05 — same model and same R comparison as predict_breast.
+  architecture_family: Survival (parametric)
+  architecture: The same parametric survival model evaluated twice, treated and untreated; the difference
+    in survival IS the predicted absolute treatment benefit.
+  core_formula: "benefit(t) = S_treated(t) − S_untreated(t)\n\n  the same survival model evaluated twice;\
+    \ the difference IS the\n  predicted absolute treatment benefit"
+  evidence:
+    test: tests/parity/test_r_reference_parity.py
+    test_function: test_predict_treatment_benefit_er_positive_10y
+    script: tests/parity/reference/predict_reference.R
+  public_repo: https://github.com/WintonCentre/predictv30r
+  source_url: https://doi.org/10.1186/s13058-017-0852-3
+  year: 2017
+  entrypoint: predict_breast
+  equation_location:
+    numbered: null
+    where: Same source as predict_breast (WintonCentre/predictv30r, R/benefits22.R). Absolute benefit
+      is that model evaluated twice, so there is no separate published equation for the response cell.
+    verified: reference implementation; parity-verified 2026-08-05
+- id: breast_prognosis_catalog
+  disease: breast
+  axis: prognosis
+  role: catalog
+  status: catalog
+  title: MSK / adjuvant breast tools
+  url: https://www.mskcc.org/nomograms
+  license: web-only
+  open_source: none
+- id: plcom2012
+  disease: lung
+  axis: detection
+  role: flagship
+  status: implemented
+  title: PLCOm2012 (6-year lung-cancer risk, ever-smokers)
+  code: mayo_baseline.lung.detection.plcom2012
+  citation: Tammemägi MC et al. N Engl J Med. 2013;368(8):728-736, Table 2
+  license: open
+  inputs:
+  - age
+  - race
+  - education_level
+  - bmi
+  - copd
+  - personal_cancer_history
+  - family_history_lung_cancer
+  - current_smoker
+  - cigarettes_per_day
+  - smoking_duration_years
+  - quit_years
+  equation_source: NEJM 2013 Table 2 (author manuscript PMC3929969)
+  upstream:
+  - doi: 10.1056/NEJMoa1211776
+    note: development + PLCO intervention-group validation
+  canonical_impl:
+    type: github
+    url: https://github.com/resplab/PLCOm2012
+    license: open
+    note: R package; NCI DCEG lcmodels column 13 is the same model
+  our_code: mayo_baseline.lung.detection.plcom2012
+  parity_status: checked
+  open_source: available
+  architecture_family: Logistic regression
+  architecture: Multivariable logistic regression on 11 predictors (smoking history, COPD, family history,
+    education, BMI, race) to 6-year lung-cancer probability.
+  n_parameters: 12
+  core_formula: "logit(p) = β₀ + Σ βᵢ (xᵢ − centreᵢ)\n\n  11 predictors: age, race, education, BMI, COPD,\
+    \ personal and\n  family cancer history, smoking status, intensity, duration,\n  years since quitting"
+  parity_note: 'CHECKED against the canonical R package resplab/PLCOm2012, using its README worked example
+    (62 y, White, education 4, BMI 27, former smoker, 80 cigarettes/day for 27 years, quit 10 years ago):
+    ours 0.017509223 vs 0.01750922 — agreement to 8 decimal places.'
+  evidence:
+    test: tests/parity/test_canonical_parity.py
+    test_function: test_plcom2012_resplab_worked_example
+  public_repo: https://github.com/resplab/PLCOm2012
+  source_url: https://doi.org/10.1056/NEJMoa1211776
+  year: 2013
+  entrypoint: plcom2012_predict
+  repro_tier: A
+  discrimination: AUC 0.803 development, 0.797 validation
+  discrimination_source: 'primary abstract, PMID 23425165, verbatim: "The AUC was 0.803 in the development
+    data set and 0.797 in the validation data set."'
+  equation_location:
+    numbered: false
+    where: Table 2, 'Modified Logistic-Regression Prediction Model (PLCOm2012) of Cancer Risk for 36,286
+      Control Participants Who Had Ever Smoked' -- coefficients and the model constant (-4.532506) in
+      its last row. The logit-to-probability step is in Table 2's footnote. Described in the main text
+      under 'Modified PLCO lung-cancer risk-prediction model (PLCOm2012)'.
+    verified: read 2026-08-06 from PMC3929969
+- id: lipi
+  disease: lung
+  axis: response
+  role: flagship
+  status: implemented
+  title: LIPI (Lung Immune Prognostic Index, ICI outcomes)
+  code: mayo_baseline.lung.response.lipi
+  license: open
+  repro_tier: A
+  citation: Mezquita L et al., Lung Immune Prognostic Index
+  equation_source: dNLR > 3 = 1 point, LDH > ULN = 1 point; 0/1/2 = good/intermediate/poor. dNLR = neutrophils
+    / (leukocytes - neutrophils)
+  upstream:
+  - url: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7481630/
+    note: LIPI stratification in advanced NSCLC
+  - url: https://www.sciencedirect.com/science/article/pii/S0169500224005737
+    note: validation, IMpower130/131/150 post hoc
+  canonical_impl:
+    type: paper_only
+    license: open
+  our_code: mayo_baseline.lung.response.lipi
+  parity_status: checked
+  parity_note: 'No worked example exists — LIPI is a two-item binary index, so there is no arithmetic
+    to reproduce beyond the rule itself. Checked by route 3 against TWO independent published statements
+    of the rule, both read verbatim: PMC11222319 ("LIPI 0, dNLR<=3 and LDH <= ULN; LIPI 1, dNLR >3 or
+    LDH > ULN; and LIPI 2, dNLR >3 and LDH > ULN") and Front Immunol 2025;16:1640066, which additionally
+    gives the dNLR formula as "neutrophil count/(white blood cell count - neutrophil count)". All four
+    cells of the truth table, both threshold boundaries (dNLR exactly 3 and LDH exactly ULN must score
+    0, since both rules are strict >) and the dNLR denominator are asserted in tests/parity/test_lipi_parity.py.'
+  scope_note: also used on the prognosis axis
+  inputs:
+  - dnlr
+  - ldh
+  - ldh_upper_limit_normal
+  open_source: none
+  architecture_family: Points table
+  architecture: 'Two-item binary index: derived neutrophil-lymphocyte ratio >3 and LDH above the upper
+    limit of normal each score 1, giving 3 risk groups.'
+  n_parameters: 2
+  core_formula: "score = [dNLR > 3] + [LDH > ULN]      (0–2)\n\n  dNLR = neutrophils / (leukocytes − neutrophils)\n\
+    \  0 good · 1 intermediate · 2 poor"
+  evidence:
+    test: tests/parity/test_lipi_parity.py
+    test_function: test_every_cell_of_the_published_truth_table
+  public_repo: null
+  source_url: https://pubmed.ncbi.nlm.nih.gov/29327044/
+  year: 2018
+  entrypoint: lipi_predict
+  equation_location:
+    numbered: null
+    where: A two-item definition rather than a fitted equation; no coefficient table to locate.
+    verified: identified while implementing; NOT re-read against the source in the 2026-08-06 pass, so
+      treat the location as approximate
+- id: lipi_prognosis
+  disease: lung
+  axis: prognosis
+  role: flagship
+  status: implemented
+  title: LIPI (prognostic use in advanced NSCLC)
+  code: mayo_baseline.lung.prognosis
+  license: open
+  repro_tier: A
+  citation: Mezquita L et al., Lung Immune Prognostic Index
+  equation_source: same two-item score as the response cell — dNLR > 3 = 1 pt, LDH > ULN = 1 pt; 0/1/2
+    = good/intermediate/poor. Developed and validated for overall survival as well as ICI benefit.
+  upstream:
+  - url: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7481630/
+    note: LIPI stratifies OS in advanced NSCLC
+  canonical_impl:
+    type: paper_only
+    license: open
+  our_code: mayo_baseline.lung.prognosis
+  parity_status: checked
+  scope_note: one model occupies two cells; the prognosis cell re-exports the response module rather than
+    duplicating the score
+  open_source: none
+  architecture_family: Points table
+  architecture: The same two-item binary index, applied prognostically in advanced NSCLC rather than to
+    immunotherapy response.
+  n_parameters: 2
+  parity_note: 'No worked example exists — LIPI is a two-item binary index, so there is no arithmetic
+    to reproduce beyond the rule itself. Checked by route 3 against TWO independent published statements
+    of the rule, both read verbatim: PMC11222319 ("LIPI 0, dNLR<=3 and LDH <= ULN; LIPI 1, dNLR >3 or
+    LDH > ULN; and LIPI 2, dNLR >3 and LDH > ULN") and Front Immunol 2025;16:1640066, which additionally
+    gives the dNLR formula as "neutrophil count/(white blood cell count - neutrophil count)". All four
+    cells of the truth table, both threshold boundaries (dNLR exactly 3 and LDH exactly ULN must score
+    0, since both rules are strict >) and the dNLR denominator are asserted in tests/parity/test_lipi_parity.py.'
+  core_formula: "score = [dNLR > 3] + [LDH > ULN]      (0–2)\n\n  the same index, used prognostically\
+    \ rather than to predict\n  immunotherapy benefit"
+  evidence:
+    test: tests/parity/test_lipi_parity.py
+    test_function: test_the_prognosis_axis_registration_shares_this_model
+  public_repo: null
+  source_url: https://pubmed.ncbi.nlm.nih.gov/29327044/
+  year: 2018
+  entrypoint: lipi_predict
+  equation_location:
+    numbered: null
+    where: Same two-item definition as the response cell.
+    verified: identified while implementing; NOT re-read against the source in the 2026-08-06 pass, so
+      treat the location as approximate
+- id: lung_prognosis_catalog
+  disease: lung
+  axis: prognosis
+  role: catalog
+  status: catalog
+  title: TNM staging
+  license: web-only
+  repro_tier: A
+  tier_note: LIPI is validated prognostically; TNM otherwise
+  correction_note: '2026-08-05 MSK portal audit: MSK''s public nomogram portal (mskcc.org/nomograms, 15
+    disease areas) hosts NO lung tool. Prior title wrongly cited MSK. A legacy unlinked page (Bach PB
+    et al. JNCI 2003;95:470) exists but is a detection, not prognosis, model, and is not portal-linked.'
+  open_source: none
+- id: crc_pro
+  disease: colorectal
+  axis: detection
+  role: flagship
+  status: implemented
+  title: CRC-PRO (10-year colorectal cancer risk, Multi-Ethnic Cohort)
+  code: mayo_baseline.colorectal.detection.crc_pro
+  license: open
+  repro_tier: A
+  citation: Kattan MW, Cooper GS, Jackson L, Koroukian S. J Am Board Fam Med. 2014;27(1):42-55
+  equation_source: 'J Am Board Fam Med 2014;27(1):42-55, doi:10.3122/jabfm.2014.01.130040 (open access,
+    PMC4219857) for the model specification; coefficients from the deployed calculator''s published R
+    source at https://github.com/ClevelandClinicQHS/riskcalc-website/tree/main/ColorectalCancer. Two SEPARATE
+    models by sex with different predictor sets (the paper: NSAIDs matter for women only, red meat and
+    activity for men only). Cox form, risk = 1 - S0^exp(Xb), S0 = 0.9901043 women / 0.9846654 men at 10
+    years; restricted cubic splines on age, education, pack-years, BMI and alcohol in both, plus red meat
+    and activity in men.'
+  upstream:
+  - doi: 10.3122/jabfm.2014.01.130040
+    note: primary, open access
+  - url: https://github.com/ClevelandClinicQHS/riskcalc-website/tree/main/ColorectalCancer
+    note: deployed model source, coefficients in plain text
+  canonical_impl:
+    type: open_source
+    url: https://github.com/ClevelandClinicQHS/riskcalc-website/tree/main/ColorectalCancer
+    license: see repository terms
+    note: the R the hosted calculator runs; contains a live defect, see parity_note
+  our_code: mayo_baseline.colorectal.detection.crc_pro
+  architecture_family: Survival (Cox)
+  architecture: Two sex-specific Cox models with different predictor sets, each with restricted cubic
+    splines on five or seven continuous predictors; risk is 1 - S0^exp(Xb) at a fixed 10-year horizon.
+  core_formula: "risk(10y) = 1 − S₀^exp(Xβ)\n\n  S₀   = 0.9901043  (women)\n         0.9846654  (men)\n\
+    \  Xβ   separate models per sex with DIFFERENT predictor sets\n  splines on age, education, pack-years,\
+    \ BMI, alcohol\n         (+ red meat and activity in men)"
+  parity_status: checked
+  parity_note: 'CHECKED 2026-08-06 against the vendor''s own deployed R, route 1. tests/parity/reference/crc_pro_reference.R
+    copies the model expression VERBATIM from riskcalc.org''s server.R and runs it under R 4.6.1. 12 patients
+    straddling both ends of every validated bound, all five ethnicities and every level of estrogen, NSAID
+    and aspirin; worst absolute difference 4.5e-11 percentage points. IT ALSO FOUND A LIVE DEFECT IN THE
+    DEPLOYED CALCULATOR: its UI offers estrogen as ''No'' / ''Yes, but not currently'' / ''Yes-currently'',
+    but the expression tests for ''Yes-previously'', which nothing the UI can produce equals -- so the
+    -0.044320489 previous-estrogen term is dead code and such women are scored as never-users. The paper
+    is explicit that this is a three-level variable (''currently, previously, or no''), so we implement
+    the paper and expose emulate_deployed_defect=True to reproduce the tool. The deployed tool over-estimates
+    those women by about 4.2% relative.'
+  scope_note: 'Multi-Ethnic Cohort (Hawaiian, Japanese, Latino, White, Black; Black is the reference).
+    Validated input ranges enforced: age 45-85, weight 75-350 lb, height 60-80 in, pack-years 0-50, alcohol
+    0-12 drinks/day, education 6-20 y, red meat 0-5 oz/day, activity 0-4 h/day. Weight and height are
+    IMPERIAL; the spline knots assume the app''s own conversion. Note QCancer-10 validates better externally
+    but has no open source.'
+  inputs:
+  - male
+  - age
+  - ethnicity
+  - weight_lb
+  - height_in
+  - years_education
+  - pack_years
+  - alcohol_drinks_per_day
+  - family_history
+  - multivitamin
+  - diabetes
+  - estrogen (women)
+  - nsaid (women)
+  - aspirin (men)
+  - red_meat_oz_per_day (men)
+  - activity_hours_per_day (men)
+  open_source: available
+  evidence:
+    test: tests/parity/test_crc_pro_parity.py
+    test_function: test_matches_the_vendor_r_when_emulating_its_defect
+    script: tests/parity/reference/crc_pro_reference.R
+    fixture: tests/parity/reference/crc_pro_cases.json
+  public_repo: https://github.com/ClevelandClinicQHS/riskcalc-website/tree/main/ColorectalCancer
+  source_url: https://doi.org/10.3122/jabfm.2014.01.130040
+  year: 2014
+  development_cohort: Multi-Ethnic Cohort Study
+  entrypoint: crc_pro_predict
+  discrimination: Cross-validated C-statistic 0.681 (men), 0.679 (women)
+  discrimination_source: 'primary abstract, PMID 24390885, verbatim: "The calculator demonstrated good
+    accuracy with a cross-validated c statistic of 0.681 in men and 0.679 in women"'
+  equation_location:
+    numbered: false
+    where: 'Table 5A ''Coefficients for the Model Predicting Colorectal Cancer in Men'' and Table 5B,
+      the same for women. NOTE: the baseline survival values this library uses (0.9901043 women, 0.9846654
+      men) are NOT in the paper -- they come from the vendor''s R source at ClevelandClinicQHS/riskcalc-website/ColorectalCancer.
+      The paper never states the risk equation 1 - S0^exp(Xb) either; it shows nomograms.'
+    verified: read 2026-08-06 from PMC4219857
+- id: nci_crc
+  disease: colorectal
+  axis: detection
+  role: flagship
+  status: catalog
+  title: NCI CRC Risk Assessment / CRC-PRO
+  license: open
+  repro_tier: A
+  tier_note: SUPERSEDED 2026-08-06 by the implemented `crc_pro`, which is the Kattan 2014 CRC-PRO model.
+    QCancer-10 still validates better externally (AUC 0.67-0.70 men, 0.63-0.66 women) but publishes no
+    open source, so it cannot be verified the way everything here is verified.
+  open_source: none
+  candidate_source: https://github.com/ClevelandClinicQHS/riskcalc-website/tree/main/ColorectalCancer
+- id: colorectal_response_gap
+  disease: colorectal
+  axis: response
+  role: flagship
+  status: gap
+  title: (no open flagship yet)
+  repro_tier: C
+  tier_note: 'CANDIDATES FOUND. Wang et al, Cancer Medicine 2024 (PMID 38819440) is the strongest: a dynamic
+    nomogram for pathological complete response after neoadjuvant therapy in locally advanced rectal cancer,
+    training n=1579 with an EXTERNAL validation cohort n=246, C-index 0.73 (0.70-0.75) internal and 0.78
+    (0.72-0.83) external. Predictors: pre-CRT CEA, histopathology, pre-CRT T and N stage, MRI EMVI, total
+    neoadjuvant therapy. Corrected 2026-08-06: the earlier note said no published equation existed. Searching
+    properly found several. They are not implemented because of what they ARE, not because they are absent
+    -- see below. That is a different kind of gap and should be described as one. This one arguably DOES
+    clear the bar and is the best next candidate in the repo.'
+  open_source: none
+  blocker: 'Missing the intercept and the points-to-probability axis. Everything else is published: six
+    hazard ratios (pre-CRT CEA 0.944, histopathology 4.608, T stage 0.793, N stage 0.727, MRI EMVI 0.352,
+    TNT 2.264), both C-indices, and the points formula itself (22.0 x N stage + 15.0 x T stage + ... +
+    3.85 x CEA). Without the intercept the model ranks patients but cannot state a probability, and the
+    probability is the output.'
+  blocker_kind: one missing constant
+  routes_tried: The authors' dynamic nomogram at pcrpredict.shinyapps.io/LARC2/ would contain it, but
+    Shiny keeps the model server-side and talks over a websocket; the page returns a loading shell with
+    no coefficients in it. None of the six verification routes used elsewhere apply to a Shiny app.
+  next_action: Write to the corresponding author for the intercept and the points-to-risk mapping. This
+    is one email away from implementable and is the single best-value outstanding item in the repo.
+- id: msk_rectal
+  disease: colorectal
+  axis: prognosis
+  role: flagship
+  status: implemented
+  title: MSK rectal calculator (RFS + OS after CRT and surgery)
+  code: mayo_baseline.colorectal.prognosis.msk_rectal
+  license: open
+  repro_tier: A
+  citation: Weiser MR et al. JAMA Netw Open. 2021;4(11):e2133457
+  equation_source: JAMA Netw Open 2021;4(11):e2133457, doi:10.1001/jamanetworkopen.2021.33457, Supplement
+    1 eFigure — full Cox linear predictor and baseline survival S0(t) at 0/60/120/180 months for both
+    RFS and OS endpoints. The eFigure is a rendered image; coefficients read directly from it and re-read
+    from independent PNG renders at 300 and 600 dpi. Cross-checking exp(beta) against the eTable hazard
+    ratios in the same supplement agrees on 6/6 RFS terms and 0/5 OS terms — an internal inconsistency
+    in the published supplement, not a transcription error (see parity_note).
+  upstream:
+  - doi: 10.1001/jamanetworkopen.2021.33457
+    note: development; open-access supplement carries the equations
+  - url: https://pmc.ncbi.nlm.nih.gov/articles/PMC8576585/
+    note: PMC copy (main text only — the equations are in Supplement 1)
+  canonical_impl:
+    type: web
+    url: https://www.mskcc.org/nomograms/rectal
+    license: research-only-noncommercial
+    note: MSK's hosted tool; its disclaimer restricts use to education/research, non-commercial. Our implementation
+      follows the open-access paper, not the hosted tool.
+  our_code: mayo_baseline.colorectal.prognosis.msk_rectal
+  parity_status: checked
+  parity_note: 'No worked example is published, so parity was established against MSK''s own hosted deployment
+    of this model (mskcc.org/nomograms/rectal/post-treatment, whose Supporting Publication block cites
+    this exact paper). 12 patients spanning both ypT reference groups, the positive-node spline knots
+    and both binary covariates were submitted to the live tool; our implementation matches all 24 published
+    probabilities (12 cases x RFS and OS) within the tool''s 1-percentage-point display resolution. Fixture:
+    tests/parity/reference/msk_rectal_cases.json, captured by msk_rectal_fetch.py; asserted offline by
+    tests/parity/test_msk_rectal_parity.py. This also resolves the eFigure-vs-eTable conflict in favour
+    of the eFigure: the equation we implement reproduces the deployed model, so the eTable OS hazard-ratio
+    column is the inconsistent artifact. The article''s correction notice (PMC8759003) amends only three
+    collaborator names and does not touch the equations.'
+  scope_note: Incomplete pathological responders ONLY — complete responders are estimated by Kaplan-Meier
+    in the source tool, not by this equation. RFS and OS use DIFFERENT ypT reference groups (ypT0/T1 vs
+    ypT0/T1/T2). Predictions only at the published S0 grid (0/60/120/180 months); interpolation refused.
+  inputs:
+  - ypt
+  - positive_nodes
+  - distance_to_anal_verge_cm
+  - venous_invasion
+  - perineural_invasion
+  - age
+  parity_blocker: needs_web_calculator
+  open_source: web_only
+  architecture_family: Survival (Cox)
+  architecture: Cox proportional hazards with restricted cubic splines on age and positive-node count;
+    survival is S0(t)^exp(X*beta) at four published follow-up times.
+  n_parameters: 25
+  core_formula: "P(T ≥ t) = S₀(t)^exp(Xβ)\n\n  S₀(t) published only at t = 0, 60, 120, 180 months\n  Xβ\
+    \    restricted cubic splines on age and positive-node count\n  RFS and OS use DIFFERENT ypT reference\
+    \ groups"
+  evidence:
+    test: tests/parity/test_msk_rectal_parity.py
+    test_function: test_matches_the_hosted_msk_calculator
+    script: tests/parity/reference/msk_rectal_fetch.py
+    fixture: tests/parity/reference/msk_rectal_cases.json
+  public_repo: null
+  source_url: https://doi.org/10.1001/jamanetworkopen.2021.33457
+  year: 2021
+  development_cohort: 710 patients, Memorial Sloan Kettering, 1998-2014; externally validated at Siteman
+    Cancer Center
+  discrimination: C-index 0.70 (95% CI 0.65-0.76) RFS and 0.73 (0.65-0.80) OS, internal validation; 0.71
+    and 0.72 external
+  discrimination_source: primary, PMC8576585
+  entrypoint: msk_rectal_predict
+  equation_location:
+    numbered: false
+    where: 'Supplement 1: the eTable ''Parameter Estimates for Cox Regression Models Predicting RFS and
+      OS'' holds the coefficients, and the eFigure ''Predictive Equations for Incomplete Responders for
+      RFS and OS'' holds the assembled linear predictors. Main text describes it under ''Development of
+      Clinical Calculators''. Which of the two governs was itself a defect in this project -- settled
+      against MSK''s live calculator in favour of the eFigure.'
+    verified: read 2026-08-06 from PMC8576585
+- id: colorectal_prognosis_catalog
+  disease: colorectal
+  axis: prognosis
+  role: catalog
+  status: catalog
+  title: MSK colon nomograms (3rd-gen DFS, SEER OS) — figure-only
+  url: https://www.mskcc.org/nomograms/colorectal
+  license: research-only-noncommercial
+  repro_tier: C
+  equation_source: Weiser et al. J Clin Oncol 2021, doi:10.1200/JCO.20.02553 — Fig 2 is a points-axis
+    nomogram; no coefficient table located in the main text. JCO Data Supplement unchecked.
+  open_source: none
+- id: amap
+  disease: liver
+  axis: detection
+  role: flagship
+  status: implemented
+  title: aMAP score (5-year HCC risk in chronic hepatitis)
+  code: mayo_baseline.liver.detection.amap
+  license: open
+  repro_tier: A
+  citation: Fan R, Papatheodoridis G, Sun J, et al. J Hepatol. 2020;73(6):1368-1378
+  equation_source: J Hepatol 2020;73(6):1368-1378, doi:10.1016/j.jhep.2020.07.025 (open access CC BY-NC-ND)
+    — aMAP = ({0.06*age + 0.89*male + 0.48*ALBI - 0.01*platelets} + 7.4)/14.77*100; ALBI = 0.66*log10(bilirubin
+    umol/L) - 0.085*albumin g/L; cut-offs 50 and 60
+  upstream:
+  - doi: 10.1016/j.jhep.2020.07.025
+    note: development across 11 global prospective cohorts, 17374 patients
+  canonical_impl:
+    type: paper_only
+    license: open
+    note: formula printed in the paper; no calculator required
+  our_code: mayo_baseline.liver.detection.amap
+  parity_status: checked
+  parity_note: 'No numeric worked example is published, so parity was established against the custodial
+    calculator hosted by CUHK''s Medical Data Analytics Centre, an aMAP collaborating site (mdac.cuhk.edu.hk/calculators/amap/).
+    15 patients spanning both sexes, all three risk bands and the full analyte range: our score rounds
+    to the tool''s integer on 15/15 and the risk band agrees on 15/15. This CLOSES the conflict previously
+    recorded here: an earlier probe returned scores 2-3 points above the published formula on three patients,
+    and the model was left unchecked rather than bent to match. Re-probing those exact three patients
+    now returns the published values (54/41/65, not 56/44/68); the discrepancy does not reproduce. Fixture:
+    tests/parity/reference/amap_cases.json, captured by amap_fetch.py; asserted offline by tests/parity/test_amap_parity.py.'
+  scope_note: embeds the ALBI score as a term; aMAP rounds ALBI's albumin coefficient to -0.085 where
+    Johnson 2015 uses -0.0852, and each model keeps its own published rounding
+  inputs:
+  - age
+  - male
+  - platelets
+  - bilirubin_umol_l
+  - albumin_g_l
+  open_source: none
+  architecture_family: Linear score + cut-offs
+  architecture: Linear score on age, sex, ALBI and platelets, rescaled onto 0-100 and banded at 50 and
+    60; it embeds the whole ALBI score as one term.
+  n_parameters: 6
+  core_formula: "aMAP = ( 0.06·age + 0.89·male + 0.48·ALBI − 0.01·platelets + 7.4 )\n       ───────────────────────────────────────────────────────────\
+    \ × 100\n                                14.77\n\n  ALBI = 0.66·log₁₀(bilirubin) − 0.085·albumin\n\
+    \  bands: <50 low, 50–60 medium, ≥60 high"
+  evidence:
+    test: tests/parity/test_amap_parity.py
+    test_function: test_score_matches_the_custodial_calculator
+    script: tests/parity/reference/amap_fetch.py
+    fixture: tests/parity/reference/amap_cases.json
+  public_repo: null
+  source_url: https://doi.org/10.1016/j.jhep.2020.07.025
+  year: 2020
+  development_cohort: 11 global prospective cohorts, 17,374 patients with chronic hepatitis
+  entrypoint: amap_predict
+  discrimination: C-index 0.82–0.87 across aetiologies and ethnicities
+  discrimination_source: 'primary abstract, PMID 32707225, verbatim: "This metric performed excellently
+    in assessing HCC risk not only in patients with hepatitis of different aetiologies, but also in those
+    with different ethnicities (C-index: 0.82-0.87)."'
+  equation_location:
+    numbered: null
+    where: The aMAP formula and the 50/60 cut-offs, J Hepatol 2020;73(6):1368-1378 (open access). Exact
+      section heading not captured.
+    verified: identified while implementing; NOT re-read against the source in the 2026-08-06 pass, so
+      treat the location as approximate
+- id: hap
+  disease: liver
+  axis: response
+  role: flagship
+  status: implemented
+  title: HAP score (pre-TACE prognosis / candidacy)
+  code: mayo_baseline.liver.response.hap
+  license: open
+  repro_tier: A
+  citation: Kadalayil L et al. Ann Oncol. 2013;24(10):2565-2570
+  equation_source: Ann Oncol 2013;24(10):2565-2570, PMID 23857958 — 1 point each for albumin <36 g/L,
+    bilirubin >17 umol/L, AFP >400 ng/mL, dominant tumour >7 cm; grades A=0, B=1, C=2, D=>2
+  upstream:
+  - url: https://pubmed.ncbi.nlm.nih.gov/23857958/
+    note: derivation; grade boundaries and median OS per grade
+  - url: https://www.cghjournal.org/article/S1542-3565(14)01825-4/fulltext
+    note: European/Asian validation and proposed mHAP modification
+  canonical_impl:
+    type: paper_only
+    license: open
+    note: no calculator; the reference is the paper's own point table and the median OS per grade (A 27.6,
+      B 18.5, C 9.0, D 3.6 months)
+  our_code: mayo_baseline.liver.response.hap
+  parity_status: checked
+  scope_note: mHAP / mHAP-II / mHAP-III modifications not implemented. Median OS values are the UK derivation
+    cohort's and do not transfer.
+  inputs:
+  - albumin_g_l
+  - bilirubin_umol_l
+  - afp_ng_ml
+  - dominant_tumour_size_cm
+  open_source: none
+  parity_note: 'CHECKED 2026-08-05 against an independent statement of the score (interventionalradio.org/hap-score):
+    same four criteria and thresholds, same A/B/C/D mapping with D as >2, same median survivals 27.6/18.5/9.0/3.6
+    months. That source repeats the abstract''s g/dL albumin unit typo, which independently corroborates
+    our reading of it as g/L.'
+  architecture_family: Points table
+  architecture: Additive integer point score (0-4) from 4 dichotomised variables, mapped to 4 prognostic
+    grades.
+  n_parameters: 4
+  core_formula: "points = [albumin < 36 g/L] + [bilirubin > 17 µmol/L]\n       + [AFP > 400 ng/mL] + [dominant\
+    \ tumour > 7 cm]\n\n  0 → grade A,  1 → B,  2 → C,  >2 → D"
+  evidence:
+    test: tests/test_liver_response_hap.py
+    test_function: test_each_criterion_contributes_exactly_one_point
+  public_repo: null
+  source_url: https://pubmed.ncbi.nlm.nih.gov/23857958/
+  year: 2013
+  entrypoint: hap_predict
+  equation_location:
+    numbered: null
+    where: Point rule (albumin <36 g/L, bilirubin >17 umol/L, AFP >400 ng/mL, dominant tumour >7 cm; grades
+      A-D), Ann Oncol 2013;24(10):2565-2570. Exact table/section not captured.
+    verified: identified while implementing; NOT re-read against the source in the 2026-08-06 pass, so
+      treat the location as approximate
+- id: abcr_art
+  disease: liver
+  axis: response
+  role: catalog
+  status: catalog
+  title: ABCR / ART (TACE retreatment decision)
+  license: open
+  repro_tier: A
+  equation_source: 'ABCR = BCLC (A 0 / B +2 / C +3) + AFP>200 (+1) + Child-Pugh rise >=2 (+2) + radiologic
+    response (-3). NOTE: sourced from validation papers, not the primary derivation — verify before implementing.'
+  canonical_impl:
+    type: paper_only
+    license: open
+    note: point tables reproduced in multiple validation papers
+  our_code: null
+  parity_status: n/a
+  open_source: none
+- id: albi
+  disease: liver
+  axis: prognosis
+  role: flagship
+  status: implemented
+  title: ALBI grade (albumin-bilirubin liver function)
+  code: mayo_baseline.liver.prognosis.albi
+  license: open
+  repro_tier: A
+  citation: Johnson PJ et al. J Clin Oncol. 2015;33(6):550-558
+  equation_source: J Clin Oncol 2015;33(6):550-558, doi:10.1200/JCO.2014.57.9151 — ALBI = 0.66 * log10(bilirubin
+    umol/L) - 0.0852 * albumin g/L; grades at -2.60 and -1.39
+  upstream:
+  - doi: 10.1200/JCO.2014.57.9151
+    note: development (1313 Japanese HCC patients, multi-region validation)
+  canonical_impl:
+    type: web
+    url: https://www.mdcalc.com/calc/10070/albi-albumin-bilirubin-grade-hepatocellular-carcinoma-hcc
+    license: web-only
+  our_code: mayo_baseline.liver.prognosis.albi
+  parity_status: checked
+  inputs:
+  - bilirubin_umol_l
+  - albumin_g_l
+  open_source: web_only
+  parity_note: 'CHECKED 2026-08-05 against the primary text (PMC4322258), which prints verbatim: linear
+    predictor = (log10 bilirubin x 0.66) + (albumin x -0.085), grades at -2.60 / -1.39. Independently
+    corroborated by MDCalc''s published formula and by the aMAP paper, which embeds ALBI. This check CORRECTED
+    a shipped error: the module had -0.0852, taken from a search summary rather than the paper.'
+  architecture_family: Linear score + cut-offs
+  architecture: Two-term linear score, log10(bilirubin) and albumin, cut at two fixed thresholds into
+    3 liver-function grades.
+  n_parameters: 2
+  core_formula: "ALBI = 0.66 · log₁₀(bilirubin µmol/L)  −  0.085 · albumin g/L\n\n  grade 1  ALBI ≤ −2.60\n\
+    \  grade 2  −2.60 < ALBI ≤ −1.39\n  grade 3  ALBI > −1.39"
+  evidence:
+    test: tests/parity/test_r_reference_parity.py
+    test_function: test_albi_formula_matches_mdcalc_statement
+    script: tests/parity/reference/mdcalc_extract.py
+  public_repo: null
+  source_url: https://doi.org/10.1200/JCO.2014.57.9151
+  year: 2015
+  entrypoint: albi_predict
+  equation_location:
+    numbered: false
+    where: 'Results, in the multivariable Cox paragraph, printed inline as ''linear predictor = (log10
+      bilirubin x 0.66) + (albumin x -0.085)''. The grade cut-offs follow immediately in the same paragraph:
+      ''xb <= -2.60 (ALBI grade 1), more than -2.60 to <= -1.39 (ALBI grade 2), and xb more than -1.39
+      (ALBI grade 3)''. Table 2 carries the underlying Cox parameters.'
+    verified: read 2026-08-06 from PMC4322258
+- id: bclc_catalog
+  disease: liver
+  axis: prognosis
+  role: catalog
+  status: catalog
+  title: BCLC staging
+  license: open
+  open_source: none
+- id: abc_method
+  disease: gastric
+  axis: detection
+  role: flagship
+  status: implemented
+  title: ABC method (H. pylori antibody x pepsinogen serological groups A-D)
+  code: mayo_baseline.gastric.detection.abc_method
+  license: open
+  repro_tier: A
+  citation: Watabe H et al. Gut. 2005;54(6):764-768
+  equation_source: Gut 2005;54(6):764-768, doi:10.1136/gut.2004.055400, PMC1774550 — group rule from Table
+    1/Methods (PG+ <=> PG I <=70 ng/mL AND PG I/II <=3.0), annual incidence from Table 2
+  upstream:
+  - doi: 10.1136/gut.2004.055400
+    note: prospective endoscopic cohort; group definitions and incidence rates
+  - url: https://pmc.ncbi.nlm.nih.gov/articles/PMC5121428/
+    note: prospective-studies review of the ABC method
+  canonical_impl:
+    type: paper_only
+    license: open
+    note: no calculator exists; the reference is Watabe Gut 2005 Tables 1-3, and parity is established
+      by re-deriving the incidence rates from the paper's own case counts and person-years
+  our_code: mayo_baseline.gastric.detection.abc_method
+  parity_status: checked
+  parity_note: 'incidence rates re-derived independently from the paper''s own cases and person-years
+    (Tables 1-2): 7/(3324*4.8y)=0.044%/y, 6/(2134*4.7y)=0.060%/y, 18/(1082*4.7y)=0.354%/y, 12/(443*4.5y)=0.602%/y
+    — each reproduces the published rate'
+  scope_note: Japanese cohort absolute rates; ordering transfers, absolute numbers do not. Invalid after
+    H. pylori eradication (seroreversion).
+  inputs:
+  - h_pylori_antibody_positive
+  - pepsinogen_i
+  - pepsinogen_i_ii_ratio
+  open_source: none
+  architecture_family: Categorical rule
+  architecture: 'A 2x2 cross-tabulation, not a regression: H. pylori serology (+/-) crossed with pepsinogen-defined
+    atrophy (+/-) gives 4 ordered groups A-D.'
+  n_parameters: 4
+  core_formula: "group = H. pylori antibody (±)  ×  pepsinogen atrophy (±)\n\n  atrophy = PG I ≤ 70 ng/mL\
+    \  AND  PG I / PG II ≤ 3.0\n  → groups A, B, C, D, each with a published annual incidence"
+  evidence:
+    test: tests/test_gastric_detection_abc_method.py
+    test_function: test_group_and_rate_match_watabe_table_2
+  public_repo: null
+  source_url: https://doi.org/10.1136/gut.2004.055400
+  year: 2005
+  entrypoint: abc_method_predict
+  equation_location:
+    numbered: false
+    where: Methods, subsection 'Serum pepsinogen level' defines atrophy (PG I <=70 ng/mL AND PG I/II <=3.0);
+      Methods, subsection 'Classification by anti-H pylori antibody and serum pepsinogen status' defines
+      groups A-D; the per-group annual incidence rates are in Table 2.
+    verified: read 2026-08-06 from PMC1774550
+- id: gastric_response_gap
+  disease: gastric
+  axis: response
+  role: flagship
+  status: gap
+  title: (no open flagship yet)
+  repro_tier: C
+  tier_note: 'CANDIDATES FOUND. Several, including a nomogram from the Neo-CRAG phase III trial and a
+    Chinese multicentre nomogram for pathological complete response after neoadjuvant chemotherapy plus
+    immunotherapy. Corrected 2026-08-06: the earlier note said no published equation existed. Searching
+    properly found several. They are not implemented because of what they ARE, not because they are absent
+    -- see below. That is a different kind of gap and should be described as one. Most of the recent ones
+    are radiomics or deep-learning nomograms needing CT-derived features we do not have as inputs, which
+    is the real obstacle here.'
+  open_source: none
+- id: msk_gastric
+  disease: gastric
+  axis: prognosis
+  role: flagship
+  status: implemented
+  title: MSK gastric nomogram (disease-specific survival after R0 resection)
+  code: mayo_baseline.gastric.prognosis.msk_gastric
+  license: open
+  repro_tier: A
+  citation: Kattan MW, Karpeh MS, Mazumdar M, Brennan MF. J Clin Oncol. 2003;21(19):3647-3650
+  equation_source: 'NOT the paper: J Clin Oncol 2003;21(19) publishes a nomogram figure and no closed-form
+    model. The coefficients come from the deployed calculator''s published R source at https://github.com/ClevelandClinicQHS/riskcalc-website/tree/main/GastricCancer
+    (server.R), which riskcalc.org''s own page cites to Kattan 2003. Cox form DSS(t) = S0(t)^exp(Xb) with
+    S0 published at 5 years (0.579053) and 9 years (0.5089101); restricted cubic splines on age, positive
+    nodes, negative nodes and depth.'
+  upstream:
+  - url: https://github.com/ClevelandClinicQHS/riskcalc-website/tree/main/GastricCancer
+    note: deployed model source, coefficients in plain text
+  - pmid: '14512396'
+    note: primary; nomogram figure only
+  canonical_impl:
+    type: open_source
+    url: https://github.com/ClevelandClinicQHS/riskcalc-website/tree/main/GastricCancer
+    license: see repository terms
+    note: the R the hosted calculator actually runs
+  our_code: mayo_baseline.gastric.prognosis.msk_gastric
+  architecture_family: Survival (Cox)
+  architecture: Cox proportional hazards with restricted cubic splines on age, positive nodes, negative
+    nodes and depth of invasion; depth is an ordinal 1-7 entered as a continuous splined term, not as
+    indicators.
+  core_formula: "DSS(t) = S₀(t)^exp(Xβ)\n\n  S₀ = 0.579053   at 5 years\n       0.5089101  at 9 years\n\
+    \  Xβ   splines on age, positive nodes, negative nodes, depth\n  references: female, Lauren diffuse,\
+    \ antrum/pyloric"
+  parity_status: checked
+  parity_note: CHECKED 2026-08-06 against the vendor's own deployed R, route 1. tests/parity/reference/msk_gastric_reference.R
+    copies the two model expressions VERBATIM from riskcalc.org's server.R and runs them under R 4.6.1,
+    so the comparison is against their arithmetic rather than our reading of it. 12 patients x 2 horizons
+    = 24 probabilities; worst absolute difference 4.7e-11 percentage points. The cases hit both ends of
+    all four validated input bounds, all seven depth levels, all four primary sites and all three Lauren
+    types, because the model is splined in four variables and a knot error only shows on one side of the
+    knot. This also CLOSES the standing paper request for a validation study republishing a recovered
+    linear predictor -- none was needed.
+  scope_note: Patients after R0 resection for gastric carcinoma. The hosted calculator validates age 25-96,
+    positive nodes 0-23, negative nodes 0-146, size 0.1-21 cm; those bounds are enforced because the splines
+    are only anchored inside them.
+  inputs:
+  - age
+  - male
+  - primary_site
+  - lauren
+  - size_cm
+  - positive_nodes
+  - negative_nodes
+  - depth
+  open_source: available
+  evidence:
+    test: tests/parity/test_msk_gastric_parity.py
+    test_function: test_matches_the_vendor_r
+    script: tests/parity/reference/msk_gastric_reference.R
+    fixture: tests/parity/reference/msk_gastric_cases.json
+  public_repo: https://github.com/ClevelandClinicQHS/riskcalc-website/tree/main/GastricCancer
+  source_url: https://pubmed.ncbi.nlm.nih.gov/14512396/
+  year: 2003
+  development_cohort: Memorial Sloan Kettering gastric resection series
+  entrypoint: msk_gastric_predict
+  discrimination: Concordance index 0.80, bootstrap-corrected
+  discrimination_source: 'primary abstract, PMID 14512396, verbatim: "The bootstrap-corrected concordance
+    index was 0.80."'
+  equation_location:
+    numbered: null
+    where: 'NOT IN THE PAPER as a closed form: J Clin Oncol 2003;21(19) prints a nomogram figure only.
+      Coefficients from ClevelandClinicQHS/riskcalc-website/tree/main/GastricCancer (server.R), with S0
+      at 5 years (0.579053) and 9 years (0.5089101).'
+    verified: vendor R source; parity-verified 2026-08-06
+- id: msk_gastric_dss
+  disease: gastric
+  axis: prognosis
+  role: catalog
+  status: catalog
+  title: MSK postoperative gastric DSS nomogram (Kattan 2003)
+  url: https://www.mskcc.org/nomograms
+  license: research-only-noncommercial
+  repro_tier: A
+  citation: Kattan MW, Karpeh MS, Mazumdar M, Brennan MF. J Clin Oncol. 2003;21(19):3647-3650
+  equation_source: 'FIGURE ONLY — verified against the primary PDF 2026-08-05. The 4-page article prints
+    Fig 2 (a points nomogram) and a c-index of 0.80. It contains NO coefficient table, NO hazard ratios,
+    and NO baseline survival function. Predictors: age, sex, primary site, Lauren classification, size,
+    number of positive nodes, number of negative nodes, depth of invasion; continuous/ordinal terms fitted
+    with restricted cubic splines.'
+  upstream:
+  - url: https://ascopubs.org/doi/10.1200/JCO.2003.01.240
+    note: development; Fig 2 is the model
+  canonical_impl:
+    type: web
+    url: https://www.mskcc.org/nomograms
+    license: research-only-noncommercial
+  our_code: null
+  parity_status: n/a
+  tier_note: 'SUPERSEDED 2026-08-06 by the implemented `msk_gastric`. Kept as the record of why this took
+    so long: the primary is figure-only, and the equation was eventually recovered from the vendor''s
+    published source, not from any paper.'
+  open_source: web_only
+  candidate_source: https://github.com/ClevelandClinicQHS/riskcalc-website/tree/main/GastricCancer
+- id: gastric_prognosis_catalog
+  disease: gastric
+  axis: prognosis
+  role: catalog
+  status: catalog
+  title: TNM / AJCC stage grouping
+  license: open
+  repro_tier: D
+  tier_note: Staging tables rather than an equation, in the sources we checked.
+  open_source: none
+- id: kunzmann
+  disease: esophageal
+  axis: detection
+  role: flagship
+  status: implemented
+  title: Kunzmann points model (esophageal adenocarcinoma)
+  code: mayo_baseline.esophageal.detection.kunzmann
+  license: open
+  repro_tier: A
+  citation: Kunzmann AT, Thrift AP, Cardwell CR, et al. Clin Gastroenterol Hepatol.
+  equation_source: Table 2 points-based model — age 0/1.5/2.5/3.5, male 4.0, BMI 0/1.0/1.5/2.5, smoking
+    never/former/current 0/2.0/3.5, esophageal condition 1.5; total 0-15, screening referral at >=8. Points
+    are the fitted coefficients divided by the smallest (0.41), rounded to nearest 0.5.
+  canonical_impl:
+    type: paper_only
+    license: open
+    note: Table 2 and the Figure 2 nomogram
+  our_code: mayo_baseline.esophageal.detection.kunzmann
+  parity_status: checked
+  parity_note: 'No worked patient is published and the full text is paywalled, so this was the last model
+    blocked on paper access; the PDF was supplied 2026-08-06. The paper states its own construction (points
+    = coefficient / smallest coefficient, rounded to the nearest 0.5), which makes the WHOLE model re-derivable
+    rather than one point of it. All 10 published point values in Table 2 reproduce from their adjusted
+    odds ratios. This also resolved a contradiction inside the paper: the Methods worked example divides
+    by 0.40, the Table 2 footnote says 0.41. Inverting the problem decides it without appeal to authority
+    -- each published point pins the divisor to an interval, and the ten rows jointly admit only d in
+    (0.3958, 0.4046], which contains 0.40 and excludes 0.41 (under 0.41 ''Smoking, former'' comes out
+    1.5 against a published 2.0). ln(1.50)=0.4055 is also just outside, which is likely where the footnote
+    came from. Our docstring had repeated the footnote''s 0.41; corrected. Asserted by tests/parity/test_kunzmann_parity.py.'
+  scope_note: ADENOCARCINOMA only, not squamous cell carcinoma — different disease, different risk factors.
+    UK primary care, age 50+.
+  inputs:
+  - age
+  - male
+  - bmi
+  - smoking
+  - esophageal_condition
+  open_source: none
+  architecture_family: Points table
+  architecture: Points model derived from a stepwise logistic regression, with each coefficient divided
+    by the smallest one, so the integer points ARE the model rather than a lossy summary.
+  core_formula: "points = Σ round_to_half( βᵢ / 0.40 )      (0–15)\n\n  over age, sex, BMI, smoking, oesophageal\
+    \ condition\n  refer for screening if points ≥ 8"
+  evidence:
+    test: tests/parity/test_kunzmann_parity.py
+    test_function: test_every_published_point_is_re_derivable_from_its_odds_ratio
+  public_repo: null
+  source_url: https://doi.org/10.1016/j.cgh.2018.03.014
+  year: 2018
+  development_cohort: UK Biobank; 355,034 participants aged 50+, 220 oesophageal adenocarcinomas within
+    5 years
+  discrimination: AUROC 0.80 (95% CI 0.77-0.82); 0.79 internally validated
+  discrimination_source: primary, Results — read from the PDF
+  entrypoint: kunzmann_predict
+  equation_location:
+    numbered: null
+    where: Table 2, the points-based model. The points are the fitted coefficients divided by the smallest
+      and rounded to the nearest 0.5 -- the divisor is stated as 0.41 but is provably 0.40 (see the parity
+      test). Section heading not captured.
+    verified: identified while implementing; NOT re-read against the source in the 2026-08-06 pass, so
+      treat the location as approximate
+- id: esophageal_response_gap
+  disease: esophageal
+  axis: response
+  role: flagship
+  status: gap
+  title: (no open flagship yet)
+  repro_tier: C
+  tier_note: 'CANDIDATES FOUND. Liu et al, Cancer Medicine 2024 (PMC10935883) publishes a six-variable
+    logistic nomogram for pathological complete response after neoadjuvant chemoradiotherapy in oesophageal
+    squamous cell carcinoma, with odds ratios given and C-index 0.743 (0.686-0.800), n=293 single centre.
+    Also a haematological-biomarker nomogram, C-index 0.75. Corrected 2026-08-06: the earlier note said
+    no published equation existed. Searching properly found several. They are not implemented because
+    of what they ARE, not because they are absent -- see below. That is a different kind of gap and should
+    be described as one. The bar these do not clear is external validation and cohort size: 293 patients
+    at one centre, against the thousands-to-millions behind the models we ship.'
+  open_source: none
+- id: esophageal_prognosis_catalog
+  disease: esophageal
+  axis: prognosis
+  role: catalog
+  status: catalog
+  title: TNM / MSK
+  license: web-only
+  repro_tier: C
+  tier_note: 'SEARCHED 2026-08-06; the ''have not been surveyed here'' label no longer applies. The best
+    model found is strong: the AUGIS Survival Predictor (Ann Surg Oncol, PMC9831040), built on 6399 patients
+    who underwent oesophagectomy in England and Wales 2012-2018, 5-year time-dependent AUC 83.9% (82.6-84.9),
+    against 82.3% for Cox regression and 74.5% for TNM staging alone. Publicly deployed at uoscancer.shinyapps.io/AugisSurv.'
+  open_source: none
+  blocker: 'It is a random survival forest. There is no coefficient table because the model is a few thousand
+    decision trees -- nothing to transcribe, and no closed form to reproduce. The paper''s Cox comparator
+    scored almost as well (82.3% vs 83.9%) but is a benchmark rather than the published deliverable, so
+    its coefficients are not given either. R code is ''available on request''. This is a kind of gap the
+    other cells do not show: the model is not absent, not weak, and not input-hungry -- it is simply not
+    an equation.'
+  blocker_kind: not a closed-form model
+- id: rmi
+  disease: ovarian
+  axis: detection
+  role: flagship
+  status: implemented
+  title: RMI 1-4 (Risk of Malignancy Index, adnexal triage)
+  code: mayo_baseline.ovarian.detection.rmi
+  license: open
+  repro_tier: A
+  citation: Jacobs I et al. Br J Obstet Gynaecol. 1990;97:922-929
+  equation_source: 'RMI = U x M x CA125. RMI 1 (Jacobs 1990, doi:10.1111/j.1471-0528.1990.tb02448.x):
+    U 0/1/3, M 1/3, cutoff 200. RMI 2 (Tingulstad 1996): U 1/4, M 1/4. RMI 3 (Tingulstad 1999): U 1/3,
+    M 1/3. RMI 4 (Yamamoto 2009): adds size term S, cutoff 450.'
+  upstream:
+  - doi: 10.1111/j.1471-0528.1990.tb02448.x
+    note: RMI 1 derivation
+  - url: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12084852/
+    note: RMI/ROMA comparative meta-analysis
+  canonical_impl:
+    type: paper_only
+    license: open
+    note: no canonical calculator; RMI is exact integer arithmetic, so the derivation papers' scoring
+      tables are themselves the reference
+  our_code: mayo_baseline.ovarian.detection.rmi
+  parity_status: checked
+  parity_note: exact integer arithmetic (U x M x CA125) with no fitted coefficients; all four variants'
+    scoring rules verified against their respective derivation papers
+  scope_note: ROMA is implemented separately as its own entry.
+  open_source: none
+  architecture_family: Multiplicative index
+  architecture: 'A product, not a sum: ultrasound feature score x menopausal-status score x serum CA125,
+    compared against a single threshold.'
+  core_formula: "RMI = U × M × CA-125           (RMI 4 adds × S)\n\n  U  ultrasound feature score\n  M\
+    \  menopausal status score\n  S  tumour-size score, RMI 4 only\n  refer above 200 (RMI 1–3) or 450\
+    \ (RMI 4)"
+  evidence:
+    test: tests/test_ovarian_detection_rmi.py
+    test_function: test_rmi1_worked_example
+  public_repo: null
+  source_url: https://doi.org/10.1111/j.1471-0528.1990.tb02448.x
+  year: 1990
+  entrypoint: rmi_predict
+  flagship_note: 'Default, and the reason is availability rather than accuracy: RMI needs only ultrasound,
+    menopausal status and CA-125, all routinely available, and is the RCOG-endorsed triage rule. ROMA
+    needs an HE4 assay many centres do not run.'
+  equation_location:
+    numbered: null
+    where: Four separate papers, one per RMI version (Jacobs 1990, Tingulstad 1996 and 1999, Yamamoto
+      2009). Per-paper locations not captured.
+    verified: identified while implementing; NOT re-read against the source in the 2026-08-06 pass, so
+      treat the location as approximate
+- id: roma
+  disease: ovarian
+  axis: detection
+  role: alternative
+  status: implemented
+  title: ROMA (Risk of Ovarian Malignancy Algorithm, HE4 + CA125)
+  code: mayo_baseline.ovarian.detection.roma
+  license: open
+  repro_tier: A
+  citation: Moore RG, McMeekin DS, Brown AK, et al. Gynecol Oncol. 2009;112(1):40-46
+  equation_source: Gynecol Oncol 2009;112(1):40-46, Statistical analysis section — premenopausal PI =
+    -12.0 + 2.38*LN(HE4) + 0.0626*LN(CA125); postmenopausal PI = -8.09 + 1.04*LN(HE4) + 0.732*LN(CA125);
+    PP = exp(PI)/(1+exp(PI)); high risk if PP > 13.1% (pre) or > 27.7% (post)
+  upstream:
+  - url: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3048204/
+    note: prospective multicentre validation
+  canonical_impl:
+    type: paper_only
+    license: open
+    note: both equations printed verbatim in the paper
+  our_code: mayo_baseline.ovarian.detection.roma
+  parity_status: checked
+  scope_note: assay-specific (Architect CA125II, HE4 EIA); cut-offs do not transfer across platforms.
+    Premenopausal discrimination is materially worse (sensitivity 67-76%) than postmenopausal (92%)
+  inputs:
+  - ultrasound_score
+  - postmenopausal
+  - ca125
+  open_source: none
+  parity_note: 'CHECKED 2026-08-05 at the equation level. All six coefficients are printed identically
+    by three independent sources: the Moore 2009 paper, the Abbott/Fujirebio assay package insert, and
+    ARUP''s test directory. NOTE the thresholds do NOT agree -- paper 13.1/27.7%, assay insert 11.4/29.9%,
+    crossing over by menopausal status. Both are shipped via cutoff_source; the paper is the default.'
+  architecture_family: Logistic regression
+  architecture: Two menopause-stratified logistic regressions on ln(HE4) and ln(CA125); the stratum picks
+    which of the two 3-coefficient models applies.
+  n_parameters: 6
+  core_formula: "PI = a + b · ln(HE4) + c · ln(CA-125)\n\n  p  = e^PI / (1 + e^PI)\n  separate (a, b,\
+    \ c) and cut-off per menopausal status"
+  evidence:
+    test: tests/test_ovarian_detection_roma.py
+    test_function: test_coefficients_corroborated_by_the_assay_insert
+  public_repo: null
+  source_url: https://doi.org/10.1016/j.ygyno.2008.08.031
+  year: 2009
+  entrypoint: roma_predict
+  flagship_note: 'Prefer where HE4 is available and no ultrasound score is: ROMA needs no imaging. It
+    is also assay-specific (Architect CA125 II, HE4 EIA) and its cut-offs do not transfer between platforms,
+    which is the main reason it is not the default. Was previously marked ''catalog'' with no reason recorded,
+    which understated it -- it is implemented and verified.'
+  equation_location:
+    numbered: false
+    where: '''Statistical Analysis'' section, both indices printed inline: premenopausal PI = -12.0 +
+      2.38*LN(HE4) + 0.0626*LN(CA125); postmenopausal PI = -8.09 + 1.04*LN(HE4) + 0.732*LN(CA125). The
+      PP thresholds (13.1% premenopausal, 27.7% postmenopausal) are in the same section.'
+    verified: read 2026-08-06 from PMC3594094
+- id: ovarian_response_gap
+  disease: ovarian
+  axis: response
+  role: flagship
+  status: gap
+  title: (no open flagship yet)
+  repro_tier: C
+  tier_note: KELIM is a nonlinear population-PK model, not closed-form
+  open_source: none
+- id: msk_ovarian
+  disease: ovarian
+  axis: prognosis
+  role: flagship
+  status: implemented
+  title: MSK ovarian nomogram (5-year survival after primary surgery, bulky stage IIIC)
+  code: mayo_baseline.ovarian.prognosis.msk_ovarian
+  license: open
+  repro_tier: A
+  citation: Abu-Rustum NR, Awtrey CS, Huh J, Eisenhauer EL, Barakat RR, Kattan MW. Nomogram for survival
+    after primary surgery for bulky stage IIIC ovarian carcinoma. Gynecol Oncol. 2008;108(1):211-215
+  equation_source: Coefficients from the deployed calculator's published R source at https://github.com/ClevelandClinicQHS/riskcalc-website/tree/main/OvarianCancerPredictSurvivalAfterSurgforBulkyStageIIICCarc,
+    which riskcalc.org's own page cites to the publication above.
+  upstream:
+  - url: https://github.com/ClevelandClinicQHS/riskcalc-website/tree/main/OvarianCancerPredictSurvivalAfterSurgforBulkyStageIIICCarc
+    note: deployed model source, coefficients in plain text
+  canonical_impl:
+    type: open_source
+    url: https://github.com/ClevelandClinicQHS/riskcalc-website/tree/main/OvarianCancerPredictSurvivalAfterSurgforBulkyStageIIICCarc
+    license: see repository terms
+  our_code: mayo_baseline.ovarian.prognosis.msk_ovarian
+  architecture_family: Survival (Cox)
+  architecture: Cox proportional hazards with a restricted cubic spline on age; five-level residual-disease
+    term whose reference is the MIDDLE category (0.5-1 cm).
+  core_formula: "S(5y) = 0.4284861^exp(Xβ)\n\n  Xβ   spline on age, plus grade, histology, platelets,\
+    \ ascites\n       and residual-disease diameter\n  residual disease reference is 0.5–1 cm, the MIDDLE\
+    \ category"
+  parity_status: checked
+  parity_note: 'Route 1, CHECKED 2026-08-06 against the vendor''s own deployed R: the reference script
+    copies the model expression VERBATIM from riskcalc.org''s server.R and runs it under R 4.6.1, so the
+    comparison is against their arithmetic rather than our reading of it. 8 patients covering all five
+    residual-disease levels and both ends of the age and platelet bounds; worst absolute difference 4.4e-11
+    percentage points. NOTE this cell was recorded as having no published equation until 2026-08-06 --
+    a claim about the literature made without checking who deploys these models.'
+  scope_note: 'Bulky stage IIIC ovarian carcinoma after primary surgery. Validated ranges enforced: age
+    22-87, pre-operative platelets 113-1078 x10^3/uL. The hosted tool labels its histology input only
+    ''Tumor Histology'' with Yes/No, so what the Yes means is not recoverable from the code -- read Abu-Rustum
+    2008 before clinical use.'
+  inputs:
+  - age
+  - grade
+  - histology_yes
+  - platelets
+  - ascites
+  - residual_disease
+  open_source: available
+  evidence:
+    test: tests/parity/test_msk_ovarian_parity.py
+    test_function: test_matches_the_vendor_r
+    script: tests/parity/reference/msk_ovarian_reference.R
+    fixture: tests/parity/reference/msk_ovarian_cases.json
+  public_repo: https://github.com/ClevelandClinicQHS/riskcalc-website/tree/main/OvarianCancerPredictSurvivalAfterSurgforBulkyStageIIICCarc
+  source_url: https://doi.org/10.1016/j.ygyno.2007.09.020
+  year: 2008
+  development_cohort: Memorial Sloan Kettering bulky stage IIIC series
+  entrypoint: msk_ovarian_predict
+  equation_location:
+    numbered: null
+    where: NOT IN THE PAPER as a closed form. Coefficients from ClevelandClinicQHS/riskcalc-website/tree/main/OvarianCancerPredictSurvivalAfterSurgforBulkyStageIIICCarc,
+      which riskcalc.org's own page attributes to the cited publication.
+    verified: vendor R source; parity-verified 2026-08-06
+  citation_note: 'CORRECTED 2026-08-07. The recorded DOI was 10.1016/j.ygyno.2007.09.019, one digit off,
+    and that DOI resolves to a real but entirely different article -- a review of quality of life in cervical
+    cancer (PMID 17963826). A wrong identifier that resolves is worse than one that 404s: nothing looks
+    broken. The correct paper is PMID 17950784, and its title names the same population as the calculator
+    directory it was taken from (bulky stage IIIC).'
+- id: ovarian_prognosis_catalog
+  disease: ovarian
+  axis: prognosis
+  role: catalog
+  status: catalog
+  title: Stage / residual disease tools
+  license: web-only
+  repro_tier: A
+  tier_note: SUPERSEDED 2026-08-06 by the implemented `msk_ovarian`.
+  open_source: none
+  candidate_source: https://github.com/ClevelandClinicQHS/riskcalc-website/tree/main/OvarianCancerPredictSurvivalAfterSurgforBulkyStageIIICCarc
+- id: cervical_cin_risk
+  disease: cervical
+  axis: detection
+  role: flagship
+  status: implemented
+  title: Cervical CIN2+/CIN3+ logistic models (hrHPV + cytology + age)
+  code: mayo_baseline.cervical.detection.cin_risk
+  license: open
+  repro_tier: A
+  open_source: none
+  citation: BMC Medicine. 2021;19:237
+  equation_source: 'doi:10.1186/s12916-021-02078-2 (open access), Additional file 1 Table S1 — four nested
+    logistic models (base / +E6 / +genotyping / full). Base: intercept -3.19059, hrHPV 2.06771, age -0.01935,
+    cytology betas with NILM as reference. Supplement retrieved via the PMC mirror (PMC8414700) after
+    Springer''s direct ESM URL returned 403.'
+  upstream:
+  - doi: 10.1186/s12916-021-02078-2
+    note: development (cross-sectional) + validation in two screening cohorts
+  canonical_impl:
+    type: paper_only
+    license: open
+    note: coefficients printed in the open-access supplement; no calculator
+  our_code: mayo_baseline.cervical.detection.cin_risk
+  parity_status: checked
+  scope_note: Chinese screening population; outcome is CIN2+/CIN3+ at colposcopy, NOT invasive cancer
+    incidence over time. Genotype groups are the paper's pooled sets and are not interchangeable with
+    other groupings.
+  inputs:
+  - hrhpv_positive
+  - cytology
+  - age
+  - e6_positive
+  - genotypes
+  architecture_family: Logistic regression
+  architecture: Multivariable logistic regression on hrHPV status, cytology grade and age (optionally
+    E6 oncoprotein) to CIN2+/CIN3+ probability.
+  parity_note: 'The paper publishes no worked example, no calibration table and no predicted-vs-observed
+    cross-tabulation (checked). But its supplement (Additional file 1, Table S1) is a real .xlsx rather
+    than a figure, so a stronger check than a worked example was available: an independently downloaded,
+    machine-readable copy of the coefficient table compared to our shipped constants term by term at ZERO
+    tolerance, across all four nested models. 56/56 coefficients match exactly, with no extra or missing
+    terms in either direction. A worked example would have verified the model at one point in the input
+    space; this verifies every coefficient in it. Note: PMC''s mirror path returns an HTML interstitial,
+    not the workbook; Springer''s static-content CDN serves the real file. Fixture: tests/parity/reference/cervical_table_s1.json
+    via cervical_s1_extract.py; asserted offline by tests/parity/test_cervical_cin_parity.py.'
+  core_formula: "logit(p) = β₀ + β_hrHPV·hrHPV + β_cytology + β_age·age\n             [ + β_E6·E6 + Σ\
+    \ β_genotype ]\n\n  cytology  7 levels, NILM is the reference and carries no term\n  variants  base\
+    \ / +E6 / +genotyping / +both"
+  evidence:
+    test: tests/parity/test_cervical_cin_parity.py
+    test_function: test_every_coefficient_matches_table_s1_exactly
+    script: tests/parity/reference/cervical_s1_extract.py
+    fixture: tests/parity/reference/cervical_table_s1.json
+  public_repo: null
+  source_url: https://doi.org/10.1186/s12916-021-02078-2
+  year: 2021
+  development_cohort: 'Chinese screening population: cross-sectional N=1,915, plus two screening cohorts
+    of 3,179 and 3,082'
+  discrimination: AUC 0.91 (95% CI 0.88-0.93) for CIN2+, base model, cross-sectional validation set
+  discrimination_source: primary, Table 2 and supplement Table S3
+  entrypoint: cervical_cin_risk_predict
+  equation_location:
+    numbered: false
+    where: Additional file 1, 'Table S1. - Logistic Regression Parameters'. Main text describes the model
+      under Methods, 'Model development'.
+    verified: read 2026-08-06 from PMC8414700
+- id: asccp
+  disease: cervical
+  axis: detection
+  role: catalog
+  status: catalog
+  title: ASCCP risk-based management
+  license: web-only
+  repro_tier: D
+  tier_note: ASCCP is a consensus lookup table rather than an equation. That is the design of the guideline,
+    not a gap in our search.
+  open_source: none
+- id: cervical_response_gap
+  disease: cervical
+  axis: response
+  role: flagship
+  status: gap
+  title: (no open flagship yet)
+  repro_tier: C
+  tier_note: 'CANDIDATES FOUND, but the ones located are radiomics and deep-learning nomograms for response
+    to neoadjuvant chemotherapy, which need imaging-derived features rather than the routine clinical
+    variables this library takes. Corrected 2026-08-06: the earlier note said no published equation existed.
+    Searching properly found several. They are not implemented because of what they ARE, not because they
+    are absent -- see below. That is a different kind of gap and should be described as one.'
+  open_source: none
+- id: cervical_prognosis_catalog
+  disease: cervical
+  axis: prognosis
+  role: catalog
+  status: catalog
+  title: FIGO / HPV strata
+  license: open
+  repro_tier: C
+  tier_note: 'SEARCHED 2026-08-06; the ''have not been surveyed here'' label no longer applies. Yoo et
+    al, British Journal of Cancer 2012 (doi:10.1038/bjc.2012.340, PMID 22871885) is a genuine nomogram
+    for overall survival across FIGO IA-IV on six covariates: FIGO stage, tumour size, age, histologic
+    subtype, lymph node ratio, parametrial involvement. Concordance 0.723 optimism-corrected. Numerous
+    SEER-based cervical nomograms also exist, with C-indices around 0.78-0.79.'
+  open_source: none
+  blocker: 'The coefficients are not recoverable. The paper prints univariate hazard ratios (Table 3)
+    but never the multivariable penalised Cox coefficients; the nomogram is graphical only, with no baseline
+    survival given numerically at 3 or 5 years; there is no supplementary file. Validation is bootstrap-internal
+    on 528 patients with 76 events. Its web calculator, the one route that could have yielded the constants,
+    has rotted -- ccc.ac.at/gcu now redirects to the cancer centre homepage. Worth recording as a warning:
+    six models in this library were verified by reading a live calculator, and that route expires without
+    notice.'
+  blocker_kind: coefficients never printed, calculator dead
+- id: endpac
+  disease: pancreatic
+  axis: detection
+  role: flagship
+  status: implemented
+  title: END-PAC (pancreatic cancer risk in new-onset diabetes)
+  code: mayo_baseline.pancreatic.detection.endpac
+  license: open
+  repro_tier: A
+  citation: Sharma A, Kandlakunta H, Nagpal SJS, et al. Gastroenterology. 2018;155(3):730-739.e3
+  equation_source: 'Gastroenterology 2018;155(3):730-739.e3, Table 1 (END-PAC score parameters), read
+    from the NIH author manuscript. Three additive terms: blood-glucose CATEGORY difference (range 1-4),
+    weight change over the preceding year (-6..+6, loss scores positive), age at diabetes onset (-1..+1).
+    Total -6..11; >=3 high risk, <0 extremely low risk.'
+  upstream:
+  - doi: 10.1053/j.gastro.2018.05.023
+    note: development + validation in glycemically-defined new-onset diabetes
+  canonical_impl:
+    type: paper_only
+    license: open
+    note: point table printed in Table 1; no official calculator
+  our_code: mayo_baseline.pancreatic.detection.endpac
+  parity_status: checked
+  parity_note: 'No worked example exists and the only public calculator (endpacscore.com) no longer resolves,
+    so parity was established on the primary source itself. Route 4: every cell of Table 1 (''END-PDAC
+    score parameters'') reproduced against our point functions, including all three printed sub-score
+    ranges (1-4, -6..+6, -1..+1). Route 5: the banding was re-derived from the paper''s own group proportions,
+    which caught a real defect. The abstract writes the low-risk group as ''<0'' while the Results write
+    ''<=0''; both cite the same 49%. The quoted group proportions sum to exactly 100% in both cohorts
+    (T2-NOD 19+32+49, PC-NOD 77+21+2), which is only possible under {>=3, 1..2, <=0} -- under ''<0'' a
+    score of exactly 0 belongs to no group. We had implemented the abstract''s typo, so a score of 0 was
+    reported as intermediate instead of extremely low risk. Fixed; asserted by tests/parity/test_endpac_parity.py.'
+  scope_note: Adults with glycemically-defined new-onset diabetes (validation in >=50-year-olds). Enriches
+    an already-selected group; NOT a general-population screen.
+  inputs:
+  - glucose_at_diabetes_mg_dl
+  - glucose_one_year_before_mg_dl
+  - weight_change_kg
+  - age_at_diabetes_onset
+  open_source: none
+  architecture_family: Points table
+  architecture: 'Additive integer point score from 3 terms: blood-glucose CATEGORY change, weight change
+    over the year, and age at diabetes onset.'
+  core_formula: "total = ΔBG_category + weight_score + age_score      (−6 … 11)\n\n  ΔBG    category difference,\
+    \ NOT mg/dL   (1–4)\n  weight LOSS scores positive             (−6 … +6)\n  age    ≤59 → −1,  60–69\
+    \ → 0,  ≥70 → +1\n  ≥3 high risk · 1–2 intermediate · ≤0 extremely low"
+  evidence:
+    test: tests/parity/test_endpac_parity.py
+    test_function: test_the_published_group_proportions_sum_to_one_hundred
+  public_repo: null
+  source_url: https://doi.org/10.1053/j.gastro.2018.05.023
+  year: 2018
+  development_cohort: Rochester Epidemiology Project; discovery 64 pancreatic cancers vs 192 type 2 diabetes,
+    validation 1,096 with 9 cancers (0.82%)
+  discrimination: AUROC 0.87 (discovery)
+  discrimination_source: primary, Results — read from the PDF
+  entrypoint: endpac_predict
+  equation_location:
+    numbered: false
+    where: Table 1, titled 'Enriching New-onset Diabetes for Pancreatic Cancer (END-PDAC) score parameters'
+      -- note the table says END-PDAC, not END-PAC. Described under 'Patients and Methods'. The three
+      risk-group cut-offs are never listed together in one sentence, which is the direct cause of this
+      project's <0 versus <=0 ambiguity.
+    verified: read 2026-08-06 from PMC6120785
+- id: pancpro
+  disease: pancreatic
+  axis: detection
+  role: flagship
+  status: catalog
+  title: PancPRO / CAPS high-risk criteria
+  license: open
+  repro_tier: C
+  tier_note: Mendelian carrier model; needs a BayesMendel port, not an LP
+  open_source: none
+- id: pancreatic_response_gap
+  disease: pancreatic
+  axis: response
+  role: flagship
+  status: gap
+  title: (no open flagship yet)
+  repro_tier: C
+  tier_note: 'SEARCHED 2026-08-06; the ''not searched exhaustively'' label no longer applies. Candidates
+    exist. The strongest true response model is a contrast-enhanced ultrasound nomogram for neoadjuvant
+    chemotherapy efficacy in borderline-resectable and locally advanced disease (Cancer Imaging 2024,
+    doi:10.1186/s40644-024-00662-2), AUC 0.852 primary and 0.854 validation, on three predictors: taller-than-wide
+    shape, time to peak enhancement, and peak tumour/normal ratio. Also found: a nine-variable chemotherapy-response
+    nomogram for advanced and metastatic disease, C-statistic 0.74.'
+  open_source: none
+  blocker: The ultrasound model's inputs are contrast-enhanced ultrasound kinetics, not routine clinical
+    variables -- the same obstacle as the radiomics models in the gastric and cervical response cells.
+    The nine-variable model takes initial response to chemotherapy as a predictor, so it estimates survival
+    conditioned on observed response; that is prognosis under treatment, not response prediction, and
+    it belongs in a different cell than the one it would fill.
+  blocker_kind: needs inputs we do not take
+- id: msk_pancreatic
+  disease: pancreatic
+  axis: prognosis
+  role: flagship
+  status: implemented
+  title: MSK pancreatic nomogram (disease-specific survival after resection)
+  code: mayo_baseline.pancreatic.prognosis.msk_pancreatic
+  license: open
+  repro_tier: A
+  citation: Brennan MF, Kattan MW, Klimstra D, Conlon K. Ann Surg. 2004;240(2)
+  equation_source: Coefficients from the deployed calculator's published R source at https://github.com/ClevelandClinicQHS/riskcalc-website/tree/main/PancreaticCancer1YrSurvivalAfterResectionforAdenocarcinoma,
+    which riskcalc.org's own page cites to the publication above.
+  upstream:
+  - url: https://github.com/ClevelandClinicQHS/riskcalc-website/tree/main/PancreaticCancer1YrSurvivalAfterResectionforAdenocarcinoma
+    note: deployed model source, coefficients in plain text
+  canonical_impl:
+    type: open_source
+    url: https://github.com/ClevelandClinicQHS/riskcalc-website/tree/main/PancreaticCancer1YrSurvivalAfterResectionforAdenocarcinoma
+    license: see repository terms
+  our_code: mayo_baseline.pancreatic.prognosis.msk_pancreatic
+  architecture_family: Survival (Cox)
+  architecture: Cox proportional hazards with restricted cubic splines on positive-node count and tumour
+    size, plus ten categorical and binary terms; three published horizons.
+  core_formula: "S(t) = S₀(t)^exp(Xβ)\n\n  S₀ = 0.6775     at 12 months\n       0.3457804  at 24 months\n\
+    \       0.1976732  at 36 months\n  Xβ   splines on positive-node count and tumour size, plus ten\n\
+    \       categorical and binary terms; T stage is non-monotone"
+  parity_status: checked
+  parity_note: 'Route 1, CHECKED 2026-08-06 against the vendor''s own deployed R: the reference script
+    copies the model expression VERBATIM from riskcalc.org''s server.R and runs it under R 4.6.1, so the
+    comparison is against their arithmetic rather than our reading of it. 8 patients x 3 horizons = 24
+    probabilities, covering all four T stages, all three differentiation levels, both resection locations
+    and both ends of the age, node and size bounds; worst absolute difference 5.0e-11 percentage points.
+    Two published oddities are pinned rather than corrected: T2 and T3 both score BETTER than the T1 reference,
+    and splenectomy is the single largest term (+0.907). ALSO FOUND: the hosted tool labels its size field
+    ''mm'' while validating 0.1-16 with knots at 2, 3.2 and 5.5 -- those are centimetres. NOTE this cell
+    was recorded as having no published equation until 2026-08-06.'
+  scope_note: 'After resection for adenocarcinoma of the pancreas. Validated ranges enforced: age 33-89,
+    positive nodes 0-39, negative nodes 0-83, size 0.1-16 cm.'
+  inputs:
+  - age
+  - male
+  - portal_vein_resected
+  - splenectomy
+  - resection_margin_positive
+  - location
+  - differentiation
+  - posterior_margin_positive
+  - positive_nodes
+  - negative_nodes
+  - back_pain
+  - t_stage
+  - weight_loss
+  - size_cm
+  open_source: available
+  evidence:
+    test: tests/parity/test_msk_pancreatic_parity.py
+    test_function: test_matches_the_vendor_r
+    script: tests/parity/reference/msk_pancreatic_reference.R
+    fixture: tests/parity/reference/msk_pancreatic_cases.json
+  public_repo: https://github.com/ClevelandClinicQHS/riskcalc-website/tree/main/PancreaticCancer1YrSurvivalAfterResectionforAdenocarcinoma
+  source_url: https://doi.org/10.1097/01.sla.0000133125.85489.07
+  year: 2004
+  development_cohort: Memorial Sloan Kettering pancreatic resection series
+  entrypoint: msk_pancreatic_predict
+  equation_location:
+    numbered: null
+    where: NOT IN THE PAPER as a closed form. Coefficients from ClevelandClinicQHS/riskcalc-website/tree/main/PancreaticCancer1YrSurvivalAfterResectionforAdenocarcinoma.
+    verified: vendor R source; parity-verified 2026-08-06
+- id: pancreatic_prognosis_catalog
+  disease: pancreatic
+  axis: prognosis
+  role: catalog
+  status: catalog
+  title: Resectability staging
+  license: web-only
+  correction_note: '2026-08-05 MSK portal audit: MSK hosts NO pancreatic tool, period — no area, no tool,
+    no legacy page. Prior title wrongly cited MSK.'
+  repro_tier: A
+  tier_note: SUPERSEDED 2026-08-06 by the implemented `msk_pancreatic`.
+  open_source: none
+  candidate_source: https://github.com/ClevelandClinicQHS/riskcalc-website/tree/main/PancreaticCancer1YrSurvivalAfterResectionforAdenocarcinoma
+- id: hn_detection_gap
+  disease: head_neck
+  axis: detection
+  role: flagship
+  status: gap
+  title: (no open flagship yet — sites heterogeneous)
+  repro_tier: C
+  tier_note: CANDIDATE FOUND, and a strong one. The INHANCE Consortium published a general-population
+    head-and-neck cancer risk model (Am J Epidemiol, doi:10.1093/aje/kwz259) giving 20-year absolute risk
+    from age, sex, race, smoking, alcohol, sexual history and oral HPV; Smith et al, Head & Neck 2024
+    (doi:10.1002/hed.27834) adds an externally validated model. The previous note said no established
+    general-population model was found. That was wrong -- it had not been searched for.
+  open_source: none
+  blocker: Two blockers, and the second is the harder one. (1) The coefficients are in Web Tables 4 and
+    5 of the supplement, a 2.6 MB zip that is not reachable through any open route. (2) Even with the
+    zip, absolute risk in this model is built from SEER age- and sex-specific incidence rates scaled by
+    the attributable fraction -- the baseline is an external dataset, not a printed constant like the
+    S0 values every Cox model here carries.
+  blocker_kind: missing file plus external data dependency
+  routes_tried: PMC serves an HTML interstitial in place of lee_web_material_final_kwz259.zip; the Oxford
+    Silverchair CDN returns 403; Europe PMC reports no supplementary files for PMC7274188. The main text
+    gives the AUCs (0.643 for oropharyngeal cancer in men, 0.70 or higher elsewhere, up to 0.870) and
+    worked absolute-risk examples in Tables 2-3, but not the coefficients.
+  next_action: Obtain the supplement from the journal or the authors, then decide whether to vendor SEER
+    incidence rates. The SEER dependency means this is a larger piece of work than it looks -- closer
+    to BCRAT, which also carries baseline hazards from an external registry.
+- id: hn_response_gap
+  disease: head_neck
+  axis: response
+  role: flagship
+  status: gap
+  title: (no open flagship yet)
+  repro_tier: C
+  tier_note: SEARCHED 2026-08-06; the 'not searched exhaustively' label no longer applies. The strongest
+    candidate is a pretreatment nomogram for response to induction chemotherapy in locally advanced hypopharyngeal
+    carcinoma (Front Oncol 2020, PMC7761343) on four predictors -- age, T stage, haemoglobin, platelets
+    -- AUC 0.860 (0.780-0.940). CT radiomics nomograms for laryngeal cancer also exist.
+  open_source: none
+  blocker: Validation is 3-fold cross-validation on the same cohort, not external; the model covers one
+    subsite (hypopharynx) at one centre. Every model shipped here has either an external validation cohort
+    or a development base orders of magnitude larger. The radiomics alternatives need CT-derived features
+    we do not take as inputs.
+  blocker_kind: internal validation only, single centre
+- id: ang2010_rpa
+  disease: head_neck
+  axis: prognosis
+  role: flagship
+  status: implemented
+  title: Ang 2010 RPA risk groups (HPV / smoking / stage, oropharynx)
+  code: mayo_baseline.head_neck.prognosis.ang2010_rpa
+  license: open
+  repro_tier: A
+  citation: Ang KK et al. N Engl J Med. 2010;363(1):24-35 (RTOG 0129)
+  equation_source: 'PMC2943767, verbatim Results-section quote — HPV-positive: low risk except smokers
+    (>10 pack-years) with N2b-N3 = intermediate; HPV-negative: high risk except nonsmokers with T2/T3
+    = intermediate'
+  upstream:
+  - url: https://pmc.ncbi.nlm.nih.gov/articles/PMC2943767/
+    note: primary RTOG 0129 analysis
+  canonical_impl:
+    type: paper_only
+    license: open
+  our_code: mayo_baseline.head_neck.prognosis.ang2010_rpa
+  parity_status: checked
+  scope_note: 'Known ambiguity, documented in code: the primary text uses ''>10 pack-years'' for the HPV-positive
+    branch''s smoking split but ''nonsmokers'' (undefined precisely) for the HPV-negative branch''s exception.
+    We apply the same <=10/>10 pack-years split to both branches as the more defensible reading; flagged,
+    not silently resolved.'
+  open_source: none
+  parity_note: 'CHECKED 2026-08-05 against Fakhry et al. external validation (Cancer 2019;125:2027-2038,
+    PMC6594017), which operationalizes the same risk groups. It RESOLVED the documented ambiguity -- both
+    branches use <=10 pack-years -- and exposed a divergence: Ang names T2/T3 for the HPV-negative exception,
+    Fakhry says <T4, which adds T1. Both shipped via the definition parameter; ang2010 is the default.'
+  architecture_family: Decision tree
+  architecture: 'Recursive-partitioning (CART) decision tree: three binary splits on HPV status, pack-years
+    and nodal/tumour stage produce 3 risk groups.'
+  n_parameters: 3
+  core_formula: "HPV+ ─┬─ ≤10 pack-years ─────────────→ low\n      └─ >10 ─┬─ N0–N2a ────────────→ low\n\
+    \              └─ N2b–N3 ───────────→ intermediate\n\nHPV− ─┬─ ≤10 pack-years, T2–T3 ────→ intermediate\n\
+    \      └─ otherwise ────────────────→ high"
+  evidence:
+    test: tests/test_head_neck_prognosis_ang2010.py
+    test_function: test_the_two_operationalizations_differ_only_for_hpv_negative_t1
+  public_repo: null
+  source_url: https://doi.org/10.1056/NEJMoa0912217
+  year: 2010
+  entrypoint: ang2010_rpa_predict
+  equation_location:
+    numbered: false
+    where: Results, subsection 'HPV status and survival', stated as prose and drawn as the recursive-partitioning
+      tree in Figure 2. No table.
+    verified: read 2026-08-06 from PMC2943767
+- id: hn_msk_catalog
+  disease: head_neck
+  axis: prognosis
+  role: catalog
+  status: catalog
+  title: TNM staging
+  license: web-only
+  correction_note: '2026-08-05 MSK portal audit: MSK''s public nomogram portal hosts NO head & neck tool
+    at all (no area, no tool, no legacy page). Prior title and URL wrongly cited MSK; corrected to TNM
+    staging only. ang2010_rpa is the head & neck prognosis flagship.'
+  open_source: none

@@ -1,0 +1,140 @@
+{
+  "source": "https://www.mskcc.org/nomograms/rectal/post_treatment",
+  "tool": "MSK rectal post-treatment calculator",
+  "supporting_publication": "Weiser MR et al. JAMA Netw Open. 2021;4(11):e2133457, PMCID PMC8576585 \u2014 cited by the tool itself",
+  "resolution": "whole percent, as displayed by the tool",
+  "cases": [
+    {
+      "age": 60,
+      "t_stage": "T3",
+      "nodes": 2,
+      "dtav_gt5": true,
+      "vi": false,
+      "pni": false,
+      "months": 60,
+      "rfs": 60.0,
+      "os": 83.0
+    },
+    {
+      "age": 40,
+      "t_stage": "T1",
+      "nodes": 0,
+      "dtav_gt5": true,
+      "vi": false,
+      "pni": false,
+      "months": 60,
+      "rfs": 88.0,
+      "os": 95.0
+    },
+    {
+      "age": 75,
+      "t_stage": "T4",
+      "nodes": 7,
+      "dtav_gt5": false,
+      "vi": true,
+      "pni": true,
+      "months": 60,
+      "rfs": 1.0,
+      "os": 1.0
+    },
+    {
+      "age": 55,
+      "t_stage": "T2",
+      "nodes": 1,
+      "dtav_gt5": false,
+      "vi": true,
+      "pni": false,
+      "months": 60,
+      "rfs": 62.0,
+      "os": 79.0
+    },
+    {
+      "age": 68,
+      "t_stage": "T3",
+      "nodes": 3,
+      "dtav_gt5": true,
+      "vi": false,
+      "pni": true,
+      "months": 60,
+      "rfs": 36.0,
+      "os": 55.0
+    },
+    {
+      "age": 45,
+      "t_stage": "T1",
+      "nodes": 0,
+      "dtav_gt5": false,
+      "vi": false,
+      "pni": false,
+      "months": 60,
+      "rfs": 83.0,
+      "os": 92.0
+    },
+    {
+      "age": 80,
+      "t_stage": "T2",
+      "nodes": 5,
+      "dtav_gt5": true,
+      "vi": true,
+      "pni": true,
+      "months": 60,
+      "rfs": 42.0,
+      "os": 15.0
+    },
+    {
+      "age": 36,
+      "t_stage": "T4",
+      "nodes": 1,
+      "dtav_gt5": true,
+      "vi": false,
+      "pni": false,
+      "months": 60,
+      "rfs": 38.0,
+      "os": 74.0
+    },
+    {
+      "age": 52,
+      "t_stage": "T3",
+      "nodes": 0,
+      "dtav_gt5": false,
+      "vi": true,
+      "pni": true,
+      "months": 60,
+      "rfs": 45.0,
+      "os": 70.0
+    },
+    {
+      "age": 64,
+      "t_stage": "T1",
+      "nodes": 4,
+      "dtav_gt5": true,
+      "vi": true,
+      "pni": false,
+      "months": 60,
+      "rfs": 72.0,
+      "os": 73.0
+    },
+    {
+      "age": 71,
+      "t_stage": "T2",
+      "nodes": 2,
+      "dtav_gt5": false,
+      "vi": false,
+      "pni": true,
+      "months": 60,
+      "rfs": 37.0,
+      "os": 44.0
+    },
+    {
+      "age": 58,
+      "t_stage": "T4",
+      "nodes": 9,
+      "dtav_gt5": true,
+      "vi": true,
+      "pni": true,
+      "months": 60,
+      "rfs": 4.0,
+      "os": 10.0
+    }
+  ]
+}

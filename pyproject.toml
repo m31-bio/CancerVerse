@@ -1,0 +1,90 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mayo-baseline"
+version = "0.1.0"
+description = "Published clinical risk equations, reimplemented in Python and independently verified"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+keywords = ["clinical-prediction", "risk-models", "oncology", "cardiovascular"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+]
+
+# The library itself computes closed-form equations in pure Python. PyYAML is
+# here because the registry -- the single source of truth for every model's
+# provenance -- is a YAML file that ships with the package.
+dependencies = ["PyYAML>=6.0"]
+
+[project.scripts]
+mayo-baseline = "mayo_baseline.cli:main"
+
+[project.urls]
+Repository = "https://github.com/Ziqi-Hao/baseline"
+
+# PEP 735. Split by what each group is actually for, so a contributor who only
+# wants to run the tests does not also install the reporting stack.
+[dependency-groups]
+dev = [
+    { include-group = "test" },
+    { include-group = "lint" },
+    { include-group = "reports" },
+]
+test = ["pytest>=7.0"]
+lint = ["ruff>=0.6", "mypy>=1.10", "pre-commit>=3.7"]
+# Only the scripts that render the coverage table, the spreadsheet and the
+# slide decks need these. Nothing under src/ imports them.
+reports = ["openpyxl>=3.1", "python-pptx>=0.6"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mayo_baseline"]
+# Coefficient tables that ship with the code. dutasteride's 315 coefficients
+# are data, not a fixture, and an installed wheel must carry them.
+artifacts = ["src/mayo_baseline/**/data/*.json"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/", "tests/", "registry/", "README.md", "LICENSE", "NOTICE"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+# Parity tests are slow-ish and network-free; keep them opt-outable by name.
+markers = ["parity: reproduces a published or vendor-computed reference value"]
+
+[tool.ruff]
+line-length = 88
+src = ["src", "tests", "scripts"]
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+# Coefficient tables are wide by nature and wrapping them makes them harder to
+# check against the paper, which is the whole point of this repository.
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+# Generated coefficient tables: long lines, and names that mirror the paper's.
+"src/mayo_baseline/*/*/coefficients.py" = ["E741"]
+"tests/parity/reference/*" = ["E741"]
+# Report generators put `sys.path.insert` before importing the shared table
+# definition, so their imports cannot all sit at the top (E402). `l` there is a
+# line accumulator in slide-building code, not a variable worth renaming (E741).
+"scripts/*.py" = ["E402", "E741"]
+# Same import order reason, plus `l` is used as a loop line in one assertion.
+"tests/test_registry.py" = ["E741"]
+
+[tool.mypy]
+python_version = "3.10"
+files = ["src"]
+ignore_missing_imports = true
+# Not strict yet: the model modules take **kwargs by design, because each takes
+# the predictors its own paper defines.
+disallow_untyped_defs = false

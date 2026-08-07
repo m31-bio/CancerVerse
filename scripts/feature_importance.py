@@ -1,0 +1,400 @@
+#!/usr/bin/env python3
+"""Which predictor actually drives each model?
+
+    python scripts/feature_importance.py [--json out.json]
+
+Method: hold every input at a clinically ordinary reference patient, sweep one
+input across its plausible clinical range, and record how far the output moves.
+The swing is the feature's influence *in the range a real patient occupies* —
+which is the question a clinician asks, and is not the same as the size of the
+coefficient. Age in a Cox model can carry a small beta and still dominate,
+because it ranges over fifty years.
+
+Reported on each model's own output scale:
+  * probability models  -> percentage points of absolute risk
+  * point scores        -> points
+  * index / linear      -> index units
+
+Comparisons are therefore valid WITHIN a model, not across models. Each swing
+is also given as a share of that model's total swing, which is comparable.
+
+Ranges are deliberately clinical, not mathematical: PSA 1-30 not 0-1000. A
+sweep over impossible inputs would name whichever feature has the widest
+arithmetic domain, which tells you nothing.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+
+# ---------------------------------------------------------------------------
+# spec: model_id -> (module, function, output_key, reference kwargs, sweeps)
+# `sweeps` maps a human label to (kwarg, [values across the clinical range]).
+# ---------------------------------------------------------------------------
+SPEC = {
+    "bcrat": (
+        "mayo_baseline.breast.detection", "bcrat_predict", "risk", 100,
+        dict(start_age=50, end_age=55, race="white", n_biopsies=0,
+             atypical_hyperplasia="unknown", age_menarche=13,
+             age_first_birth=25, n_relatives=0),
+        {"age at menarche": ("age_menarche", [15, 13, 11]),
+         "age at first birth": ("age_first_birth", [19, 25, 32]),
+         "prior biopsies": ("n_biopsies", [0, 1, 2]),
+         "first-degree relatives": ("n_relatives", [0, 1, 2]),
+         "current age": ("start_age", [40, 50, 65])},
+    ),
+    "prevent": (
+        "mayo_baseline.cvd.detection", "prevent_predict", "risk", 100,
+        dict(sex="female", age=55, total_chol_mg_dl=200, hdl_mg_dl=50, sbp=130,
+             diabetes=False, smoker=False, bmi=27, egfr=90, htn_meds=False,
+             statin=False),
+        {"age": ("age", [40, 55, 75]),
+         "systolic BP": ("sbp", [110, 130, 180]),
+         "total cholesterol": ("total_chol_mg_dl", [150, 200, 280]),
+         "HDL": ("hdl_mg_dl", [30, 50, 80]),
+         "eGFR": ("egfr", [30, 90, 120]),
+         "diabetes": ("diabetes", [False, True]),
+         "smoking": ("smoker", [False, True]),
+         "BMI (total CVD — no effect, see note)": ("bmi", [20, 27, 40])},
+    ),
+    "score2": (
+        "mayo_baseline.cvd.detection", "score2_predict", "risk", 100,
+        dict(sex="male", age=55, sbp=130, total_chol_mmol=5.5, hdl_mmol=1.3,
+             smoker=False, region="moderate"),
+        {"age": ("age", [40, 55, 69]),
+         "systolic BP": ("sbp", [110, 130, 180]),
+         "total cholesterol": ("total_chol_mmol", [4.0, 5.5, 8.0]),
+         "HDL": ("hdl_mmol", [0.8, 1.3, 2.2]),
+         "smoking": ("smoker", [False, True])},
+    ),
+    "grace": (
+        "mayo_baseline.cvd.prognosis", "grace_predict", "score", 1,
+        dict(killip_class=1, sbp=130, heart_rate=80, age=65,
+             creatinine_mg_dl=1.0),
+        {"age": ("age", [35, 65, 85]),
+         "Killip class": ("killip_class", [1, 2, 3, 4]),
+         "systolic BP": ("sbp", [80, 130, 200]),
+         "heart rate": ("heart_rate", [55, 80, 200]),
+         "creatinine": ("creatinine_mg_dl", [0.5, 1.0, 4.5]),
+         "cardiac arrest": ("cardiac_arrest_at_admission", [False, True])},
+    ),
+    "cha2ds2_vasc": (
+        "mayo_baseline.cvd.prognosis", "cha2ds2_vasc_predict", "score", 1,
+        dict(heart_failure=False, hypertension=False, age=60, diabetes=False,
+             prior_stroke_tia_thromboembolism=False, vascular_disease=False,
+             female=False),
+        {"age": ("age", [60, 70, 80]),
+         "prior stroke / TIA": ("prior_stroke_tia_thromboembolism", [False, True]),
+         "heart failure": ("heart_failure", [False, True]),
+         "hypertension": ("hypertension", [False, True]),
+         "diabetes": ("diabetes", [False, True]),
+         "vascular disease": ("vascular_disease", [False, True]),
+         "female sex": ("female", [False, True])},
+    ),
+    "plcom2012": (
+        "mayo_baseline.lung.detection", "plcom2012_predict", "risk", 100,
+        dict(age=62, race="white", education_level=4, bmi=27, copd=False,
+             personal_cancer_history=False, family_history_lung_cancer=False,
+             current_smoker=False, cigarettes_per_day=20,
+             smoking_duration_years=30, quit_years=10),
+        {"age": ("age", [55, 62, 74]),
+         "smoking duration": ("smoking_duration_years", [10, 30, 50]),
+         "cigarettes per day": ("cigarettes_per_day", [5, 20, 60]),
+         "years since quitting": ("quit_years", [0, 10, 30]),
+         "current smoker": ("current_smoker", [False, True]),
+         "COPD": ("copd", [False, True]),
+         "BMI": ("bmi", [18, 27, 40]),
+         "family history": ("family_history_lung_cancer", [False, True])},
+    ),
+    "erspc_rc3": (
+        "mayo_baseline.prostate.detection", "erspc_rc3_predict", "risk", 100,
+        dict(psa=4.0, volume_ml=40, dre_positive=False),
+        {"PSA": ("psa", [1.0, 4.0, 30.0]),
+         "prostate volume": ("volume_ml", [20, 40, 80]),
+         "abnormal DRE": ("dre_positive", [False, True])},
+    ),
+    "pbcg": (
+        "mayo_baseline.prostate.detection", "pbcg_predict", "risk", 100,
+        dict(psa=6.0, age=65, african_ancestry=False, prior_biopsy=False,
+             dre_abnormal=False, family_history=False),
+        {"PSA": ("psa", [1.0, 6.0, 30.0]),
+         "abnormal DRE": ("dre_abnormal", [False, True]),
+         "age": ("age", [45, 65, 85]),
+         "African ancestry": ("african_ancestry", [False, True]),
+         "prior negative biopsy": ("prior_biopsy", [False, True]),
+         "family history": ("family_history", [False, True])},
+    ),
+    "capra": (
+        "mayo_baseline.prostate.prognosis", "capra_predict", "score", 1,
+        dict(psa=6.0, gleason_primary=3, gleason_secondary=3, t_stage="T1c",
+             percent_positive_cores=20, age=60),
+        {"PSA": ("psa", [3.0, 6.0, 35.0]),
+         "Gleason primary": ("gleason_primary", [3, 4, 5]),
+         "T stage": ("t_stage", ["T1c", "T3a"]),
+         "% positive cores": ("percent_positive_cores", [10, 20, 60]),
+         "age": ("age", [45, 60])},
+    ),
+    "amap": (
+        "mayo_baseline.liver.detection", "amap_predict", "score", 1,
+        dict(age=55, male=True, platelets=200, bilirubin_umol_l=15,
+             albumin_g_l=42),
+        {"age": ("age", [30, 55, 80]),
+         "platelets": ("platelets", [60, 200, 350]),
+         "albumin": ("albumin_g_l", [28, 42, 50]),
+         "bilirubin": ("bilirubin_umol_l", [5, 15, 60]),
+         "male sex": ("male", [False, True])},
+    ),
+    "albi": (
+        "mayo_baseline.liver.prognosis", "albi_predict", "score", 1,
+        dict(bilirubin_umol_l=20, albumin_g_l=40),
+        {"albumin": ("albumin_g_l", [25, 40, 50]),
+         "bilirubin": ("bilirubin_umol_l", [5, 20, 100])},
+    ),
+    "hap": (
+        "mayo_baseline.liver.response", "hap_predict", "score", 1,
+        dict(albumin_g_l=40, bilirubin_umol_l=15, afp_ng_ml=100,
+             dominant_tumour_size_cm=5),
+        {"albumin < 36 g/L": ("albumin_g_l", [40, 30]),
+         "bilirubin > 17 µmol/L": ("bilirubin_umol_l", [15, 25]),
+         "AFP > 400 ng/mL": ("afp_ng_ml", [100, 800]),
+         "tumour > 7 cm": ("dominant_tumour_size_cm", [5, 9])},
+    ),
+    "kunzmann": (
+        "mayo_baseline.esophageal.detection", "kunzmann_predict", "score", 1,
+        dict(age=60, male=False, bmi=24, smoking="never",
+             esophageal_condition=False),
+        {"male sex": ("male", [False, True]),
+         "age": ("age", [52, 60, 70]),
+         "smoking": ("smoking", ["never", "former", "current"]),
+         "BMI": ("bmi", [24, 27, 40]),
+         "oesophageal condition": ("esophageal_condition", [False, True])},
+    ),
+    "roma": (
+        "mayo_baseline.ovarian.detection", "roma_predict", "risk", 100,
+        dict(he4_pmol_l=60, ca125_u_ml=30, postmenopausal=True),
+        {"HE4": ("he4_pmol_l", [25, 60, 400]),
+         "CA-125": ("ca125_u_ml", [10, 30, 500]),
+         "postmenopausal": ("postmenopausal", [False, True])},
+    ),
+    "rmi": (
+        "mayo_baseline.ovarian.detection", "rmi_predict", "index", 1,
+        dict(ultrasound_score=1, postmenopausal=False, ca125=30,
+             variant="rmi1"),
+        {"CA-125": ("ca125", [10, 30, 500]),
+         "ultrasound features": ("ultrasound_score", [0, 1, 4]),
+         "postmenopausal": ("postmenopausal", [False, True])},
+    ),
+    "cervical_cin_risk": (
+        "mayo_baseline.cervical.detection", "cervical_cin_risk_predict",
+        "risk", 100,
+        dict(hrhpv_positive=False, cytology="NILM", age=40, variant="base"),
+        {"cytology grade": ("cytology",
+                            ["NILM", "ASC-US", "LSIL", "ASC-H", "HSIL/AIS", "SCC/ADC"]),
+         "hrHPV positive": ("hrhpv_positive", [False, True]),
+         "age": ("age", [25, 40, 65])},
+    ),
+    "endpac": (
+        "mayo_baseline.pancreatic.detection", "endpac_predict", "score", 1,
+        dict(glucose_at_diabetes_mg_dl=130, glucose_one_year_before_mg_dl=105,
+             weight_change_kg=0.0, age_at_diabetes_onset=65),
+        {"weight change": ("weight_change_kg", [6.0, 0.0, -7.0]),
+         "glucose rise": ("glucose_one_year_before_mg_dl", [120, 105, 95]),
+         "age at onset": ("age_at_diabetes_onset", [55, 65, 75])},
+    ),
+    "abc_method": (
+        "mayo_baseline.gastric.detection", "abc_method_predict", "risk", 100,
+        dict(h_pylori_antibody_positive=False, pepsinogen_i=60,
+             pepsinogen_i_ii_ratio=4.0),
+        # Atrophy requires PG I <= 70 AND PG I/II <= 3.0, so sweeping PG I
+        # alone can never flip it — the ratio has to move with it.
+        {"pepsinogen atrophy": ("pepsinogen_i_ii_ratio", [4.0, 2.5]),
+         "H. pylori antibody": ("h_pylori_antibody_positive", [False, True])},
+    ),
+    "msk_gastric": (
+        "mayo_baseline.gastric.prognosis", "msk_gastric_predict", "risk", 100,
+        dict(age=60, male=True, primary_site="antrum_or_pyloric",
+             lauren="intestinal", size_cm=4.0, positive_nodes=3,
+             negative_nodes=15, depth="subserosa", years=5),
+        {"depth of invasion": ("depth", ["mucosa", "subserosa",
+                                         "adjacent_organ_involvement"]),
+         "positive nodes": ("positive_nodes", [0, 3, 23]),
+         "negative nodes": ("negative_nodes", [0, 15, 146]),
+         "age": ("age", [30, 60, 90]),
+         "primary site": ("primary_site", ["antrum_or_pyloric",
+                                           "gastroesophageal_junction"]),
+         "tumour size": ("size_cm", [1.0, 4.0, 21.0]),
+         "Lauren type": ("lauren", ["intestinal", "mixed", "diffuse"]),
+         "male sex": ("male", [False, True])},
+    ),
+    "crc_pro": (
+        "mayo_baseline.colorectal.detection", "crc_pro_predict", "risk", 100,
+        dict(male=True, age=62, ethnicity="white", weight_lb=180, height_in=69,
+             years_education=14, pack_years=10, alcohol_drinks_per_day=1.0,
+             family_history=False, multivitamin=False, diabetes=False,
+             aspirin="no", red_meat_oz_per_day=1.5,
+             activity_hours_per_day=1.0),
+        {"age": ("age", [45, 62, 85]),
+         "ethnicity": ("ethnicity", ["black", "japanese", "white", "latino"]),
+         "alcohol": ("alcohol_drinks_per_day", [0.0, 1.0, 12.0]),
+         "red meat": ("red_meat_oz_per_day", [0.0, 1.5, 5.0]),
+         "physical activity": ("activity_hours_per_day", [0.0, 1.0, 4.0]),
+         "aspirin": ("aspirin", ["no", "previously", "currently"]),
+         "family history": ("family_history", [False, True]),
+         "weight": ("weight_lb", [130, 180, 300]),
+         "education": ("years_education", [6, 14, 20]),
+         "pack-years": ("pack_years", [0, 10, 50]),
+         "diabetes": ("diabetes", [False, True]),
+         "multivitamin": ("multivitamin", [False, True])},
+    ),
+    "msk_ovarian": (
+        "mayo_baseline.ovarian.prognosis", "msk_ovarian_predict", "risk", 100,
+        dict(age=60, grade="3", histology_yes=False, platelets=400,
+             ascites=False, residual_disease="0.5_1_cm"),
+        {"residual disease": ("residual_disease",
+                              ["no_gross_residual", "0.5_1_cm", "gt_2_cm"]),
+         "ascites": ("ascites", [False, True]),
+         "age": ("age", [22, 60, 87]),
+         "platelets": ("platelets", [113, 400, 1078]),
+         "histology": ("histology_yes", [False, True]),
+         "grade 3": ("grade", ["1-2", "3"])},
+    ),
+    "msk_pancreatic": (
+        "mayo_baseline.pancreatic.prognosis", "msk_pancreatic_predict", "risk", 100,
+        dict(age=62, male=True, location="head", differentiation="moderate",
+             positive_nodes=2, negative_nodes=12, t_stage="2", size_cm=3.0,
+             months=12),
+        {"tumour size": ("size_cm", [0.5, 3.0, 12.0]),
+         "positive nodes": ("positive_nodes", [0, 2, 39]),
+         "splenectomy": ("splenectomy", [False, True]),
+         "resection location": ("location", ["head", "other"]),
+         "T stage": ("t_stage", ["1", "2", "3", "4"]),
+         "differentiation": ("differentiation", ["well", "moderate", "poor"]),
+         "posterior margin": ("posterior_margin_positive", [False, True]),
+         "back pain": ("back_pain", [False, True]),
+         "portal vein resected": ("portal_vein_resected", [False, True]),
+         "negative nodes": ("negative_nodes", [0, 12, 83]),
+         "age": ("age", [33, 62, 89])},
+    ),
+    "msk_rectal": (
+        "mayo_baseline.colorectal.prognosis", "msk_rectal_predict", "risk", 100,
+        dict(endpoint="os", months=60, ypt="ypT3", positive_nodes=2,
+             distance_to_anal_verge_cm=6.0, venous_invasion=False,
+             perineural_invasion=False, age=60),
+        {"ypT stage": ("ypt", ["ypT0", "ypT3", "ypT4"]),
+         "positive nodes": ("positive_nodes", [0, 2, 9]),
+         "age": ("age", [40, 60, 80]),
+         "perineural invasion": ("perineural_invasion", [False, True]),
+         "venous invasion": ("venous_invasion", [False, True]),
+         "distance to anal verge": ("distance_to_anal_verge_cm", [2.0, 8.0])},
+    ),
+    "lipi": (
+        "mayo_baseline.lung.response", "lipi_predict", "score", 1,
+        dict(dnlr=2.0, ldh=200, ldh_upper_limit_normal=250),
+        {"dNLR > 3": ("dnlr", [2.0, 5.0]),
+         "LDH > ULN": ("ldh", [200, 400])},
+    ),
+}
+
+# Models whose output is a category, not a number — importance is structural.
+CATEGORICAL_NOTE = {
+    "ang2010_rpa": ("HPV status", "The first split of the tree. HPV-positive "
+                    "disease is low risk unless the patient is both a heavy "
+                    "smoker and node-positive; HPV-negative is high risk "
+                    "unless a light smoker with T2/T3."),
+    "predict_breast": ("tumour size, nodes and grade, then treatment",
+                       "A survival model, so influence depends on the horizon; "
+                       "the prognostic index is dominated by nodal status and "
+                       "size, and the treatment arms shift survival by "
+                       "10-30 percentage points at 10 years."),
+    "predict_breast_response": ("chemotherapy generation and ER status",
+                                "Benefit is the difference between two survival "
+                                "curves, so the treatment arms ARE the model."),
+    "lipi_prognosis": ("dNLR and LDH equally", "Two binary items, one point "
+                       "each; neither is weighted above the other."),
+}
+
+
+def sweep(model_id: str) -> dict | None:
+    import importlib
+
+    if model_id not in SPEC:
+        return None
+    modname, fnname, key, scale, ref, sweeps = SPEC[model_id]
+    fn = getattr(importlib.import_module(modname), fnname)
+
+    base = fn(**ref)[key]
+    rows = []
+    for label, (kwarg, values) in sweeps.items():
+        outs = []
+        for v in values:
+            kw = dict(ref)
+            kw[kwarg] = v
+            try:
+                outs.append(fn(**kw)[key])
+            except Exception:
+                continue
+        if len(outs) < 2:
+            continue
+        rows.append({
+            "feature": label,
+            "low": min(outs) * scale,
+            "high": max(outs) * scale,
+            "swing": (max(outs) - min(outs)) * scale,
+        })
+    total = sum(r["swing"] for r in rows) or 1.0
+    for r in rows:
+        r["share"] = r["swing"] / total
+    rows.sort(key=lambda r: -r["swing"])
+    return {"model": model_id, "baseline": base * scale, "features": rows}
+
+
+def main() -> int:
+    import sys
+
+    import yaml
+
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--json", type=Path)
+    args = ap.parse_args()
+
+    reg = yaml.safe_load(
+        (Path(__file__).resolve().parents[1] / "registry" / "models.yaml").read_text()
+    )["models"]
+    impl = [m for m in reg if m.get("status") == "implemented"]
+    by_disease: dict[str, list] = {}
+    for m in impl:
+        by_disease.setdefault(m["disease"], []).append(m)
+
+    out = {}
+    for disease in sorted(by_disease):
+        print(f"\n{'=' * 74}\n{disease.upper()}")
+        for m in by_disease[disease]:
+            res = sweep(m["id"])
+            if res is None:
+                feat, why = CATEGORICAL_NOTE.get(m["id"], ("—", ""))
+                print(f"\n  {m['id']}  ({m['axis']})")
+                print(f"     dominant: {feat}")
+                if why:
+                    print(f"     {why}")
+                out[m["id"]] = {"model": m["id"], "dominant": feat, "note": why}
+                continue
+            unit = "pp risk" if SPEC[m["id"]][3] == 100 else "points"
+            print(f"\n  {m['id']}  ({m['axis']})   reference patient: "
+                  f"{res['baseline']:.2f} {unit}")
+            for r in res["features"]:
+                bar = "#" * max(1, round(r["share"] * 34))
+                print(f"     {r['feature']:26} {r['swing']:8.2f}  "
+                      f"{r['share']:5.0%}  {bar}")
+            out[m["id"]] = res
+
+    if args.json:
+        args.json.write_text(json.dumps(out, indent=2))
+        print(f"\nwrote {args.json}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,0 +1,17 @@
+{
+  "source": "riskcalc.org GastricCancer/server.R, run under R 4.6.1",
+  "cases": [
+  {"age": 60, "male": true, "primary_site": "Antrum or Piloric", "lauren": "Intestinal", "size_cm": 3, "positive_nodes": 0, "negative_nodes": 20, "depth_code": 3, "depth": "Propia Muscularis", "dss_5yr_pct": 90.3549654675, "dss_9yr_pct": 88.2149271360},
+  {"age": 45, "male": false, "primary_site": "Gastroesophageal Junction", "lauren": "Diffuse", "size_cm": 6.5, "positive_nodes": 5, "negative_nodes": 10, "depth_code": 6, "depth": "Definite serosal invasion", "dss_5yr_pct": 6.9633185768, "dss_9yr_pct": 3.7096826828},
+  {"age": 75, "male": true, "primary_site": "Body or Middle One Third", "lauren": "Mixed", "size_cm": 2, "positive_nodes": 1, "negative_nodes": 30, "depth_code": 2, "depth": "Submucosa", "dss_5yr_pct": 86.7640359180, "dss_9yr_pct": 83.9010617080},
+  {"age": 30, "male": false, "primary_site": "Proximal or Upper One Third", "lauren": "Intestinal", "size_cm": 10, "positive_nodes": 12, "negative_nodes": 4, "depth_code": 7, "depth": "Adjacent organ involvement", "dss_5yr_pct": 3.7593735315, "dss_9yr_pct": 1.7312896207},
+  {"age": 88, "male": true, "primary_site": "Antrum or Piloric", "lauren": "Diffuse", "size_cm": 1, "positive_nodes": 0, "negative_nodes": 0, "depth_code": 1, "depth": "Mucosa", "dss_5yr_pct": 82.0298081823, "dss_9yr_pct": 78.2781328805},
+  {"age": 52, "male": false, "primary_site": "Body or Middle One Third", "lauren": "Intestinal", "size_cm": 4.5, "positive_nodes": 3, "negative_nodes": 17, "depth_code": 4, "depth": "Subserosa", "dss_5yr_pct": 63.3115563699, "dss_9yr_pct": 56.8286154678},
+  {"age": 67, "male": true, "primary_site": "Gastroesophageal Junction", "lauren": "Mixed", "size_cm": 8, "positive_nodes": 23, "negative_nodes": 146, "depth_code": 5, "depth": "Suspected serosal invasion", "dss_5yr_pct": 0.2548526795, "dss_9yr_pct": 0.0621315865},
+  {"age": 25, "male": false, "primary_site": "Antrum or Piloric", "lauren": "Mixed", "size_cm": 0.1, "positive_nodes": 0, "negative_nodes": 5, "depth_code": 1, "depth": "Mucosa", "dss_5yr_pct": 94.5527818672, "dss_9yr_pct": 93.3093948922},
+  {"age": 96, "male": true, "primary_site": "Proximal or Upper One Third", "lauren": "Diffuse", "size_cm": 21, "positive_nodes": 11, "negative_nodes": 37, "depth_code": 7, "depth": "Adjacent organ involvement", "dss_5yr_pct": 0.0105119737, "dss_9yr_pct": 0.0012063716},
+  {"age": 59, "male": false, "primary_site": "Body or Middle One Third", "lauren": "Diffuse", "size_cm": 5, "positive_nodes": 2, "negative_nodes": 46, "depth_code": 4, "depth": "Subserosa", "dss_5yr_pct": 67.5861241579, "dss_9yr_pct": 61.6094654769},
+  {"age": 48, "male": true, "primary_site": "Antrum or Piloric", "lauren": "Intestinal", "size_cm": 7, "positive_nodes": 8, "negative_nodes": 18, "depth_code": 6, "depth": "Definite serosal invasion", "dss_5yr_pct": 27.8748250974, "dss_9yr_pct": 20.6109519279},
+  {"age": 80, "male": false, "primary_site": "Gastroesophageal Junction", "lauren": "Intestinal", "size_cm": 3.3, "positive_nodes": 4, "negative_nodes": 38, "depth_code": 3, "depth": "Propia Muscularis", "dss_5yr_pct": 42.3951819611, "dss_9yr_pct": 34.6130190821}
+  ]
+}

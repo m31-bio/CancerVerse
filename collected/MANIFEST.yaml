@@ -1,0 +1,39 @@
+note: 'Third-party reference implementations used ONLY to verify our own code. They are deliberately NOT
+  vendored into this repository: BCRA and PLCOm2012 are GPL, and mixing vendored GPL sources into an Apache-2.0
+  repo creates an avoidable licensing question. Each is pinned here and fetched on demand by scripts/fetch_references.py.
+  Nothing in src/ imports or links against any of them at runtime -- our implementations are pure Python.'
+packages:
+- name: BCRA
+  version: 2.1.2
+  license: GPL (>= 2)
+  source: https://cran.r-project.org/package=BCRA
+  used_for: BCRAT / Gail absolute-risk parity (4 cases, worst diff 3.7e-7 pp)
+  commit: 05bfdea1a18c78f411afa9c8c0fbcdf0ccae7499
+  cloned_from: https://github.com/cran/BCRA
+- name: PLCOm2012
+  version: 0.0.0.9000
+  license: GPL-3
+  source: https://github.com/resplab/PLCOm2012
+  used_for: PLCOm2012 lung-risk parity
+  commit: 5387abce6dd124321ef47e6ddde513c9a0058dd5
+- name: RiskScorescvd
+  version: 0.3.1
+  license: MIT + file LICENSE
+  source: https://cran.r-project.org/package=RiskScorescvd
+  used_for: SCORE2 parity across 4 risk regions; also documents that its GRACE_scores is a DIFFERENT GRACE
+    variant and must not be used as our reference
+  commit: ec91c3bec2c9245c1247a3da558ed7791f73c022
+  cloned_from: https://github.com/dvicencio/RiskScorescvd
+- name: predictv30r
+  version: 0.3.2
+  license: MIT + file LICENSE
+  source: https://github.com/WintonCentre/predictv30r
+  used_for: PREDICT Breast v2.2 parity — note the correct function is the UNEXPORTED benefits22, not the
+    exported benefits222 (disease-free survival)
+  commit: 42223bc1150bb9f88058b2801c770aa9ca091830
+- name: preventr
+  version: 0.12.0
+  license: MIT + file LICENSE
+  source: https://github.com/martingmayer/preventr
+  used_for: source of all 100 PREVENT coefficient sets, extracted from sysdata.rda
+  commit: ebe2ac15c38569c3bdaf871c4853b6eeff77b039

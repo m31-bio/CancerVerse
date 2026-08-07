@@ -1,0 +1,40 @@
+CancerVerse
+Copyright 2026 M31 Biomedical AI
+
+Licensed under the Apache License, Version 2.0. See LICENSE.
+
+
+The models
+----------
+The clinical risk models implemented here are published equations belonging to
+their respective authors. Each is cited in registry/models.yaml, in the module
+that implements it, and in the coverage table in README.md, together with the
+place in the source paper where the equation sits. This repository claims no
+ownership of the underlying models, and the Apache licence above covers only
+this reimplementation.
+
+
+Third-party reference implementations
+-------------------------------------
+Independent implementations of some of these models were used to verify ours.
+They are NOT redistributed here. Each is pinned by version and commit in
+collected/MANIFEST.yaml and fetched on demand by scripts/fetch_references.py;
+the parity tests run against reference values captured under
+tests/parity/reference/, so the test suite passes without them.
+
+    BCRA           GPL (>= 2)          https://cran.r-project.org/package=BCRA
+    PLCOm2012      GPL-3               https://github.com/resplab/PLCOm2012
+    RiskScorescvd  MIT + file LICENSE  https://cran.r-project.org/package=RiskScorescvd
+    predictv30r    MIT + file LICENSE  https://github.com/WintonCentre/predictv30r
+    preventr       MIT + file LICENSE  https://github.com/martingmayer/preventr
+
+BCRA and PLCOm2012 are released under the GPL, a copyleft licence, while this
+repository is Apache-2.0. The GPL's obligations attach to distribution rather
+than to use, so not redistributing them is what keeps the two compatible --
+which costs nothing here, because they are a verification tool rather than a
+dependency.
+
+Nothing in src/ imports, links against, or derives from any of them:
+the implementations here are plain Python written from the published equations,
+and these packages were used only to generate the reference values the parity
+tests compare against.

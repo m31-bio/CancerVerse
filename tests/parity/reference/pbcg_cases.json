@@ -1,0 +1,17 @@
+{
+  "source": "riskcalc.org PBCG/R_code_PBCG_risk_calculator.R, R 4.6.1",
+  "cases": [
+  {"psa": 4, "age": 62, "african_ancestry": false, "prior_biopsy": false, "dre_abnormal": false, "family_history": false, "no_cancer_pct": 62.0018990952, "low_grade_pct": 21.3910231520, "high_grade_pct": 16.6070777528, "rounded": [62, 21, 17]},
+  {"psa": 1.2, "age": 55, "african_ancestry": true, "prior_biopsy": true, "dre_abnormal": false, "family_history": true, "no_cancer_pct": 73.4070382476, "low_grade_pct": 23.4311343741, "high_grade_pct": 3.1618273783, "rounded": [73, 23, 4]},
+  {"psa": 15, "age": 70, "african_ancestry": false, "prior_biopsy": false, "dre_abnormal": true, "family_history": false, "no_cancer_pct": 16.4678231137, "low_grade_pct": 8.8947144461, "high_grade_pct": 74.6374624402, "rounded": [16, 9, 75]},
+  {"psa": 2.5, "age": 48, "african_ancestry": true, "prior_biopsy": null, "dre_abnormal": null, "family_history": null, "no_cancer_pct": 61.6557044876, "low_grade_pct": 29.8422913168, "high_grade_pct": 8.5020041956, "rounded": [62, 30, 8]},
+  {"psa": 8, "age": 75, "african_ancestry": false, "prior_biopsy": true, "dre_abnormal": null, "family_history": true, "no_cancer_pct": 51.2350384560, "low_grade_pct": 12.7211173093, "high_grade_pct": 36.0438442347, "rounded": [51, 13, 36]},
+  {"psa": 0.6, "age": 50, "african_ancestry": false, "prior_biopsy": null, "dre_abnormal": true, "family_history": null, "no_cancer_pct": 75.9234406684, "low_grade_pct": 19.6645233849, "high_grade_pct": 4.4120359466, "rounded": [76, 20, 4]},
+  {"psa": 30, "age": 80, "african_ancestry": true, "prior_biopsy": false, "dre_abnormal": true, "family_history": true, "no_cancer_pct": 1.5813632306, "low_grade_pct": 3.5827011406, "high_grade_pct": 94.8359356288, "rounded": [2, 4, 94]},
+  {"psa": 5.5, "age": 65, "african_ancestry": false, "prior_biopsy": true, "dre_abnormal": true, "family_history": null, "no_cancer_pct": 66.0823346127, "low_grade_pct": 13.2804315872, "high_grade_pct": 20.6372338001, "rounded": [66, 13, 21]},
+  {"psa": 3.1, "age": 58, "african_ancestry": true, "prior_biopsy": null, "dre_abnormal": false, "family_history": true, "no_cancer_pct": 44.5277485325, "low_grade_pct": 35.7549010097, "high_grade_pct": 19.7173504579, "rounded": [45, 36, 19]},
+  {"psa": 12, "age": 68, "african_ancestry": false, "prior_biopsy": null, "dre_abnormal": null, "family_history": false, "no_cancer_pct": 40.0086212798, "low_grade_pct": 13.5390087076, "high_grade_pct": 46.4523700126, "rounded": [40, 14, 46]},
+  {"psa": 6.7, "age": 72, "african_ancestry": true, "prior_biopsy": true, "dre_abnormal": null, "family_history": null, "no_cancer_pct": 54.6048162477, "low_grade_pct": 20.5733539769, "high_grade_pct": 24.8218297754, "rounded": [55, 21, 24]},
+  {"psa": 0.9, "age": 45, "african_ancestry": false, "prior_biopsy": false, "dre_abnormal": null, "family_history": null, "no_cancer_pct": 81.3819944366, "low_grade_pct": 16.4141163162, "high_grade_pct": 2.2038892473, "rounded": [81, 16, 3]}
+  ]
+}

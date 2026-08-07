@@ -1,0 +1,13 @@
+{
+  "source": "riskcalc.org OvarianCancer.../server.R, R 4.6.1",
+  "cases": [
+  {"age": 22, "grade": "1-2", "histology_yes": false, "platelets": 113, "ascites": false, "residual": "No Gross Residual", "surv_5yr_pct": 88.2829260668},
+  {"age": 45, "grade": "3", "histology_yes": true, "platelets": 300, "ascites": true, "residual": "<0.5 cm", "surv_5yr_pct": 70.6372572366},
+  {"age": 60, "grade": "1-2", "histology_yes": true, "platelets": 450, "ascites": false, "residual": "0.5-1 cm", "surv_5yr_pct": 65.9428046776},
+  {"age": 75, "grade": "3", "histology_yes": false, "platelets": 800, "ascites": true, "residual": "1-2 cm", "surv_5yr_pct": 3.3394168821},
+  {"age": 87, "grade": "3", "histology_yes": true, "platelets": 1078, "ascites": true, "residual": ">2 cm", "surv_5yr_pct": 0.1935141655},
+  {"age": 52, "grade": "1-2", "histology_yes": false, "platelets": 200, "ascites": true, "residual": "0.5-1 cm", "surv_5yr_pct": 53.1804674482},
+  {"age": 68, "grade": "3", "histology_yes": true, "platelets": 550, "ascites": false, "residual": ">2 cm", "surv_5yr_pct": 34.7841446439},
+  {"age": 38, "grade": "1-2", "histology_yes": true, "platelets": 160, "ascites": false, "residual": "1-2 cm", "surv_5yr_pct": 67.0039005846}
+  ]
+}

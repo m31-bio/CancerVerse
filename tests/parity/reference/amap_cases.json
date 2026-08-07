@@ -1,0 +1,178 @@
+{
+  "source": "https://mdac.cuhk.edu.hk/wp-admin/admin-ajax.php",
+  "tool": "CUHK MDAC aMAP calculator",
+  "page": "https://mdac.cuhk.edu.hk/calculators/amap/",
+  "units": {
+    "bilirubin": "umol/L",
+    "albumin": "g/L",
+    "platelets": "x10^9/L"
+  },
+  "resolution": "integer score, as returned by the tool",
+  "cases": [
+    {
+      "age": 50,
+      "male": true,
+      "bili": 15,
+      "alb": 42,
+      "plt": 200,
+      "historic": 56,
+      "score": 54,
+      "risk_group": "Intermediate",
+      "incidence": "4.2% (2.6%\u20135.7%)"
+    },
+    {
+      "age": 30,
+      "male": true,
+      "bili": 10,
+      "alb": 45,
+      "plt": 250,
+      "historic": 44,
+      "score": 41,
+      "risk_group": "Low",
+      "incidence": "0.8% (0.3%\u20131.3%)"
+    },
+    {
+      "age": 65,
+      "male": true,
+      "bili": 25,
+      "alb": 38,
+      "plt": 150,
+      "historic": 68,
+      "score": 65,
+      "risk_group": "High",
+      "incidence": "19.9% (12.8%\u201326.5%)"
+    },
+    {
+      "age": 50,
+      "male": false,
+      "bili": 15,
+      "alb": 42,
+      "plt": 200,
+      "historic": null,
+      "score": 48,
+      "risk_group": "Low",
+      "incidence": "0.8% (0.3%\u20131.3%)"
+    },
+    {
+      "age": 30,
+      "male": false,
+      "bili": 10,
+      "alb": 45,
+      "plt": 250,
+      "historic": null,
+      "score": 35,
+      "risk_group": "Low",
+      "incidence": "0.8% (0.3%\u20131.3%)"
+    },
+    {
+      "age": 65,
+      "male": false,
+      "bili": 25,
+      "alb": 38,
+      "plt": 150,
+      "historic": null,
+      "score": 59,
+      "risk_group": "Intermediate",
+      "incidence": "4.2% (2.6%\u20135.7%)"
+    },
+    {
+      "age": 18,
+      "male": true,
+      "bili": 5,
+      "alb": 50,
+      "plt": 400,
+      "historic": null,
+      "score": 24,
+      "risk_group": "Low",
+      "incidence": "0.8% (0.3%\u20131.3%)"
+    },
+    {
+      "age": 85,
+      "male": true,
+      "bili": 60,
+      "alb": 28,
+      "plt": 60,
+      "historic": null,
+      "score": 83,
+      "risk_group": "High",
+      "incidence": "19.9% (12.8%\u201326.5%)"
+    },
+    {
+      "age": 45,
+      "male": false,
+      "bili": 20,
+      "alb": 40,
+      "plt": 180,
+      "historic": null,
+      "score": 48,
+      "risk_group": "Low",
+      "incidence": "0.8% (0.3%\u20131.3%)"
+    },
+    {
+      "age": 70,
+      "male": true,
+      "bili": 12,
+      "alb": 35,
+      "plt": 120,
+      "historic": null,
+      "score": 69,
+      "risk_group": "High",
+      "incidence": "19.9% (12.8%\u201326.5%)"
+    },
+    {
+      "age": 55,
+      "male": false,
+      "bili": 30,
+      "alb": 44,
+      "plt": 300,
+      "historic": null,
+      "score": 43,
+      "risk_group": "Low",
+      "incidence": "0.8% (0.3%\u20131.3%)"
+    },
+    {
+      "age": 60,
+      "male": true,
+      "bili": 18,
+      "alb": 41,
+      "plt": 220,
+      "historic": null,
+      "score": 57,
+      "risk_group": "Intermediate",
+      "incidence": "4.2% (2.6%\u20135.7%)"
+    },
+    {
+      "age": 40,
+      "male": true,
+      "bili": 8,
+      "alb": 47,
+      "plt": 280,
+      "historic": null,
+      "score": 42,
+      "risk_group": "Low",
+      "incidence": "0.8% (0.3%\u20131.3%)"
+    },
+    {
+      "age": 75,
+      "male": false,
+      "bili": 35,
+      "alb": 33,
+      "plt": 100,
+      "historic": null,
+      "score": 68,
+      "risk_group": "High",
+      "incidence": "19.9% (12.8%\u201326.5%)"
+    },
+    {
+      "age": 62,
+      "male": true,
+      "bili": 22,
+      "alb": 39,
+      "plt": 160,
+      "historic": null,
+      "score": 63,
+      "risk_group": "High",
+      "incidence": "19.9% (12.8%\u201326.5%)"
+    }
+  ]
+}

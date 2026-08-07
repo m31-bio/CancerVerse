@@ -1,0 +1,1717 @@
+# Parameter-level audit — one entry per predictor, per model.
+#
+# WHY THIS IS A SEPARATE FILE FROM models.yaml
+# --------------------------------------------
+# models.yaml answers "what is this model". This answers "what is each input
+# doing inside it". Folding ~250 parameter rows into models.yaml would double
+# that file for readers who only ever want the model-level view. The join key
+# is the model id, and tests/test_parameters.py enforces that every implemented
+# model appears here and that no parameter names an input the code rejects.
+#
+# WHAT EACH FIELD MEANS
+# ---------------------
+#   name              our keyword argument, so a row can be tied to running code
+#   label             how the paper prints it
+#   coefficient       the fitted number AS PUBLISHED. null where the model is a
+#                     point score (points live in `points`) or where the term is
+#                     a lookup rather than a slope.
+#   units             the units the coefficient assumes. Getting this wrong is
+#                     the single most common way to misuse one of these models.
+#   transform         the arithmetic applied to the raw input BEFORE it meets
+#                     the coefficient, written so it can be checked against code
+#   transform_kind    identity | centering | scaling | log | log2 | log10 |
+#                     reciprocal | power | spline | banding | dichotomy |
+#                     categorical | derived | interaction | none
+#   reference_level   for categoricals: the level carrying no term
+#   paper_effect      the effect size the PAPER prints (OR/HR/RR + CI), verbatim
+#                     where possible. null where the paper prints none.
+#   importance_rank   1 = the parameter that carries the model. See
+#                     `importance_basis` on the model for how it was decided.
+#   note              anything that will otherwise be misread. Sign flips,
+#                     non-monotone effects, dead branches, unit traps.
+#
+# ON "MOST IMPORTANT"
+# -------------------
+# Three different things get called that, and they do not always agree:
+#   (a) the largest coefficient          — scale-dependent, often meaningless
+#   (b) the paper's own ranking          — citable, but not always published
+#   (c) the measured swing over a real clinical range — computed by
+#       scripts/feature_importance.py, joined at spreadsheet-build time
+# `importance_rank` here follows (b) where the paper states one and (c)
+# otherwise, and `importance_basis` records which. Where they disagree, the
+# disagreement is recorded rather than resolved — msk_pancreatic is the clean
+# example: splenectomy has the largest coefficient and is not the largest
+# effect, because almost nobody has one.
+
+parameters:
+
+  # ======================================================================
+  # PROSTATE
+  # ======================================================================
+
+  erspc_rc3:
+    axis: detection
+    importance_basis: measured sweep; the paper ranks nothing explicitly
+    top_parameter: psa
+    top_parameter_why: >-
+      PSA carries 63% of the total swing over clinical ranges, and it is the
+      only input that moves over two orders of magnitude. The log2 transform is
+      what makes that tractable: risk rises per DOUBLING of PSA, not per ng/mL,
+      so 2->4 and 8->16 move the logit by the same 1.024.
+    paper_importance_quote: null
+    equation: "logit(p) = -1.826 + 1.024*(log2(PSA) - 2.0) - 1.500*(log2(volume_class) - 5.4) + 0.992*DRE"
+    params:
+      - name: (intercept)
+        label: Intercept
+        coefficient: -1.826
+        units: logit
+        transform: "1"
+        transform_kind: none
+        importance_rank: null
+        note: >-
+          Sets the risk of a biopsy-naive man at the centering point — PSA 4
+          ng/mL (log2 = 2.0), volume class 40 mL (log2 = 5.32, near 5.4),
+          negative DRE. That patient is at logit -1.826, i.e. about 14%.
+      - name: psa
+        label: PSA
+        coefficient: 1.024
+        units: ng/mL
+        transform: "log2(PSA) - 2.0"
+        transform_kind: log2
+        importance_rank: 1
+        paper_effect: null
+        note: >-
+          Centered on log2(4) = 2.0, i.e. on PSA 4 ng/mL. The coefficient is
+          per doubling. Recovered from SWOP's own Flash calculator to 2.2e-06.
+      - name: volume_ml
+        label: Prostate volume (DRE-assessed, in 3 classes)
+        coefficient: -1.500
+        units: mL
+        transform: "log2(volume_class) - 5.4, where volume_class = 25 if <30 mL, 40 if <50, else 60"
+        transform_kind: banding + log2
+        importance_rank: 2
+        paper_effect: null
+        note: >-
+          TWO transforms stacked, and the first is easy to miss. The raw volume
+          is first collapsed into THREE CLASSES (25 / 40 / 60 mL) and only then
+          logged. So the model cannot distinguish a 31 mL prostate from a 49 mL
+          one — both are class 40. Feeding continuous volume straight into
+          log2 is a real and silent error. Sign is negative: a bigger prostate
+          means the same PSA is more likely benign (dilution).
+      - name: dre_positive
+        label: Abnormal digital rectal examination
+        coefficient: 0.992
+        units: indicator
+        transform: "1 if abnormal else 0"
+        transform_kind: dichotomy
+        reference_level: normal DRE
+        importance_rank: 3
+        paper_effect: null
+        note: "Worth almost exactly one PSA doubling (0.992 vs 1.024)."
+
+  pbcg:
+    axis: detection
+    importance_basis: measured sweep; the paper reports discrimination, not a predictor ranking
+    top_parameter: psa
+    top_parameter_why: >-
+      PSA carries 41% of total swing, age 25%. But the structural point matters
+      more than the ranking: PBCG fits EIGHT coefficient sets, one per pattern
+      of missing prior-biopsy / DRE / family-history data, so "how important is
+      DRE" has eight different answers depending on what else is known.
+    paper_importance_quote: null
+    equation: |
+      S_low  = beta_low . x        S_high = beta_high . x
+      P(no cancer) = 1/(1 + e^S_low + e^S_high)
+      x = [1, log2(PSA), age, african_ancestry, (prior_biopsy), (dre), (family_history)]
+    coefficient_note: >-
+      Coefficients below are the ALL-PREDICTORS-KNOWN set (True, True, True).
+      Seven other sets exist; see src/mayo_baseline/prostate/detection/pbcg.py.
+      Two coefficients are given per term because the outcome is multinomial:
+      low grade (Gleason 6) and high grade (Gleason 7+), both against "no
+      cancer" as the reference outcome.
+    params:
+      - name: (intercept)
+        label: Intercept
+        coefficient: -2.44052108
+        coefficient_high_grade: -6.36851856
+        units: logit
+        transform: "1"
+        transform_kind: none
+        importance_rank: null
+      - name: psa
+        label: PSA
+        coefficient: 0.13617244
+        coefficient_high_grade: 0.79996510
+        units: ng/mL
+        transform: "log2(PSA)"
+        transform_kind: log2
+        importance_rank: 1
+        paper_effect: null
+        note: >-
+          NOT centered, unlike ERSPC RC3 — the intercept absorbs it. Note the
+          near-6x gap between the low-grade (0.136) and high-grade (0.800)
+          coefficients: PSA barely separates Gleason 6 from no cancer, but
+          separates Gleason 7+ strongly. That asymmetry is the entire clinical
+          argument for PBCG over a binary any-cancer model.
+      - name: age
+        label: Age
+        coefficient: 0.01780617
+        coefficient_high_grade: 0.05566536
+        units: years
+        transform: "age"
+        transform_kind: identity
+        importance_rank: 2
+        note: >-
+          Untransformed and uncentered. The coefficient looks tiny, but age
+          spans ~40 years in practice, so it contributes 25% of measured swing.
+          This is the standard trap in reading coefficient tables.
+      - name: african_ancestry
+        label: African ancestry
+        coefficient: 0.78721039
+        coefficient_high_grade: 0.61596975
+        units: indicator
+        transform: "1 if African ancestry else 0"
+        transform_kind: dichotomy
+        reference_level: non-African ancestry
+        importance_rank: 6
+        note: >-
+          External validation found PBCG OVER-predicts in Black and other
+          groups at most thresholds. The coefficient is published and
+          reproduced; its calibration is contested. This is the reason ERSPC
+          RC3 is kept alongside rather than retired.
+      - name: prior_biopsy
+        label: Prior negative biopsy
+        coefficient: -0.83613721
+        coefficient_high_grade: -1.27437249
+        units: indicator
+        transform: "1 if prior negative biopsy else 0; ABSENT from 4 of the 8 coefficient sets"
+        transform_kind: dichotomy
+        reference_level: biopsy-naive
+        importance_rank: 4
+        note: >-
+          Strongly protective, and more so for high grade (-1.27) than low
+          (-0.84) — a previous negative biopsy is better evidence against
+          aggressive disease than against any disease. If not supplied, the
+          model switches to a coefficient set fitted WITHOUT it rather than
+          imputing a value.
+      - name: dre_abnormal
+        label: Abnormal DRE
+        coefficient: 0.04612721
+        coefficient_high_grade: 0.85780143
+        units: indicator
+        transform: "1 if abnormal else 0; ABSENT from 4 of the 8 coefficient sets"
+        transform_kind: dichotomy
+        reference_level: normal DRE
+        importance_rank: 3
+        note: >-
+          The most extreme low/high split in the model: 0.046 for low grade
+          (essentially nothing) against 0.858 for high grade. An abnormal DRE
+          says almost nothing about whether Gleason 6 will be found and a great
+          deal about whether Gleason 7+ will be.
+      - name: family_history
+        label: Family history of prostate cancer
+        coefficient: 0.33233636
+        coefficient_high_grade: 0.61003848
+        units: indicator
+        transform: "1 if positive else 0; ABSENT from 4 of the 8 coefficient sets"
+        transform_kind: dichotomy
+        reference_level: no family history
+        importance_rank: 5
+
+  capra:
+    axis: prognosis
+    importance_basis: >-
+      point allocation (the model IS its point table) cross-checked against the
+      measured sweep; both name PSA
+    top_parameter: psa
+    top_parameter_why: >-
+      PSA can contribute 4 of the 10 available points — more than any other
+      variable — and Gleason 3. Together they are 70% of the score. Age and
+      T stage contribute 1 point each and are effectively tie-breakers.
+    paper_importance_quote: null
+    equation: "CAPRA = psa_points + gleason_points + t_stage_points + [%cores >= 34] + [age >= 50], range 0-10"
+    params:
+      - name: psa
+        label: PSA at diagnosis
+        coefficient: null
+        points: "0 if <=6; 1 if <=10; 2 if <=20; 3 if <=30; 4 if >30"
+        units: ng/mL
+        transform: "5-level banding of raw PSA"
+        transform_kind: banding
+        importance_rank: 1
+        note: >-
+          Bands are upper-inclusive and NOT equal width — 2.1-6 spans 4 ng/mL
+          for its 0 points while >30 is unbounded for 4. The banding discards
+          everything above 30, so PSA 31 and PSA 300 score identically.
+      - name: gleason_primary
+        label: Gleason primary pattern
+        coefficient: null
+        points: "3 if primary >= 4"
+        units: pattern 1-5
+        transform: "if primary >=4 -> 3 points; elif secondary >=4 -> 1 point; else 0"
+        transform_kind: categorical
+        importance_rank: 2
+        note: >-
+          THERE IS NO 2-POINT LEVEL. The jump is 0 -> 1 -> 3, so a primary
+          pattern 4 is worth three times a secondary pattern 4. Primary and
+          secondary are not interchangeable and must not be summed into a
+          Gleason total before scoring.
+      - name: gleason_secondary
+        label: Gleason secondary pattern
+        coefficient: null
+        points: "1 if secondary >= 4 and primary <= 3"
+        units: pattern 1-5
+        transform: "see gleason_primary — the two are scored jointly, not separately"
+        transform_kind: categorical
+        importance_rank: 2
+      - name: t_stage
+        label: Clinical T stage
+        coefficient: null
+        points: "0 for T1/T2; 1 for T3a"
+        units: AJCC clinical T
+        transform: "dichotomy at T3a"
+        transform_kind: dichotomy
+        reference_level: T1/T2
+        importance_rank: 3
+        note: "CAPRA is a localized-disease score; T3b and above are out of scope and raise."
+      - name: percent_positive_cores
+        label: Percentage of positive biopsy cores
+        coefficient: null
+        points: "1 if >= 34%"
+        units: percent
+        transform: "dichotomy at 34%"
+        transform_kind: dichotomy
+        importance_rank: 4
+        note: >-
+          A single threshold at an unusual number. 33% scores 0 and 34% scores
+          1; the continuous information is discarded.
+      - name: age
+        label: Age at diagnosis
+        coefficient: null
+        points: "1 if >= 50"
+        units: years
+        transform: "dichotomy at 50"
+        transform_kind: dichotomy
+        importance_rank: 5
+        note: >-
+          Nearly every man in scope scores this point, so in practice it acts
+          as a constant offset rather than a discriminator.
+
+  dutasteride:
+    axis: response
+    importance_basis: >-
+      structural — the quantity of interest is a DIFFERENCE between two arms,
+      so no single covariate "carries" it
+    top_parameter: treatment arm
+    top_parameter_why: >-
+      This is a response model, and the arm indicator is not a covariate inside
+      one equation — it selects which of two fitted sub-models runs. The
+      predictors below shift each arm's absolute risk; only the arm changes the
+      answer to the question being asked (should this man take dutasteride).
+    paper_importance_quote: null
+    equation: "risk = 1 - S0 ** exp(score), one Cox sub-model per (outcome, arm); 17 sub-models, 315 coefficients"
+    coefficient_note: >-
+      315 coefficients across 9 outcomes x 2 arms is past the point where a
+      per-coefficient table is readable or safe to hand-copy. They are
+      machine-extracted into tests/parity/reference/dutasteride_coefficients.json
+      and parity-tested against the vendor R. The rows below document the
+      PREDICTOR SET and its transforms, which is the part a reader needs.
+    params:
+      - name: (treatment arm)
+        label: Dutasteride vs no dutasteride
+        coefficient: null
+        units: arm
+        transform: "selects the coefficient set; NOT a term inside one equation"
+        transform_kind: derived
+        importance_rank: 1
+        note: >-
+          Two asymmetries reproduced from the source. ASAP has a dutasteride
+          arm only, so no difference can be formed and it returns None rather
+          than 0. HGPIN on dutasteride is a CONSTANT 3.838831% with no
+          predictors at all, while its off-treatment arm is a full 28-term
+          model.
+      - name: age
+        label: Age
+        coefficient: null
+        units: years
+        transform: "restricted cubic spline, knots differ per sub-model"
+        transform_kind: spline
+        importance_rank: 2
+      - name: psa
+        label: PSA
+        coefficient: null
+        units: ng/mL
+        transform: "restricted cubic spline, knots differ per sub-model"
+        transform_kind: spline
+        importance_rank: 3
+      - name: prostate_volume
+        label: Prostate volume
+        coefficient: null
+        units: mL
+        transform: "restricted cubic spline"
+        transform_kind: spline
+        importance_rank: 4
+      - name: ipss
+        label: International Prostate Symptom Score
+        coefficient: null
+        units: points 0-35
+        transform: "restricted cubic spline"
+        transform_kind: spline
+        importance_rank: 5
+        note: "Drives the BPH-progression and acute-urinary-retention outcomes, not the cancer ones."
+      - name: sexually_active
+        label: Sexually active
+        coefficient: null
+        units: indicator
+        transform: "1/0"
+        transform_kind: dichotomy
+        importance_rank: 6
+        note: "Enters the erectile-dysfunction harm model — a harm predictor, not a benefit one."
+      - name: history_of_impotence
+        label: History of impotence
+        coefficient: null
+        units: indicator
+        transform: "1/0"
+        transform_kind: dichotomy
+        importance_rank: 7
+      - name: (applicability bounds)
+        label: Per-sub-model applicability bounds
+        coefficient: null
+        units: n/a
+        transform: "each sub-model returns None outside its own validated input range"
+        transform_kind: none
+        importance_rank: null
+        note: >-
+          The bounds DIFFER per outcome, so one patient can be in scope for
+          some outcomes and out of scope for others — the tool displays "Not
+          Applicable" per row and this module reproduces that.
+
+  # ======================================================================
+  # CARDIOVASCULAR DISEASE
+  # ======================================================================
+
+  prevent:
+    axis: detection
+    importance_basis: measured sweep over the base/10-year/total-CVD model
+    top_parameter: age
+    top_parameter_why: >-
+      Age dominates, and it does so twice over — once through its own term and
+      again through SEVEN interaction terms (age x non-HDL, x HDL, x SBP, x
+      diabetes, x smoking, x BMI, x eGFR). Every other risk factor's slope is
+      age-dependent, which is why the same cholesterol means something
+      different at 40 and at 75.
+    paper_importance_quote: null
+    equation: "logit(risk) = sum(beta_term * x_term) over up to 31 terms; 5 variants x 2 horizons x 5 outcomes x 2 sexes = 100 coefficient sets"
+    coefficient_note: >-
+      Coefficients shown are the FEMALE / BASE / 10-YEAR / TOTAL-CVD set, one
+      of 100. The transforms are shared by all 100 sets and are the part that
+      generalises; see src/mayo_baseline/cvd/detection/prevent_coefficients.py
+      for the rest.
+    params:
+      - name: age
+        label: Age, per 10 years
+        coefficient: 0.7939329
+        units: years
+        transform: "(age - 55) / 10"
+        transform_kind: centering + scaling
+        importance_rank: 1
+        note: >-
+          Centered at 55 and scaled per decade. Also appears in age^2 (30-year
+          equations only) and in seven interaction terms.
+      - name: (age squared)
+        label: Age squared
+        coefficient: 0.0
+        units: decades^2
+        transform: "((age - 55)/10)^2"
+        transform_kind: power
+        importance_rank: null
+        note: "Zero in the 10-year equations; non-zero only at the 30-year horizon."
+      - name: total_chol_mg_dl
+        label: non-HDL-C, per 1 mmol/L
+        coefficient: 0.0305239
+        units: mg/dL in, mmol/L in the equation
+        transform: "0.02586*(total_chol - hdl) - 3.5"
+        transform_kind: derived + unit conversion + centering
+        importance_rank: 3
+        note: >-
+          THREE things happen before the coefficient applies. Total cholesterol
+          and HDL are combined into non-HDL (a derived quantity, not an input),
+          converted mg/dL -> mmol/L by 0.02586, then centered on 3.5 mmol/L.
+          Passing total cholesterol straight in is a large silent error.
+      - name: hdl_mg_dl
+        label: HDL-C, per 0.3 mmol/L
+        coefficient: -0.1606857
+        units: mg/dL in, mmol/L in the equation
+        transform: "(0.02586*hdl - 1.3) / 0.3"
+        transform_kind: unit conversion + centering + scaling
+        importance_rank: 5
+        note: "Enters BOTH here and inside non-HDL, with opposite signs."
+      - name: sbp
+        label: SBP, split at 110 mm Hg
+        coefficient: -0.2394003
+        coefficient_upper: 0.3600781
+        units: mm Hg
+        transform: "sbp_min = (min(sbp,110) - 110)/20 ; sbp_max = (max(sbp,110) - 130)/20"
+        transform_kind: spline (linear, one knot at 110)
+        importance_rank: 2
+        note: >-
+          A two-piece linear spline, not one slope. Below 110 the coefficient
+          is NEGATIVE (-0.239) and above it POSITIVE (+0.360) — low blood
+          pressure is itself adverse, which a single linear term cannot express.
+          Both pieces are always computed; for sbp=130, sbp_min is at its floor.
+      - name: diabetes
+        label: Diabetes
+        coefficient: 0.8667604
+        units: indicator
+        transform: "1/0"
+        transform_kind: dichotomy
+        importance_rank: 4
+        note: "Largest single main-effect coefficient in the base model, but attenuated with age by the age x diabetes term (-0.271)."
+      - name: smoker
+        label: Current smoking
+        coefficient: 0.5360739
+        units: indicator
+        transform: "1/0"
+        transform_kind: dichotomy
+        importance_rank: 6
+      - name: bmi
+        label: BMI, split at 30 kg/m2
+        coefficient: 0.0
+        coefficient_upper: 0.0
+        units: kg/m2
+        transform: "bmi_min = (min(bmi,30) - 25)/5 ; bmi_max = (max(bmi,30) - 30)/5"
+        transform_kind: spline (linear, one knot at 30)
+        importance_rank: null
+        note: >-
+          EXACTLY ZERO for total CVD, ASCVD, CHD and stroke — 40 of the 50
+          coefficient sets per sex. BMI only moves the HEART FAILURE outcome.
+          A caller who supplies BMI expecting their CVD risk to change gets no
+          change, and that is correct. Pinned by
+          test_bmi_only_affects_the_heart_failure_outcome.
+      - name: egfr
+        label: eGFR, split at 60 mL/min/1.73m2
+        coefficient: 0.6045917
+        coefficient_upper: 0.0433769
+        units: mL/min/1.73m2
+        transform: "egfr_min = (min(egfr,60) - 60)/-15 ; egfr_max = (max(egfr,60) - 90)/-15"
+        transform_kind: spline (linear, one knot at 60) with NEGATIVE scaling
+        importance_rank: 7
+        note: >-
+          Note the divisor is -15, so the scaled variable increases as kidney
+          function FALLS. Below 60 the slope is 14x the slope above it
+          (0.605 vs 0.043) — this is a chronic-kidney-disease term that is
+          nearly inert in people with normal kidneys.
+      - name: htn_meds
+        label: Antihypertensive use
+        coefficient: 0.3151672
+        units: indicator
+        transform: "1/0, plus an interaction htn_meds * sbp_max at -0.0663612"
+        transform_kind: dichotomy + interaction
+        importance_rank: 8
+        note: >-
+          The interaction is negative, so treatment FLATTENS the blood-pressure
+          slope. Being on treatment raises risk (unmeasured severity) while
+          reducing how much each additional mm Hg costs.
+      - name: statin
+        label: Statin use
+        coefficient: -0.1477655
+        units: indicator
+        transform: "1/0, plus an interaction statin * non_hdl at +0.1197879"
+        transform_kind: dichotomy + interaction
+        importance_rank: 9
+        note: "Same structure as htn_meds, mirrored: lowers risk directly, steepens the non-HDL slope."
+      - name: uacr
+        label: Urine albumin-to-creatinine ratio
+        coefficient: null
+        units: mg/g
+        transform: "ln(UACR) — NOT centered"
+        transform_kind: log
+        importance_rank: null
+        note: >-
+          Optional; supplying it switches to the `uacr` or `full` variant.
+          Unlike every other continuous term in PREVENT this one is not
+          centered. If absent, its slope term is 0 and a separate
+          `acr_missing` indicator is set to 1 — the published design, not an
+          imputation.
+      - name: hba1c
+        label: HbA1c
+        coefficient: null
+        units: percent
+        transform: "(hba1c - 5.3), with SEPARATE slopes for diabetic and non-diabetic patients"
+        transform_kind: centering + stratified slope
+        importance_rank: null
+        note: >-
+          Two mutually exclusive terms, hba1c_dm and hba1c_no_dm; whichever
+          does not apply is 0. The same HbA1c means something different with
+          and without a diabetes diagnosis.
+      - name: sdi_decile
+        label: Social Deprivation Index decile
+        coefficient: null
+        units: decile 1-10
+        transform: "two indicators: deciles 4-6, and deciles 7-10"
+        transform_kind: categorical
+        reference_level: deciles 1-3
+        importance_rank: null
+        note: "A 10-level ordinal collapsed to 3 groups. Deciles 1-3 carry no term."
+
+  score2:
+    axis: detection
+    importance_basis: measured sweep; the paper reports C-indices, not a predictor ranking
+    top_parameter: age
+    top_parameter_why: >-
+      Age has the largest coefficient (0.3742 male / 0.4648 female) AND
+      interacts with all five other predictors, every interaction being
+      negative. So every risk factor's effect SHRINKS with age — a 20-a-day
+      habit costs a 45-year-old far more relative risk than a 65-year-old.
+    paper_importance_quote: null
+    equation: |
+      lp = sum(beta_i * x_i) + sum(beta_ij * age_c * x_j)
+      uncalibrated = 1 - S0 ** exp(lp)
+      calibrated  = 1 - exp(-exp(scale1 + scale2 * ln(-ln(1 - uncalibrated))))
+    coefficient_note: "Coefficients shown are MALE; the female set is in src/mayo_baseline/cvd/detection/coefficients.py."
+    params:
+      - name: age
+        label: Age
+        coefficient: 0.3742
+        units: years
+        transform: "(age - 60) / 5"
+        transform_kind: centering + scaling
+        importance_rank: 1
+        note: "Centered at 60, scaled per 5 years. Appears in 5 further interaction terms."
+      - name: smoker
+        label: Current smoking
+        coefficient: 0.6012
+        units: indicator
+        transform: "1/0; plus smoking x age at -0.0755"
+        transform_kind: dichotomy + interaction
+        importance_rank: 2
+        note: >-
+          Largest main effect among the binary predictors. The negative
+          interaction means the log-HR falls by 0.0755 per 5 years of age.
+      - name: sbp
+        label: Systolic blood pressure
+        coefficient: 0.2777
+        units: mm Hg
+        transform: "(sbp - 120) / 20; plus sbp x age at -0.0255"
+        transform_kind: centering + scaling + interaction
+        importance_rank: 3
+      - name: total_chol_mmol
+        label: Total cholesterol
+        coefficient: 0.1458
+        units: mmol/L
+        transform: "total_chol - 6.0 (centered, NOT scaled); plus tchol x age at -0.0281"
+        transform_kind: centering + interaction
+        importance_rank: 5
+        note: >-
+          The only continuous predictor here that is centered but not scaled.
+          Units are mmol/L, not mg/dL — divide mg/dL by 38.67.
+      - name: hdl_mmol
+        label: HDL cholesterol
+        coefficient: -0.2698
+        units: mmol/L
+        transform: "(hdl - 1.3) / 0.5; plus hdl x age at +0.0426"
+        transform_kind: centering + scaling + interaction
+        importance_rank: 4
+        note: "The only POSITIVE age interaction: HDL's protective effect weakens with age."
+      - name: diabetes
+        label: Diabetes
+        coefficient: 0.6457
+        units: indicator
+        transform: "1/0; plus diabetes x age at -0.0983"
+        transform_kind: dichotomy + interaction
+        importance_rank: null
+        note: >-
+          Present in the equation but OUT OF SCOPE: SCORE2 is defined for
+          people without diabetes (SCORE2-Diabetes is a separate model). The
+          term is implemented and defaults to 0.
+      - name: region
+        label: Risk region
+        coefficient: null
+        units: low / moderate / high / very_high
+        transform: "1 - exp(-exp(scale1 + scale2 * ln(-ln(1 - uncalibrated_risk))))"
+        transform_kind: derived (post-hoc recalibration)
+        reference_level: none — every region has its own pair
+        importance_rank: 6
+        note: >-
+          NOT a term in the linear predictor. It is a complementary log-log
+          recalibration applied to the finished probability, with a
+          (scale1, scale2) pair per sex per region. The same linear predictor
+          gives materially different risks in Belgium and in Bulgaria, and this
+          is the only place that difference lives.
+
+  cvd_statin_benefit:
+    axis: response
+    importance_basis: >-
+      structural — this is a composition of a published trial effect with a
+      baseline risk, so "importance" is about which of the two inputs the
+      answer is sensitive to
+    top_parameter: baseline_risk
+    top_parameter_why: >-
+      Absolute benefit is baseline risk multiplied by a fixed proportional
+      effect, so it scales LINEARLY with baseline risk and only logarithmically
+      with the LDL reduction. Doubling baseline risk doubles the benefit;
+      doubling the LDL reduction does not. This is the whole argument for
+      treating on absolute risk rather than on cholesterol level.
+    paper_importance_quote: >-
+      CTT 2010, verbatim from the abstract: "similar proportional reductions in
+      major vascular events per 1.0 mmol/L LDL cholesterol reduction ... in all
+      types of patient studied" — the sentence that licenses multiplying a
+      trial effect onto an individual's baseline risk.
+    equation: "ARR(t) = baseline_risk(t) * (1 - RR ** delta_ldl_mmol);  NNT = 1/ARR"
+    params:
+      - name: baseline_risk
+        label: Untreated absolute risk
+        coefficient: null
+        units: probability 0-1
+        transform: "supplied by the caller, not computed here"
+        transform_kind: none
+        importance_rank: 1
+        note: >-
+          Deliberately NOT computed internally, so the choice of risk model,
+          its horizon and its scope stay visible in the result. Take it from
+          predict("prevent", ...) or predict("score2", ...).
+      - name: ldl_reduction_mmol_l
+        label: LDL-C reduction achieved
+        coefficient: null
+        units: mmol/L
+        transform: "mg/dL / 38.67 if supplied in US units; then used as an EXPONENT on the rate ratio"
+        transform_kind: unit conversion + power
+        importance_rank: 2
+        note: >-
+          Enters as an exponent, not a multiplier: RR^delta. So 2 mmol/L of
+          lowering gives 0.78^2 = 0.61, not 0.56. Treating the effect as linear
+          in LDL overstates the benefit of large reductions.
+      - name: (rate ratio)
+        label: CTT rate ratio per 1.0 mmol/L
+        coefficient: 0.78
+        units: rate ratio
+        transform: "fixed constant; 0.78 (0.76-0.80) for major vascular events, 0.90 (0.87-0.93) for all-cause mortality"
+        transform_kind: none
+        importance_rank: 3
+        paper_effect: "RR 0.78 (95% CI 0.76-0.80) per 1.0 mmol/L LDL reduction, major vascular events"
+        note: >-
+          The published CI propagates into arr_ci — but it covers the TRIAL
+          EFFECT ONLY. Uncertainty in the baseline risk estimate is usually the
+          larger source and is not represented.
+
+  grace:
+    axis: prognosis
+    importance_basis: >-
+      the paper's own odds ratios, which it prints for all 8 predictors, plus
+      the points allocation those ORs were converted into
+    top_parameter: cardiac_arrest_at_admission
+    top_parameter_why: >-
+      Cardiac arrest at presentation has the largest odds ratio in the paper
+      (OR 4.3) and, per event, the second-largest point award (39). But note
+      the split between "largest effect" and "largest contribution": age scores
+      up to 100 points because it ranges over 60 years, while cardiac arrest is
+      39 points or nothing and is rare. Over a real ACS population age moves
+      the score most; for the individual patient who arrested, nothing else
+      comes close.
+    paper_importance_quote: >-
+      Granger 2003 abstract, verbatim: "The following 8 independent risk factors
+      accounted for 89.9% of the prognostic information: age (odds ratio [OR],
+      1.7 per 10 years), Killip class (OR, 2.0 per class), systolic blood
+      pressure (OR, 1.4 per 20-mm Hg decrease), ST-segment deviation (OR, 2.4),
+      cardiac arrest during presentation (OR, 4.3), serum creatinine level
+      (OR, 1.2 per 1-mg/dL [88.4-micro mol/L] increase), positive initial
+      cardiac enzyme findings (OR, 1.6), and heart rate (OR, 1.3 per 30-beat/min
+      increase)."
+    equation: "score = sum of 8 banded point awards; risk = interpolated lookup of the published points -> in-hospital mortality table"
+    params:
+      - name: age
+        label: Age
+        coefficient: null
+        points: "<=30: 0; 30-39: 8; 40-49: 25; 50-59: 41; 60-69: 58; 70-79: 75; 80-89: 91; >=90: 100"
+        units: years
+        transform: "8-level banding, bands upper-inclusive at the NEXT band's printed lower label"
+        transform_kind: banding
+        importance_rank: 1
+        paper_effect: "OR 1.7 per 10 years"
+        note: >-
+          The widest point range in the model (0-100). Band edges are ambiguous
+          as printed and are resolved by the paper's own worked examples — see
+          the systolic-BP note.
+      - name: killip_class
+        label: Killip class
+        coefficient: null
+        points: "I: 0; II: 20; III: 39; IV: 59"
+        units: class I-IV
+        transform: "direct lookup"
+        transform_kind: categorical
+        reference_level: Killip class I
+        importance_rank: 2
+        paper_effect: "OR 2.0 per class"
+        note: "Steps are roughly even (20, 19, 20), consistent with a constant OR per class."
+      - name: sbp
+        label: Systolic blood pressure
+        coefficient: null
+        points: "<=80: 58; 80-99: 53; 100-119: 43; 120-139: 34; 140-159: 24; 160-199: 10; >=200: 0"
+        units: mm Hg
+        transform: "7-level banding, REVERSED — low pressure scores highest"
+        transform_kind: banding
+        importance_rank: 3
+        paper_effect: "OR 1.4 per 20-mm Hg DECREASE"
+        note: >-
+          THE SCALE RUNS BACKWARD. <=80 mm Hg scores 58 and >=200 scores 0,
+          because this term encodes cardiogenic shock, not hypertension.
+          Separately, the printed bands are ambiguous at their edges: taken
+          literally SBP 100 would fall in "100-119" and score 43, but the
+          paper's own worked example scores it 53. Each printed band's true
+          upper edge is the NEXT band's printed lower label, inclusive. Coded
+          literally the model is wrong at 100 mm Hg, one of the commonest
+          readings there is.
+      - name: heart_rate
+        label: Heart rate
+        coefficient: null
+        points: "<=50: 0; 50-69: 3; 70-89: 9; 90-109: 15; 110-149: 24; 150-199: 38; >=200: 46"
+        units: beats/min
+        transform: "7-level banding, upper-inclusive as above"
+        transform_kind: banding
+        importance_rank: 5
+        paper_effect: "OR 1.3 per 30-beat/min increase"
+      - name: creatinine_mg_dl
+        label: Serum creatinine
+        coefficient: null
+        points: "0-0.39: 1; 0.40-0.79: 4; 0.80-1.19: 7; 1.20-1.59: 10; 1.60-1.99: 13; 2.00-3.99: 21; >4.0: 28"
+        units: mg/dL
+        transform: "7-level banding, upper-inclusive as above"
+        transform_kind: banding
+        importance_rank: 6
+        paper_effect: "OR 1.2 per 1 mg/dL increase"
+        note: "mg/dL, not umol/L — multiply umol/L by 1/88.4. The worked example puts creatinine 0.40 in the 0-0.39 band."
+      - name: cardiac_arrest_at_admission
+        label: Cardiac arrest at presentation
+        coefficient: null
+        points: "39 if present"
+        units: indicator
+        transform: "1/0"
+        transform_kind: dichotomy
+        importance_rank: 4
+        paper_effect: "OR 4.3"
+        note: "Largest odds ratio in the model."
+      - name: st_segment_deviation
+        label: ST-segment deviation
+        coefficient: null
+        points: "28 if present"
+        units: indicator
+        transform: "1/0"
+        transform_kind: dichotomy
+        importance_rank: 7
+        paper_effect: "OR 2.4"
+      - name: elevated_cardiac_enzymes
+        label: Elevated initial cardiac enzymes
+        coefficient: null
+        points: "14 if present"
+        units: indicator
+        transform: "1/0"
+        transform_kind: dichotomy
+        importance_rank: 8
+        paper_effect: "OR 1.6"
+
+  cha2ds2_vasc:
+    axis: prognosis
+    importance_basis: point allocation — the model is a point table and nothing else
+    top_parameter: prior_stroke_tia_thromboembolism
+    top_parameter_why: >-
+      Prior stroke/TIA/thromboembolism and age >= 75 are the only 2-point items;
+      everything else scores 1. The doubling is the model's entire statement
+      about relative importance. Prior stroke is ranked first because it alone
+      takes a patient straight to the anticoagulation threshold of 2.
+    paper_importance_quote: null
+    equation: "score = C + H + A2 + D + S2 + V + A + Sc, range 0-9"
+    params:
+      - name: prior_stroke_tia_thromboembolism
+        label: Prior Stroke / TIA / thromboembolism (S2)
+        coefficient: null
+        points: 2
+        units: indicator
+        transform: "1/0, worth 2 points"
+        transform_kind: dichotomy
+        importance_rank: 1
+      - name: age
+        label: Age (A2 and A)
+        coefficient: null
+        points: "2 if >=75; 1 if 65-74; else 0"
+        units: years
+        transform: "3-level banding; the two age items are MUTUALLY EXCLUSIVE"
+        transform_kind: banding
+        importance_rank: 2
+        note: >-
+          The acronym lists age twice (A2 for >=75, A for 65-74) and a reader
+          can double-count it. Age contributes at most 2 points in total, never
+          3.
+      - name: heart_failure
+        label: Congestive heart failure / LV dysfunction (C)
+        coefficient: null
+        points: 1
+        units: indicator
+        transform: "1/0"
+        transform_kind: dichotomy
+        importance_rank: 3
+      - name: hypertension
+        label: Hypertension (H)
+        coefficient: null
+        points: 1
+        units: indicator
+        transform: "1/0"
+        transform_kind: dichotomy
+        importance_rank: 3
+      - name: diabetes
+        label: Diabetes mellitus (D)
+        coefficient: null
+        points: 1
+        units: indicator
+        transform: "1/0"
+        transform_kind: dichotomy
+        importance_rank: 3
+      - name: vascular_disease
+        label: Vascular disease — MI, PAD, aortic plaque (V)
+        coefficient: null
+        points: 1
+        units: indicator
+        transform: "1/0"
+        transform_kind: dichotomy
+        importance_rank: 3
+      - name: female
+        label: Sex category — female (Sc)
+        coefficient: null
+        points: 1
+        units: indicator
+        transform: "1/0"
+        transform_kind: dichotomy
+        importance_rank: 4
+        note: >-
+          A modifier, not an independent risk factor. A score of 1 arising from
+          female sex ALONE is treated as low risk; sex counts only alongside at
+          least one other factor. Implemented in risk_category(), not in the
+          score.
+      - name: (rate table)
+        label: Annual stroke rate by score
+        coefficient: null
+        units: n/a
+        transform: "deliberately NOT implemented"
+        transform_kind: none
+        importance_rank: null
+        note: >-
+          Published cohorts report materially different annual event rates for
+          the same score, so no rate lookup is shipped. The model returns a
+          guideline-level category instead. `risk` is None by design.
+
+  # ======================================================================
+  # BREAST
+  # ======================================================================
+
+  bcrat:
+    axis: detection
+    importance_basis: measured sweep; Gail 1989 names the four factors but does not rank them
+    top_parameter: n_relatives
+    top_parameter_why: >-
+      Among the risk-factor terms, first-degree relatives with breast cancer
+      carries the largest coefficient (0.958 in the white model, per relative,
+      up to 2). But the honest answer is ATTAINED AGE, which is not a
+      coefficient at all — it selects the SEER incidence hazard, and that
+      hazard varies 400-fold across the 14 age bands. The relative-risk model
+      is a modest multiplier on top of a baseline that age almost entirely
+      determines.
+    paper_importance_quote: >-
+      Gail 1989 abstract, verbatim: "The risk factors used were age at menarche,
+      age at first live birth, number of previous biopsies, and number of
+      first-degree relatives with breast cancer. ... The model allowed for the
+      fact that relative risks associated with previous breast biopsies were
+      smaller for women aged 50 or more than for younger women."
+    equation: |
+      LP  = NB*B1 + AM*B2 + AF*B3 + NR*B4 + AF*NR*B6 + ln(R_hyp)
+      RR  = exp(LP)                    for attained age < 50
+      RR  = exp(LP + NB*B5)            for attained age >= 50
+      h1(a) = (1-AR) * RR(a) * lambda1(a)      h2(a) = lambda2(a)
+      A(t1,t2) = sum_a [h1/(h1+h2)] * exp(-Lambda(a)) * [1 - exp(-(h1+h2))]
+    coefficient_note: >-
+      Coefficients shown are the WHITE model. Five other race/ethnicity strata
+      exist and they DROP different variables — the black (CARE) model drops
+      age at first birth entirely, the US-born Hispanic (SFBCS) model drops age
+      at menarche. So a covariate's importance is stratum-dependent by
+      construction.
+    params:
+      - name: n_relatives
+        label: First-degree relatives with breast cancer (NR)
+        coefficient: 0.9583027845
+        units: count, categorised
+        transform: "0 or unknown -> 0; 1 -> 1; 2+ -> 2. Pooled to max 1 in Asian and Hispanic strata."
+        transform_kind: categorical
+        importance_rank: 1
+        note: >-
+          Also carries the model's only interaction, AF x NR at -0.191 — the
+          effect of relatives is BLUNTED in women who gave birth late. Two
+          risk factors that are individually adverse are less than additive.
+      - name: n_biopsies
+        label: Number of previous benign breast biopsies (NB)
+        coefficient: 0.5292641686
+        coefficient_age_50_plus: 0.2412216856
+        units: count, categorised
+        transform: "0 or unknown -> 0; 1 -> 1; 2+ -> 2. Pooled to max 1 in Hispanic strata."
+        transform_kind: categorical
+        importance_rank: 2
+        note: >-
+          THE ONLY AGE-VARYING TERM. At attained age >= 50 an extra
+          -0.2880424830 is added per biopsy, so the effective coefficient falls
+          from 0.529 to 0.241 — biopsies matter less than half as much in older
+          women. This is applied at ATTAINED age during the integration, not at
+          the age of entry, so a single projection can use both values as the
+          woman crosses 50.
+      - name: age_first_birth
+        label: Age at first live birth (AF)
+        coefficient: 0.2186262218
+        units: years, categorised
+        transform: "<20 or unknown -> 0; 20-24 -> 1; 25-29 or NULLIPAROUS -> 2; >=30 -> 3"
+        transform_kind: categorical
+        importance_rank: 3
+        note: >-
+          NULLIPAROUS IS CODED AS 98 AND MAPS TO CATEGORY 2, i.e. a woman who
+          has never given birth is scored the same as one whose first birth was
+          at 25-29. Dropped entirely (coefficient 0) in the black/CARE stratum.
+      - name: age_menarche
+        label: Age at menarche (AM)
+        coefficient: 0.0940103059
+        units: years, categorised
+        transform: ">=14 or unknown -> 0; 12-13 -> 1; <12 -> 2"
+        transform_kind: categorical
+        importance_rank: 4
+        note: >-
+          Smallest of the four. Categories <12 and 12-13 are POOLED in the
+          black stratum, and the whole variable is dropped in the US-born
+          Hispanic one.
+      - name: atypical_hyperplasia
+        label: Biopsy histology — atypical hyperplasia (R_hyp)
+        coefficient: null
+        units: multiplier
+        transform: "relative-risk MULTIPLIER: no -> 0.93, yes -> 1.82, unknown -> 1.00. Enters as ln(R_hyp)."
+        transform_kind: derived
+        importance_rank: 5
+        note: >-
+          Not a beta — a multiplicative factor logged into the linear
+          predictor. Forced to 1.0 (no effect) when n_biopsies is 0, since
+          there is no histology without a biopsy.
+      - name: start_age / end_age
+        label: Attained age (risk projection interval)
+        coefficient: null
+        units: years
+        transform: "selects the 5-year SEER hazard band via floor((age-20)/5); integration proceeds one year at a time"
+        transform_kind: banding + integration
+        importance_rank: null
+        note: >-
+          The largest driver of absolute risk and NOT a regression term at all.
+          lambda1 (breast cancer incidence) rises from 0.00001 at 20-24 to
+          0.00444 at 80-84 in the white stratum. This is why BCRAT is a
+          competing-risk absolute-risk model rather than a regression.
+      - name: race
+        label: Race / ethnicity
+        coefficient: null
+        units: 6 strata
+        transform: "selects BETA, ONE_MINUS_AR, LAMBDA1 and LAMBDA2 simultaneously — four tables at once"
+        transform_kind: derived
+        reference_level: none — every stratum has its own full parameter set
+        importance_rank: null
+        note: >-
+          Not a covariate. It swaps the entire model, including which risk
+          factors are present. This port collapses six Asian-American subgroups
+          to one "asian" stratum using Chinese rates as a proxy.
+      - name: (1 - attributable risk)
+        label: Attributable-risk adjustment
+        coefficient: 0.5788413
+        units: multiplier
+        transform: "scales lambda1 down so the baseline hazard is risk-factor-FREE"
+        transform_kind: derived
+        importance_rank: null
+        note: >-
+          SEER incidence already contains the population's average relative
+          risk. Multiplying by (1-AR) removes it so RR is not double-counted.
+          Omitting this step inflates every estimate by ~1.7x.
+
+  predict_breast:
+    axis: prognosis
+    importance_basis: >-
+      structural — the paper reports validation statistics rather than ranking
+      predictors; ranking below follows the prognostic index's construction
+    top_parameter: nodes
+    top_parameter_why: >-
+      Nodal status and tumour size dominate the breast-cancer-specific
+      prognostic index, and nodes edge it: the term is log((nodes+1)/10), so
+      the first few positive nodes move the index far more than the tenth does.
+      ER status is arguably more important still, but it is not a term — it
+      selects between two DIFFERENT fractional-polynomial parameterisations of
+      age and size.
+    paper_importance_quote: null
+    equation: |
+      pi = age_term + size_term + nodes_term + grade + screen + HER2 + KI67 [+ treatment log-HRs]
+      mi = 0.0698252 * (age - 34.23391957)                    # other-cause mortality
+      competing-risk integration year by year to 15 years
+    coefficient_note: "Coefficients shown are the ER-POSITIVE set; the ER-negative set uses different transforms, not merely different numbers."
+    params:
+      - name: nodes
+        label: Number of positive lymph nodes
+        coefficient: 0.7060723
+        units: count
+        transform: "log((nodes + 1)/10) + 1.387566896"
+        transform_kind: log + centering
+        importance_rank: 1
+        note: >-
+          The +1 inside the log is what lets node-negative disease (0 nodes) be
+          scored at all. Because it is logarithmic, going 0 -> 1 node adds
+          0.49 to the index while 9 -> 10 adds 0.07.
+      - name: size_mm
+        label: Tumour size
+        coefficient: 0.7530729
+        coefficient_er_negative: 2.093446
+        units: mm
+        transform: "ER+: log(size/100) + 1.545233938;  ER-: (size/100)^0.5 - 0.5090456276"
+        transform_kind: log (ER+) / power (ER-)
+        importance_rank: 2
+        note: >-
+          DIFFERENT FUNCTIONAL FORMS BY ER STATUS — log for ER-positive, square
+          root for ER-negative. Not a different coefficient on the same
+          transform. Size is in MILLIMETRES and divided by 100 first.
+      - name: age
+        label: Age at diagnosis
+        coefficient: 34.53642
+        coefficient_2: -34.20342
+        units: years
+        transform: "ER+: two fractional polynomials, (age/10)^-2 - 0.0287449295 and (age/10)^-2 * ln(age/10) - 0.0510121013.  ER-: linear, (age - 56.3254902) with beta 0.0089827"
+        transform_kind: fractional polynomial (ER+) / centering (ER-)
+        importance_rank: 3
+        note: >-
+          The two ER-positive coefficients are enormous (+34.5 and -34.2) and
+          nearly cancel — that is normal for fractional polynomials and means
+          nothing about importance. Reading either one alone is meaningless.
+          Age also drives the SEPARATE other-cause mortality index mi, at
+          0.0698252 per year centered on 34.23.
+      - name: grade
+        label: Histological grade
+        coefficient: 0.746655
+        coefficient_er_negative: 1.129091
+        units: grade 1-3
+        transform: "ER+: entered as the number 1/2/3.  ER-: COLLAPSED TO BINARY, 1 if grade 2 or 3 else 0.  Unknown -> 2.13"
+        transform_kind: identity (ER+) / dichotomy (ER-)
+        importance_rank: 4
+        note: >-
+          Unknown grade is imputed as 2.13, a non-integer, which is the
+          reference implementation's own device for the cohort mean.
+      - name: er_positive
+        label: Oestrogen receptor status
+        coefficient: null
+        units: indicator
+        transform: "selects the entire ER_POS or ER_NEG parameter block"
+        transform_kind: derived
+        importance_rank: null
+        note: "Not a term. It switches age, size and grade to different functional forms and turns Ki67 on or off."
+      - name: her2
+        label: HER2 status
+        coefficient: 0.2413
+        units: 1 positive / 0 negative / 9 unknown
+        transform: "lookup: positive +0.2413, negative -0.0762, unknown 0.0"
+        transform_kind: categorical
+        reference_level: unknown (coded 9, contributes 0)
+        importance_rank: 5
+        note: >-
+          The reference level is UNKNOWN, not negative. So both known values
+          move the index, in opposite directions, away from an unknown patient.
+      - name: ki67
+        label: Ki67 status
+        coefficient: 0.14904
+        units: 1 positive / 0 negative / 9 unknown
+        transform: "lookup: positive +0.14904, negative -0.11333, unknown 0.0. APPLIED ONLY IF ER-POSITIVE."
+        transform_kind: categorical
+        reference_level: unknown
+        importance_rank: 6
+        note: "Silently ignored for ER-negative disease — the term is multiplied out, not merely small."
+      - name: screen_detected
+        label: Screen-detected
+        coefficient: -0.22763366
+        coefficient_er_negative: 0.0
+        units: indicator
+        transform: "1 if screen-detected, 0 if symptomatic, 0.204 if UNKNOWN"
+        transform_kind: dichotomy with fractional imputation
+        importance_rank: 7
+        note: >-
+          Unknown is imputed as 0.204, i.e. a fractional indicator — the cohort
+          proportion. EXACTLY ZERO in the ER-negative model.
+      - name: (baseline hazards)
+        label: Two cumulative baseline hazards
+        coefficient: null
+        units: n/a
+        transform: "closed-form functions of time in years, one per cause; all-cause mortality is apportioned between causes in proportion to annual hazards"
+        transform_kind: derived
+        importance_rank: null
+
+  predict_breast_response:
+    axis: response
+    importance_basis: >-
+      structural — benefit is the DIFFERENCE between two survival curves, so
+      the treatment terms are the model
+    top_parameter: chemo_generation
+    top_parameter_why: >-
+      Third-generation chemotherapy carries the largest single treatment
+      log-hazard-ratio (-0.446, HR 0.64) and is the decision PREDICT is most
+      used to inform. Hormone therapy is close behind and is unique in being
+      TIME-VARYING, which no other term in the model is.
+    paper_importance_quote: null
+    equation: "benefit(treatment) = S(t | no treatment) - S(t | treatment), both from the same prognostic index with treatment log-HRs added"
+    params:
+      - name: chemo_generation
+        label: Chemotherapy generation
+        coefficient: -0.446
+        units: 0 none / 2 second generation / 3 third generation
+        transform: "lookup: none 0.0, second generation -0.248, third generation -0.446"
+        transform_kind: categorical
+        reference_level: no chemotherapy
+        importance_rank: 1
+        note: "HR 0.64 for third generation, 0.78 for second. There is no 'first generation' level."
+      - name: hormone
+        label: Adjuvant endocrine therapy
+        coefficient: -0.3857
+        coefficient_extended: -0.26
+        units: indicator
+        transform: "-0.3857 for years 1-10; an ADDITIONAL -0.26 for years 11-15 if extended_hormone"
+        transform_kind: dichotomy + time-varying
+        importance_rank: 2
+        note: >-
+          THE ONLY TIME-VARYING TERM IN THE MODEL. The extra years-11-15 effect
+          is the ATLAS/aTTom extended-endocrine result. A benefit computed at
+          10 years and one computed at 15 years are not on the same scale.
+      - name: trastuzumab
+        label: Trastuzumab
+        coefficient: -0.3567
+        units: indicator
+        transform: "1/0, applied only where HER2-positive"
+        transform_kind: dichotomy
+        importance_rank: 3
+      - name: bisphosphonate
+        label: Bisphosphonate
+        coefficient: -0.198
+        units: indicator
+        transform: "1/0"
+        transform_kind: dichotomy
+        importance_rank: 4
+      - name: radiotherapy
+        label: Radiotherapy
+        coefficient: 0.0
+        units: indicator
+        transform: "GATED OFF — r.enabled = 0 in v2.2, so every radiotherapy term evaluates to zero"
+        transform_kind: none
+        importance_rank: null
+        note: >-
+          Present in the reference source and deliberately disabled there. We
+          mirror the disabling exactly rather than silently enabling a pathway
+          the reference turns off. Do not read a zero benefit here as a claim
+          that radiotherapy does not help.
+
+  # ======================================================================
+  # LUNG
+  # ======================================================================
+
+  plcom2012:
+    axis: detection
+    importance_basis: >-
+      the paper's Table 2 odds ratios, cross-checked against the measured
+      sweep; both point at the smoking block
+    top_parameter: smoking_duration_years
+    top_parameter_why: >-
+      The smoking block collectively dominates, and duration is its largest
+      component over a real range — 10 to 50 years of smoking moves risk far
+      more than any single categorical term. The subtle part is that duration
+      (years) matters MORE than intensity (cigarettes/day), which is why the
+      model beats pack-year thresholds: pack-years multiply the two and lose
+      the distinction.
+    paper_importance_quote: >-
+      Tammemagi 2013, verbatim: "smoking intensity had a significant nonlinear
+      association with lung cancer". The paper does not name a single strongest
+      predictor; the Table 2 odds ratios are reproduced per parameter below.
+    equation: "logit(p) = -4.532506 + sum(beta_i * x_i); risk = 6-year probability via the logistic link"
+    params:
+      - name: (intercept)
+        label: Intercept
+        coefficient: -4.532506
+        units: logit
+        transform: "1"
+        transform_kind: none
+        importance_rank: null
+      - name: smoking_duration_years
+        label: Duration of smoking
+        coefficient: 0.0317321
+        units: years
+        transform: "smoking_duration_years - 27"
+        transform_kind: centering
+        importance_rank: 1
+        paper_effect: "OR 1.032 (1.014-1.051) per year"
+      - name: cigarettes_per_day
+        label: Smoking intensity
+        coefficient: -1.822606
+        units: cigarettes/day
+        transform: "(cigarettes_per_day / 10)^-1 - 0.4021541613"
+        transform_kind: reciprocal + centering
+        importance_rank: 2
+        paper_effect: null
+        note: >-
+          A RECIPROCAL, and the sign is the thing everyone gets wrong. The
+          coefficient is NEGATIVE and the transform is 1/x, so more cigarettes
+          means a smaller x and therefore MORE risk. The effect saturates:
+          going 5 -> 10 cigarettes/day moves the term by 1.0, while 40 -> 60
+          moves it by 0.08. Never linearise this. Also note it is undefined at
+          0 — the model is for ever-smokers only and raises otherwise.
+      - name: quit_years
+        label: Years since quitting
+        coefficient: -0.0308572
+        units: years
+        transform: "quit_years - 10"
+        transform_kind: centering
+        importance_rank: 3
+        paper_effect: "OR 0.970 (0.950-0.990) per year"
+        note: "Must be 0 for current smokers; the module enforces the consistency."
+      - name: age
+        label: Age
+        coefficient: 0.0778868
+        units: years
+        transform: "age - 62"
+        transform_kind: centering
+        importance_rank: 4
+        paper_effect: "OR 1.081 (1.057-1.105) per year"
+      - name: race
+        label: Race / ethnic group
+        coefficient: null
+        units: 6 categories
+        transform: "white 0 (reference); black +0.3944778; hispanic -0.7434744; asian -0.466585; American Indian/Alaskan Native 0.0; Native Hawaiian/Pacific Islander +1.027152"
+        transform_kind: categorical
+        reference_level: white
+        importance_rank: 5
+        paper_effect: "black OR 1.484 (1.083-2.033); hispanic OR 0.475 (0.195-1.160); asian OR 0.627 (0.332-1.185)"
+        note: >-
+          American Indian / Alaskan Native is printed as EXACTLY 0 in Table 2,
+          identical to the white reference — that is what the table says, not a
+          missing value. Native Hawaiian/Pacific Islander at +1.027 is the
+          largest categorical term in the model, larger than COPD or family
+          history.
+      - name: family_history_lung_cancer
+        label: Family history of lung cancer
+        coefficient: 0.587185
+        units: indicator
+        transform: "1/0"
+        transform_kind: dichotomy
+        importance_rank: 6
+        paper_effect: "OR 1.799 (1.471-2.200)"
+      - name: personal_cancer_history
+        label: Personal history of cancer
+        coefficient: 0.4589971
+        units: indicator
+        transform: "1/0"
+        transform_kind: dichotomy
+        importance_rank: 7
+        paper_effect: "OR 1.582 (1.172-2.128)"
+      - name: copd
+        label: COPD
+        coefficient: 0.3553063
+        units: indicator
+        transform: "1/0"
+        transform_kind: dichotomy
+        importance_rank: 8
+        paper_effect: "OR 1.427 (1.162-1.751)"
+      - name: current_smoker
+        label: Smoking status
+        coefficient: 0.2597431
+        units: indicator
+        transform: "1 if current, 0 if former"
+        transform_kind: dichotomy
+        reference_level: former smoker
+        importance_rank: 9
+        paper_effect: "OR 1.297 (1.047-1.605)"
+        note: "Never-smokers are out of scope entirely, not a third level."
+      - name: education_level
+        label: Education
+        coefficient: -0.0812744
+        units: ordinal 1-6
+        transform: "education_level - 4"
+        transform_kind: centering
+        importance_rank: 10
+        paper_effect: "OR 0.922 (0.874-0.972) per level"
+        note: >-
+          A 6-level ordinal entered as a NUMBER (1 = less than high school,
+          6 = postgraduate), centered on 4. Treating it as unordered categories
+          changes the model.
+      - name: bmi
+        label: Body-mass index
+        coefficient: -0.0274194
+        units: kg/m2
+        transform: "bmi - 27"
+        transform_kind: centering
+        importance_rank: 11
+        paper_effect: "OR 0.973 (0.955-0.991) per unit"
+        note: >-
+          NEGATIVE — higher BMI predicts LOWER lung-cancer risk here. This is
+          the well-known reverse-causation/confounding signal (weight loss
+          precedes diagnosis, smoking suppresses weight), not a protective
+          effect of obesity. Do not correct the sign.
+
+  lipi:
+    axis: response
+    importance_basis: point allocation — two items, one point each, deliberately unweighted
+    top_parameter: dnlr
+    top_parameter_why: >-
+      Neither item is weighted above the other by construction, so there is no
+      ranking inside the model. dNLR is listed first because it is the derived
+      quantity that needs care: it is neutrophils / (leukocytes - neutrophils),
+      NOT the ordinary neutrophil-to-lymphocyte ratio.
+    paper_importance_quote: >-
+      Meta-analysis PMC11222319, verbatim: "elevated LIPI was significantly
+      associated with poor OS (HR = 2.50, 95% CI: 2.09-2.99, p < 0.001) and PFS
+      (HR = 1.77, 95% CI: 1.64-1.91, p < 0.001)."
+    equation: "LIPI = [dNLR > 3] + [LDH > ULN], range 0-2; 0 good / 1 intermediate / 2 poor"
+    params:
+      - name: dnlr
+        label: Derived neutrophil-to-lymphocyte ratio
+        coefficient: null
+        points: "1 if > 3.0"
+        units: ratio
+        transform: "dNLR = neutrophils / (leukocytes - neutrophils), then dichotomised at 3.0"
+        transform_kind: derived + dichotomy
+        importance_rank: 1
+        note: >-
+          The DENOMINATOR IS THE NON-NEUTROPHIL WHITE COUNT, not the lymphocyte
+          count. That is what makes it "derived" and why it can be computed
+          from a differential that lacks lymphocytes. Substituting an ordinary
+          NLR gives a systematically different number.
+      - name: ldh
+        label: Lactate dehydrogenase
+        coefficient: null
+        points: "1 if > upper limit of normal"
+        units: U/L
+        transform: "dichotomised against the REPORTING LAB'S OWN upper limit of normal"
+        transform_kind: dichotomy
+        importance_rank: 1
+        note: >-
+          There is no universal cutoff, so both the value and its ULN must be
+          supplied. Hard-coding a threshold makes the score non-transferable
+          between laboratories.
+
+  lipi_prognosis:
+    axis: prognosis
+    importance_basis: point allocation — identical arithmetic to the response use
+    top_parameter: dnlr
+    top_parameter_why: >-
+      SAME TWO PARAMETERS, SAME WEIGHTS, SAME CUTOFFS as the response use. The
+      only thing that changes across the axis is the claim being made: on the
+      response axis LIPI is used to predict benefit from immune checkpoint
+      inhibitors, on the prognosis axis to predict survival regardless of
+      treatment. Validation found the prognostic effect held under chemotherapy
+      too, which is precisely why it is weak evidence of ICI-specific benefit.
+    paper_importance_quote: >-
+      PMC7481630, verbatim: "The prognostic impact however was consistent
+      across all studies in patients treated with ICI or chemotherapy" — i.e.
+      the same score behaves prognostically in both arms, so it does not by
+      itself identify who benefits from immunotherapy specifically.
+    equation: "identical to lipi"
+    params:
+      - name: dnlr
+        label: Derived neutrophil-to-lymphocyte ratio
+        coefficient: null
+        points: "1 if > 3.0"
+        units: ratio
+        transform: "neutrophils / (leukocytes - neutrophils), dichotomised at 3.0"
+        transform_kind: derived + dichotomy
+        importance_rank: 1
+      - name: ldh
+        label: Lactate dehydrogenase
+        coefficient: null
+        points: "1 if > upper limit of normal"
+        units: U/L
+        transform: "dichotomised against the reporting lab's ULN"
+        transform_kind: dichotomy
+        importance_rank: 1
+
+  # ======================================================================
+  # COLORECTAL
+  # ======================================================================
+
+  crc_pro:
+    axis: detection
+    importance_basis: >-
+      THE PAPER'S OWN RANKING — Table 3 prints the change in c-statistic as each
+      variable enters a forward-stepwise fit, separately for men and women.
+      This is the most explicit importance evidence in the whole repository.
+    top_parameter: age
+    top_parameter_why: >-
+      Age alone takes the c-statistic from 0.500 to 0.663 in men and 0.658 in
+      women — a gain of 0.163 and 0.158 against a total model gain of 0.193 and
+      0.187. Every other variable combined is worth about 0.03. Race/ethnicity
+      is a distant second at 0.010.
+    paper_importance_quote: >-
+      Kattan 2014, verbatim: "Age had a substantially stronger effect on the
+      accuracy of the model than any of the other variables for both men and
+      women. Race/ethnicity was the second most important variable for both
+      sexes, and the relative importance of the additional variables were
+      different between the sexes. The regular use of NSAIDs was an important
+      predictor for women but not for men, whereas a personal history of cancer
+      was not an important predictor variable for either sex."
+    equation: "risk(10y) = 1 - S0 ** exp(Xb);  S0 = 0.9846654 (men), 0.9901043 (women)"
+    coefficient_note: >-
+      MEN AND WOMEN ARE DIFFERENT MODELS WITH DIFFERENT PREDICTOR SETS, not one
+      model with a sex term. Men have 12 predictors, women 11, and only 9
+      overlap. Coefficients below are the LINEAR component; every continuous
+      predictor also carries 2-3 restricted-cubic-spline terms, listed in the
+      transform.
+    params:
+      - name: age
+        label: Age
+        coefficient: 0.091669179
+        coefficient_female: 0.090012542
+        units: years
+        transform: "linear + RCS knots at 47, 60, 72 (both sexes)"
+        transform_kind: spline
+        importance_rank: 1
+        paper_effect: "adjusted HR 3.03 (2.69-3.41) men, 2.81 (2.48-3.18) women, for age 67 vs 52"
+        paper_delta_c: "men +0.163280, women +0.157655"
+      - name: ethnicity
+        label: Race / ethnicity
+        coefficient: null
+        units: 5 categories
+        transform: "men: hawaiian +0.16092241, japanese +0.25353936, latino -0.13659953, white -0.16728044. women: hawaiian -0.24100367, japanese +0.014010715, latino -0.39669678, white -0.34056094"
+        transform_kind: categorical
+        reference_level: black
+        importance_rank: 2
+        paper_effect: "men, Japanese vs white HR 1.52 (1.31-1.77); women, black vs white HR 1.41 (1.18-1.67)"
+        paper_delta_c: "men +0.009710, women +0.010010"
+        note: >-
+          THE REFERENCE IS BLACK, not white. Every printed coefficient is
+          relative to Black participants, so all four levels in the women's
+          model being negative means all four are lower-risk than Black women,
+          not that they are protective in the abstract. Note the signs also
+          FLIP by sex for Hawaiian (+0.161 men, -0.241 women).
+      - name: pack_years
+        label: Pack-years of smoking
+        coefficient: 0.00022581331
+        coefficient_female: 0.062703176
+        units: pack-years
+        transform: "men: linear + RCS at 0, 6.375, 39.525. women: linear + RCS at 0, 1.25, 6.375, 27.5125 (FOUR knots — the paper could not fit three)"
+        transform_kind: spline
+        importance_rank: 3
+        paper_effect: "men HR 1.06 (0.93-1.21) for 19.8 vs 0 pack-years"
+        paper_delta_c: "men +0.005224 (rank 3), women +0.002476 (rank 6)"
+        note: >-
+          The men's linear coefficient is 0.000226 — essentially zero — because
+          almost all of the effect is carried by the spline terms. Reading the
+          linear coefficient alone would conclude smoking does not matter.
+      - name: alcohol_drinks_per_day
+        label: Alcohol
+        coefficient: 0.28379769
+        coefficient_female: -0.08856241
+        units: drinks/day
+        transform: "men: linear + RCS at 0, 0.14457189, 2.8477722. women: linear + RCS at 0, 0.10740682, 0.8099724"
+        transform_kind: spline
+        importance_rank: 4
+        paper_effect: "men HR 1.26 (1.13-1.41) for 1.15 vs 0 drinks/day; women HR 0.99 (0.93-1.06) for 0.1 vs 0"
+        paper_delta_c: "men +0.003229 (rank 4), women +0.000976 (rank 11)"
+        note: "SIGN FLIPS BY SEX on the linear term (+0.284 men, -0.089 women) — the spline knots differ too."
+      - name: weight_lb / height_in
+        label: Body-mass index
+        coefficient: 0.018020786
+        coefficient_female: 0.0075233925
+        units: pounds and inches IN, kg/m2 in the equation
+        transform: "BMI = (weight_lb * 0.45359237) / (height_in * 0.0254)^2, then linear + RCS at 22.047175, 25.941735, 31.778341 (men) or 20.371336, 25.508027, 33.722266 (women)"
+        transform_kind: derived + spline
+        importance_rank: 5
+        paper_effect: "men HR 1.12 (1.04-1.21) for BMI 28.7 vs 23.8"
+        paper_delta_c: "men +0.002821 (rank 5), women +0.001300 (rank 9)"
+        note: >-
+          INPUTS ARE POUNDS AND INCHES. The spline knots assume the app's own
+          conversion, so supplying kg/cm and converting yourself will land on
+          the wrong side of a knot.
+      - name: years_education
+        label: Years of education
+        coefficient: 0.072052428
+        coefficient_female: 0.07443905
+        units: years
+        transform: "linear + RCS at 7, 14, 18 (both sexes)"
+        transform_kind: spline
+        importance_rank: 6
+        paper_effect: "men HR 0.94 (0.85-1.03) for 16 vs 12 years; women HR 1.01 (0.97-1.06) for 14 vs 12"
+        paper_delta_c: "men +0.002333 (rank 6), women +0.003243 (rank 3)"
+      - name: family_history
+        label: Family history of colon cancer
+        coefficient: 0.24250922
+        coefficient_female: 0.31589053
+        units: indicator
+        transform: "1/0"
+        transform_kind: dichotomy
+        importance_rank: 7
+        paper_effect: "men HR 1.27 (1.08-1.51); women HR 1.37 (1.17-1.61)"
+        paper_delta_c: "men +0.001526, women +0.001839"
+      - name: multivitamin
+        label: Regular multivitamin use
+        coefficient: -0.19175375
+        coefficient_female: -0.1665365
+        units: indicator
+        transform: "1/0"
+        transform_kind: dichotomy
+        importance_rank: 8
+        paper_effect: "men HR 0.83 (0.74-0.92); women HR 0.85 (0.76-0.95)"
+      - name: diabetes
+        label: History of diabetes
+        coefficient: 0.11020556
+        coefficient_female: 0.23328937
+        units: indicator
+        transform: "1/0"
+        transform_kind: dichotomy
+        importance_rank: 9
+        paper_effect: "men HR 1.12 (0.96-1.30); women HR 1.26 (1.08-1.48)"
+        paper_delta_c: "men +0.000600 (rank 11), women +0.002600 (rank 5)"
+        note: "Ranked 11th in men and 5th in women — one of the clearest sex differences in the model."
+      - name: aspirin
+        label: Regular aspirin use
+        coefficient: -0.20960315
+        units: no / previously / currently
+        transform: "no 0 (reference); previously -0.032284161; currently -0.20960315"
+        transform_kind: categorical
+        reference_level: "no"
+        importance_rank: 10
+        paper_effect: "HR 0.81 (0.71-0.92) current vs no"
+        note: "MEN'S MODEL ONLY. Excluded from the women's model by the stepwise fit."
+      - name: red_meat_oz_per_day
+        label: Red meat intake
+        coefficient: 0.073141733
+        units: ounces/day
+        transform: "linear + RCS at 0.59081962, 2.0822052, 5.0656345"
+        transform_kind: spline
+        importance_rank: 11
+        paper_delta_c: "men +0.000622 (rank 10); EXCLUDED from the women's model"
+        note: "MEN'S MODEL ONLY."
+      - name: activity_hours_per_day
+        label: Moderate physical activity
+        coefficient: -0.090669913
+        units: hours/day
+        transform: "linear + RCS at 0.10714286, 0.82142857, 3.5357143"
+        transform_kind: spline
+        importance_rank: 12
+        paper_effect: "men HR 0.92 (0.83-1.02) for 1.6 vs 0.4 hours/day"
+        paper_delta_c: "men +0.000513 (rank 12); EXCLUDED from the women's model"
+        note: "MEN'S MODEL ONLY."
+      - name: estrogen
+        label: Estrogen use
+        coefficient: -0.24500762
+        units: no / previously / currently
+        transform: "no 0 (reference); previously -0.044320489; currently -0.24500762"
+        transform_kind: categorical
+        reference_level: "no"
+        importance_rank: 4
+        paper_effect: "HR 0.78 (0.68-0.90) current vs no"
+        paper_delta_c: "women +0.003139 (rank 4)"
+        note: >-
+          WOMEN'S MODEL ONLY, and the site of a real defect in the deployed
+          calculator: its UI emits "Yes, but not currently" while the model
+          tests for "Yes-previously", so the -0.044320489 term is unreachable
+          there and a woman reporting PREVIOUS estrogen use is scored as if she
+          reported none. We implement the paper (all three levels live);
+          emulate_deployed_defect=True reproduces the tool.
+      - name: nsaid
+        label: Regular NSAID use
+        coefficient: -0.236997
+        units: no / previously / currently
+        transform: "no 0 (reference); previously -0.046383323; currently -0.236997"
+        transform_kind: categorical
+        reference_level: "no"
+        importance_rank: 10
+        paper_effect: "HR 0.79 (0.66-0.94) current vs no"
+        paper_delta_c: "women +0.001097 (rank 10); EXCLUDED from the men's model"
+        note: >-
+          WOMEN'S MODEL ONLY — this is the sex difference the paper calls out
+          by name.
+
+  msk_rectal:
+    axis: prognosis
+    importance_basis: measured sweep; the supplement prints hazard ratios but they are internally inconsistent for OS
+    top_parameter: ypt
+    top_parameter_why: >-
+      ypT stage after chemoradiotherapy carries the largest single jump —
+      ypT4 is +1.52 (RFS) and +1.39 (OS) against the reference, an
+      approximately 4-fold hazard. Positive nodes are close behind but are
+      splined, so their effect saturates after the first few nodes.
+    paper_importance_quote: null
+    equation: "Prob{T >= t} = S0(t) ** exp(X*beta), time in MONTHS; S0 published only at 0/60/120/180 months"
+    coefficient_note: >-
+      TWO ENDPOINTS WITH DIFFERENT REFERENCE GROUPS AND DIFFERENT PREDICTOR
+      SETS. RFS is coded against ypT0/T1 and has NO age term; OS is coded
+      against ypT0/T1/T2 and has an age spline. Applying the RFS coding to OS
+      silently misprices every ypT2 patient.
+    params:
+      - name: ypt
+        label: ypT stage (post-treatment pathological T)
+        coefficient: 1.521675
+        coefficient_os: 1.386825
+        units: ypT0-ypT4
+        transform: "RFS: indicators for T2 (+0.3143759), T3 (+0.6630723), T4 (+1.521675) against ypT0/T1. OS: indicators for T3 (+0.2726462) and T4 (+1.386825) against ypT0/T1/T2."
+        transform_kind: categorical
+        reference_level: "RFS: ypT0/T1.  OS: ypT0/T1/T2 — DIFFERENT"
+        importance_rank: 1
+        note: >-
+          MSK's own web form REJECTS ypT0 for an incomplete responder, because
+          in its UI ypT0 means complete response and routes the patient
+          elsewhere. The equation's RFS reference group is nonetheless labelled
+          ypT0/T1, so this module accepts it — that corner is covered by the
+          equation alone and no live reference value can be captured for it.
+      - name: positive_nodes
+        label: Number of positive lymph nodes
+        coefficient: 0.522283
+        coefficient_os: 0.5150229
+        units: count
+        transform: "linear + restricted cubic spline, knots at 0, 1, 3"
+        transform_kind: spline
+        importance_rank: 2
+        note: >-
+          Knots at 0, 1 and 3 mean essentially all the resolution is in the
+          first three nodes. Going 0 -> 1 node matters enormously; 7 -> 9
+          barely registers.
+      - name: perineural_invasion
+        label: Perineural invasion
+        coefficient: 0.6336823
+        coefficient_os: 0.6762158
+        units: indicator
+        transform: "1/0"
+        transform_kind: dichotomy
+        importance_rank: 3
+        paper_effect: "eTable prints HR 2.02 for OS; exp(0.6762158) = 1.97. The eTable and eFigure disagree for OS — see note."
+      - name: venous_invasion
+        label: Venous invasion
+        coefficient: 0.136099
+        coefficient_os: 0.470128
+        units: indicator
+        transform: "1/0"
+        transform_kind: dichotomy
+        importance_rank: 5
+        note: >-
+          A 3.5-fold difference between endpoints (0.136 RFS vs 0.470 OS) and
+          the single coefficient most at risk of transcription error: read from
+          a rendered figure, it could have been 0.470128 or 0.0470128, and a
+          dropped leading zero would have moved the hazard ratio from 1.60 to
+          1.05. Re-read at 600 dpi from independent renders.
+      - name: distance_to_anal_verge_cm
+        label: Distance from the anal verge
+        coefficient: -0.3811237
+        coefficient_os: -0.4471371
+        units: cm
+        transform: "DICHOTOMISED at 5 cm: 1 if >= 5 cm else 0"
+        transform_kind: dichotomy
+        importance_rank: 4
+        note: >-
+          A continuous measurement thrown away except for one threshold. 4.9 cm
+          and 0.5 cm score identically. Protective sign — tumours further from
+          the verge do better.
+      - name: age
+        label: Age
+        coefficient: 0.00535203
+        units: years
+        transform: "OS ONLY: linear + restricted cubic spline, knots at 36, 52, 64, 78.7"
+        transform_kind: spline
+        importance_rank: 6
+        note: >-
+          ABSENT FROM THE RFS MODEL ENTIRELY. This asymmetry is why OS can come
+          out BELOW RFS for an older patient, which looks like a bug and is
+          not — MSK's own deployed tool does the same. The two endpoints are
+          separate marginal Cox fits, not a nested pair.
+

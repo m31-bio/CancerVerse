@@ -1,0 +1,44 @@
+# Run: uv run pre-commit install
+#
+# Deliberately light. The checks that matter most in this repository are not
+# lint rules -- they are the tests that assert a coefficient still matches its
+# published source, and those belong in pytest where they can be read.
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+        # The registry is the single source of truth; a YAML error there breaks
+        # every renderer at once.
+        files: ^(registry/|collected/MANIFEST\.yaml)
+      - id: check-added-large-files
+        args: ["--maxkb=2048"]
+      - id: check-merge-conflict
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.0
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: local
+    hooks:
+      # The two rules this project has broken before, and would break again.
+      - id: no-vendored-third-party
+        name: no vendored third-party source committed
+        entry: >-
+          bash -c 'git diff --cached --name-only |
+          grep -E "^collected/(BCRA|PLCOm2012|RiskScorescvd|predictv30r|preventr)/"
+          && { echo "GPL/third-party source must not be committed -- see NOTICE"; exit 1; } || exit 0'
+        language: system
+        pass_filenames: false
+      - id: no-private-paths
+        name: no vault/ or slides/ committed
+        entry: >-
+          bash -c 'git diff --cached --name-only | grep -E "^(vault|slides)/"
+          && { echo "vault/ and slides/ are private -- see .gitignore"; exit 1; } || exit 0'
+        language: system
+        pass_filenames: false
