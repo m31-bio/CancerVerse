@@ -10,7 +10,6 @@ import pytest
 from mayo_baseline.cvd.detection import prevent_predict_all
 from mayo_baseline.cvd.prognosis import grace_predict
 from mayo_baseline.lung.detection import plcom2012_predict
-from mayo_baseline.prostate.detection import erspc_rc3_predict
 
 
 def test_prevent_supplemental_table_s25_vignette():
@@ -67,34 +66,28 @@ def test_plcom2012_resplab_worked_example():
     assert out["risk"] == pytest.approx(0.01750922, abs=1e-8)
 
 
-@pytest.mark.xfail(reason="SWOP UI vignette not yet recorded; parity_status=not_checked", strict=False)
-def test_erspc_rc3_swop_vignette_placeholder():
-    # TODO: run the same inputs on https://www.prostatecancer-riskcalculator.com
-    # and set expected_risk to the displayed any-PCa probability.
-    out = erspc_rc3_predict(psa=4.0, volume_ml=40.0, dre_positive=False)
-    expected_risk = None  # fill from SWOP UI
-    assert expected_risk is not None
-    assert out["risk"] == pytest.approx(expected_risk, abs=0.01)
-
-
-@pytest.mark.xfail(reason="Cambridge score2risk / chart vignette not yet recorded", strict=False)
-def test_score2_cambridge_vignette_placeholder():
-    from mayo_baseline.cvd.detection import score2_predict
-
-    out = score2_predict(
-        sex="male",
-        age=50,
-        sbp=140,
-        total_chol_mmol=6.0,
-        hdl_mmol=1.0,
-        smoker=True,
-        region="low",
-    )
-    # Eur Heart J chart example text: ~2.9% in low-risk countries for similar profile
-    # (confirm exact inputs against chart before enabling).
-    expected_risk = None
-    assert expected_risk is not None
-    assert out["risk"] == pytest.approx(expected_risk, abs=0.005)
+# Two web-calculator placeholders were removed here on 2026-08-18. Both were
+# `xfail(strict=False)` around `expected_risk = None; assert expected_risk is
+# not None` -- bodies that could never pass, so they reported nothing whether
+# the model was right or wrong, and they inflated the test count with two
+# entries that asserted nothing about the library.
+#
+# They were also stale. The erspc_rc3 one gave its reason as
+# `parity_status=not_checked`; the registry has said `checked` since
+# 2026-08-05, and its TODO asked a future reader to obtain SWOP outputs that
+# the same registry entry records as unobtainable (the calculator is a 2011
+# Flash SWF and Flash is EOL). Parity there was established by extracting all
+# six constants from that SWF directly -- a claim about the model rather than
+# about one output. See tests/parity/reference/swop_rc3_swf_extract.py.
+#
+# The score2 one wanted a Cambridge chart vignette; SCORE2 was checked against
+# CRAN RiskScorescvd::SCORE2 across all four ESC regions, and its registry note
+# says in as many words that no web calculator was needed.
+#
+# If a second, independent parity route is ever wanted for either model, the
+# place to record that intent is the model's registry entry, not a test that
+# cannot run. `test_no_test_can_never_pass` in tests/test_test_hygiene.py
+# now fails if a placeholder of this shape is added back.
 
 
 def test_grace_published_worked_examples():
