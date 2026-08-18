@@ -1227,6 +1227,19 @@ models:
   title: MSK rectal calculator (RFS + OS after CRT and surgery)
   code: mayo_baseline.colorectal.prognosis.msk_rectal
   license: open
+  license_url: https://pmc.ncbi.nlm.nih.gov/articles/PMC8576585/
+  license_basis: >-
+    CC BY. Europe PMC reports isOpenAccess "Y", license "cc by" for doi:10.1001/jamanetworkopen.2021.33457
+    -- the coefficients (the eFigure's Cox linear predictor and baseline survival) come from this
+    fully open article and commercial use is permitted outright; no Feist argument is even needed here.
+    A DIFFERENT and NARROWER exposure exists and is not resolved by this determination: MSK's own hosted
+    tool at mskcc.org/nomograms/rectal carries a "for educational and/or research purposes only, and not
+    for any commercial purposes" disclaimer, and tests/parity/reference/msk_rectal_fetch.py queries that
+    tool 12 times to settle which of two internally-inconsistent published artifacts (the eFigure vs. the
+    eTable hazard ratios) the tool actually implements -- a verification use, not a use of the tool's
+    output as content, but MSK's terms restrict PURPOSE of use, which copyright arguments about facts
+    do not reach. See "The MSK fixture gap" in docs/COMMERCIAL_USE_AUDIT.md -- that exposure is
+    catalogued and low-severity, not resolved by this field.
   repro_tier: A
   citation: Weiser MR et al. JAMA Netw Open. 2021;4(11):e2133457
   equation_source: JAMA Netw Open 2021;4(11):e2133457, doi:10.1001/jamanetworkopen.2021.33457, Supplement
@@ -1318,7 +1331,18 @@ models:
   status: implemented
   title: aMAP score (5-year HCC risk in chronic hepatitis)
   code: mayo_baseline.liver.detection.amap
-  license: open
+  license: noncommercial_source
+  license_url: https://ora.ox.ac.uk/objects/uuid:de233595-872f-425d-aff8-6b4291bca49d
+  license_basis: 'CC BY-NC-ND 4.0 -- CORRECTED 2026-08-14, this field previously read `open` while
+    `equation_source` in the same entry already said CC BY-NC-ND. One record, two answers, and the
+    audit believed the wrong one. Europe PMC records the article as license "cc by-nc-nd",
+    isOpenAccess "N"; the Oxford ORA record page above states it in plain words. Basis for
+    implementing anyway is the same as iota_adnex: five coefficients are facts, not expression, and
+    the module was checked 2026-08-14 -- the only quoted string in it is the reference itself. Note
+    what ND adds beyond NC: it forbids distributing a MODIFIED copy of the licensed work. That binds
+    the article, not an independent implementation of the arithmetic it reports, but it is the clause
+    that would bite hardest if the facts argument failed. Same outstanding EU/UK database-right
+    question as iota_adnex.'
   repro_tier: A
   citation: Fan R, Papatheodoridis G, Sun J, et al. J Hepatol. 2020;73(6):1368-1378
   equation_source: J Hepatol 2020;73(6):1368-1378, doi:10.1016/j.jhep.2020.07.025 (open access CC BY-NC-ND)
