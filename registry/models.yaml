@@ -726,6 +726,117 @@ models:
       Table number not captured.
     verified: identified while implementing; NOT re-read against the source in the 2026-08-06 pass, so
       treat the location as approximate
+- id: af_stroke_lr_2026
+  clinical_question: Stroke risk in atrial fibrillation
+  disease: cvd
+  axis: prognosis
+  role: catalog
+  status: catalog
+  year: 2026
+  title: Interpretable LR model for stroke in newly diagnosed atrial fibrillation
+  citation: Interpretable machine learning models for stroke risk prediction in patients with newly diagnosed
+    atrial fibrillation. npj Digital Medicine
+  source_url: https://pmc.ncbi.nlm.nih.gov/articles/PMC13057017/
+  license: open
+  open_source: available
+  public_repo: https://github.com/Jesse-cwl/Stroke-Prediction-in-AF
+  upstream:
+  - doi: 10.1038/s41746-026-02470-3
+    url: https://pmc.ncbi.nlm.nih.gov/articles/PMC13057017/
+    note: development and two external validations; Table 2 odds ratios, no intercept
+  repro_tier: C
+  discrimination: AUC 0.915 internal, 0.877-0.886 in two external cohorts, against 0.614-0.621 for CHA2DS2-VASc
+    in the same cohorts
+  candidate_for: cha2ds2_vasc
+  code_status: 'Training code is public (GitHub, MIT; archived Zenodo 10.5281/zenodo.18767654) and runs
+    the full pipeline end to end. It is NOT a usable model on its own: no serialised model file ships,
+    and the derivation data (NTUH-iMD) is not shared, so the notebooks cannot be re-run to reproduce
+    the fit. What the code gives us is evidence to read the missing constant OUT of -- retained output
+    cells and case-level figures -- not a model to load and call.'
+  blocker: 'Missing the intercept, and ONLY the intercept. Re-examined 2026-08-14: the nine coefficients
+    are no longer missing. Notebook 01 in the repository retains 8 of its 56 output cells -- the earlier
+    note here that every output had been cleared was wrong -- and the retained output of the final cell
+    prints the multivariable odds ratios to six decimal places, so each coefficient is ln(OR) exactly:
+    prior ischemic stroke 4.506327, warfarin 0.560889, AAD -0.654219, CLD -0.249559, APA 0.217518, OHA
+    0.181271, HTN 0.176715, DM 0.127999, age 0.010919 per year. The intercept is absent because the notebook
+    fits it and then drops it one character before printing: `np.exp(model_multi.params[1:])`, commented
+    `# Exclude constant term`. Neither the article nor the supplement closes the gap -- Table 2 prints
+    odds ratios only, and Supplementary Figure 1 is a bar plot of the same nine coefficients with no
+    axis-readable intercept and no coefficient table. There is still no serialised model and the derivation
+    data is not shared.'
+  blocker_kind: one missing constant
+  next_action: 'Write to the authors for one number: the intercept of the statsmodels multivariable fit
+    in notebook 01. The nine coefficients no longer need asking for. This is the largest single improvement
+    available anywhere in the library -- CHA2DS2-VASc is its weakest model at 0.606 and this replaces
+    it with 0.88 -- and all nine predictors (age, warfarin, antiplatelet, antiarrhythmic and oral hypoglycaemic
+    use, chronic lung disease, hypertension, diabetes, prior stroke) are routine EHR fields already on
+    the Mayo Clinic Platform. Ask second for the StandardScaler mean and standard deviation of age in
+    the training split, which would additionally unlock the deployed model (see tier_note).'
+  tier_note: 'RECORDED 2026-08-07 as the strongest replacement candidate found. Note the licence split,
+    which matters and is easy to get wrong: the ARTICLE is CC BY-NC-ND, while the REPOSITORY is MIT.
+
+    UPDATED 2026-08-14. There are TWO logistic regressions in this paper and they are easy to conflate.
+    (i) An unregularised statsmodels fit on raw predictors, which is what Table 2 reports and what the
+    six-decimal odds ratios in notebook 01 belong to. Nine coefficients known, intercept missing: one
+    number from being implementable. (ii) An sklearn pipeline -- StandardScaler on age, LogisticRegression
+    C=0.1 liblinear -- which is what produces the headline AUC 0.9146 and the dashboard. Its coefficients
+    are shrunk relative to (i): prior ischemic stroke reads about 4.05 against 4.506327.
+
+    The intercept of (ii) IS recoverable and was recovered. Notebook 08 retains three case-level figures
+    that plot each beta*x contribution and annotate the predicted risk, so the constant follows as
+    logit(p) - sum(beta*x). Patient 994 gives -2.986, patient 19 gives -2.988, patient 67 gives -2.976;
+    the first two have the finer axis and agree to three decimals, so the intercept of (ii) is about
+    -2.99. That does NOT make (ii) usable: it standardises age with the training mean and standard
+    deviation, which are unpublished, and Table 1 reports age as median (IQR) 75 (66, 82) rather than
+    mean and SD, so those two constants cannot be recovered from the paper. Model (i) is therefore the
+    cheaper target by a wide margin -- one number rather than three.
+
+    EARLIER-VERSION SEARCH, 2026-08-14: exhausted, nothing found, do not repeat. There is no preprint --
+    Europe PMC returns exactly one record for the title and Crossref reports `relation: {}` on the DOI,
+    so no has-preprint or is-preprint-of link exists. No correction or amendment; the version of record
+    was deposited 2026-04-07 under CC BY-NC-ND 4.0. The supplement is only MOESM1 (PDF) and MOESM2 (MP4);
+    MOESM3 and beyond do not resolve, so there is no peer review file or reporting summary to mine. The
+    repository has ten commits and two file uploads (2025-05-03 and 2025-05-22); notebooks 00-09 are
+    byte-identical between them and the second upload only added notebook 10 and a longer README, so
+    there is no earlier, richer version in git history. The Zenodo archive
+    (10.5281/zenodo.18767654, concept 10.5281/zenodo.18767653) has a single version marked is_last, and
+    its copy of notebook 01 has the same SHA-1 as the one on main -- a snapshot, not a fuller release.
+    The one supplementary item still unexamined is MOESM2, the dashboard demo video: worked examples at
+    two different ages would pin the age scaler and finish model (ii) without contacting anyone.'
+  discrimination_source: npj Digital Medicine, PMC13057017, read 2026-08-07. Internal AUC 0.915 (LR) and
+    0.914 (Platt-calibrated XGBoost); two external cohorts give 0.877/0.882 for LR and 0.886/0.879 for
+    XGBoost. CHA2DS2-VASc scored 0.614-0.621 in those same cohorts, which is what makes this a like-for-like
+    comparison rather than two numbers from different populations.
+- id: chads2_2001
+  clinical_question: Stroke risk in atrial fibrillation
+  disease: cvd
+  axis: prognosis
+  role: catalog
+  status: catalog
+  year: 2001
+  title: CHADS2 (stroke risk in atrial fibrillation, predecessor to CHA2DS2-VASc)
+  citation: Gage BF, Waterman AD, Shannon W, et al. Validation of clinical classification schemes for
+    predicting stroke -- results from the National Registry of Atrial Fibrillation. JAMA. 2001;285(22):2864-2870
+  source_url: https://pubmed.ncbi.nlm.nih.gov/11401607/
+  license: open
+  open_source: none
+  repro_tier: A
+  equation_source: Additive integer point table (0-6) -- CHF, hypertension, age>=75 and diabetes each
+    1 point, prior stroke/TIA 2 points. Reproduced on MDCalc and in every subsequent AF-risk paper as
+    the historical comparator.
+  candidate_for: null
+  discrimination: C-statistic 0.69 in the ATRIA cohort (PMC3698792, Table read 2026-08-14) -- BELOW CHA2DS2-VASc's
+    0.70 in that same cohort, and below ATRIA's 0.73
+  discrimination_source: PMC3698792 (Singer et al. 2013), the C-statistic table comparing ATRIA, CHADS2
+    and CHA2DS2-VASc head-to-head in the ATRIA cohort's own validation, read 2026-08-14. Not from CHADS2's
+    own 2001 derivation paper -- this is CHADS2 scored in someone else's cohort, which is what makes
+    it comparable to the other two numbers on this line.
+  tier_note: 'RECORDED 2026-08-14. The single most widely cited AF stroke score in clinical practice --
+    it is CHADS2 that CHA2DS2-VASc was built to improve on, and it is still the score most non-cardiology
+    services reach for first. Included for completeness and because "classic, widely used" was asked
+    for directly, but it is NOT a replacement candidate: three separate cohorts (its own, CHA2DS2-VASc''s
+    2010 derivation, and ATRIA''s 2013 validation) all place it at or below CHA2DS2-VASc''s discrimination.
+    Cataloguing it here is about recognisability, not performance.'
 - id: has_bled_maggic_catalog
   disease: cvd
   axis: prognosis
@@ -796,6 +907,188 @@ models:
       NCHS mortality) and the year-by-year competing-risk integration are as shipped in the CRAN package
       BCRA; the integration follows its absolute.risk.R.
     verified: CRAN package source; parity-verified 2026-08-05
+- id: bcsc
+  disease: breast
+  axis: detection
+  role: catalog
+  status: catalog
+  year: 2024
+  title: BCSC v3 (Breast Cancer Surveillance Consortium 5- and 10-year risk)
+  citation: Gard CC, Tice JA, Miglioretti DL, et al. Extending the Breast Cancer Surveillance Consortium
+    Model of Invasive Breast Cancer. J Clin Oncol. 2024;42(7):779-789
+  source_url: https://doi.org/10.1200/JCO.22.02470
+  license: restricted
+  license_url: https://tools.bcsc-scc.ucdavis.edu/BC5yearRisk/
+  license_basis: >-
+    NO STATED LICENCE, which defaults to full copyright rather than to permission -- so `restricted`
+    until someone decides otherwise. Recorded here as well as in `blocker` because the audit script
+    reads these two fields, and a catalog row with a restricted licence and no determination is the
+    same gap that `msk_rectal`, `hap` and `kunzmann` were caught in on 2026-08-17.
+
+    Facts gathered 2026-08-18, none of which is a licence grant. The zip ships no LICENSE file and
+    none of its four source files carries a copyright notice. The calculator itself states a citation
+    requirement -- "Please cite the following source when using this program: NCI-funded Breast Cancer
+    Surveillance Consortium (P01 CA154292)..." -- whose wording presupposes use, and its Source Code
+    page offers "software downloads, and usage guidelines". Download needs no login, no password and
+    no acceptance click. P01 CA154292 is an NCI grant.
+
+    The Feist reasoning used for every other determination in this registry does NOT transfer: those
+    turn on a coefficient table in an article being a set of facts, while what would be taken here is
+    a 2,394,000-row precomputed table and a SAS macro -- a software artifact and a database, and the
+    EU sui generis database right reaches datasets that copyright does not. See `blocker` for the
+    full record. NOT IMPLEMENTED, so nothing has been taken under this uncertainty.
+  open_source: web_only
+  public_repo: https://tools.bcsc-scc.ucdavis.edu/BC5yearRisk/assets/assets/BCSC_V3_SourceCode.zip
+  repro_tier: C
+  discrimination: AUC 0.646 (v3, 2024); the v2 model it extends reports 0.665
+  discrimination_source: 'v2 from Tice 2015 JCO (PMC4582144); v3 from Gard 2024 JCO (PMC10906584),
+    verified against the PubMed record 2026-08-07 as J Clin Oncol 42(7):779-789. Two corrections
+    worth keeping visible, because both were wrong here once: the first author is Gard, not the
+    corresponding author Kerlikowske, and the year is 2024, not the 2023 online-first date. Worth
+    noting the direction too: the newer version scores LOWER, so recency is not the reason to prefer
+    it.'
+  candidate_for: bcrat
+  blocker: >-
+    RESOLVED as an access problem, still open as a licence question. The 2026-08-07 password request to
+    the Statistical Coordinating Center was the wrong channel: the consortium's newer calculator (a
+    Flutter web app at tools.bcsc-scc.ucdavis.edu/BC5yearRisk, distinct from the old static
+    BC5yearRisk_V2 page the password request targeted) ships its own source as a downloadable asset of
+    the page itself, no login and no password. Fetched and verified 2026-08-17: the zip
+    (BCSC_V3_SourceCode.zip, 51,647,355 bytes) contains bcscrisk_v3.sas (the KPWA-authored macro,
+    Chi Tran and Steven L. Balch, 7/17/2023), an R port, a sample calling program, and the complete
+    precomputed risk table invasiverisklookuptablev3.sas7bdat -- 2,394,000 rows, one per combination of
+    the model's 8 categorical inputs (age 35-79, race/ethnicity, BI-RADS density, family history,
+    biopsy result, age at first live birth, BMI category, menopausal status), zero duplicate keys, zero
+    missing values. Loads in pandas via `read_sas` alone, no extra library. Spot-checked against a
+    50-year-old average-risk profile (white, scattered density, no family history, no prior biopsy,
+    first birth 25-29, overweight, postmenopausal): 0.71% five-year / 1.56% ten-year, in line with the
+    BCSC's own published benchmarks for that risk band.
+
+    So this is now a lookup table, not a set of Table 2 / Appendix A3 coefficients to transcribe -- the
+    macro is a plain 8-key join, nothing is fitted at request time. That changes what "implementing v3"
+    would mean here: it is loading and querying a 183 MB table, not reproducing a formula.
+
+    The licence question is separate and NOT resolved by finding the file. No LICENSE file ships in the
+    zip and none of the four source files carries a copyright or rights-reserved notice -- but absence
+    of a stated licence defaults to full copyright, not to permission, so `license: restricted` stays
+    until someone at KPWA/BCSC says otherwise in writing. Same treatment as riskcalc.org and as `hap` /
+    `kunzmann` elsewhere in this registry. `open_source` is left at `web_only` rather than moved to
+    `available`: every other `available` row in this registry pairs with `license: open` (16 of 16), and
+    this would be the first exception. Changing it needs a human call, not a default.
+
+    FACTS GATHERED 2026-08-18 for that human call, so the decision does not start from scratch. They
+    point toward permission-with-attribution rather than reserved-all-rights, but they are not a
+    licence grant and this entry does not treat them as one.
+
+    (a) The v3 calculator states a citation requirement in its own Source Code page, compiled into
+        main.dart.js and reproduced verbatim: "Please cite the following source when using this
+        program: NCI-funded Breast Cancer Surveillance Consortium (P01 CA154292). Downloaded
+        mm/dd/yyyy from the Breast Cancer Surveillance Consortium Web site -
+        https://tools.bcsc-scc.ucdavis.edu/BC5yearRisk". The phrase is "when using this program",
+        which presupposes use, and the page describes itself as offering "software downloads, and
+        usage guidelines".
+    (b) The same page carries a disclaimer of accuracy, not of permission: "The SCC, BCSC, and NCI
+        are not responsible for the completeness or accuracy of the data used by the risk program".
+    (c) The download requires no login, no password and no acceptance click -- it is a static asset
+        of the page (assets/assets/BCSC_V3_SourceCode.zip), fetched and verified.
+    (d) P01 CA154292 is an NCI grant, so this is federally funded work. That is context, not a
+        conclusion: NIH public-access policy reaches publications, and data/software sharing terms
+        vary by award. It is a question for whoever makes the call, not an inference to make here.
+
+    WHY THE REGISTRY'S USUAL REASONING DOES NOT SETTLE THIS. Every existing determination here --
+    `hap`, `kunzmann`, `amap`, `iota_adnex`, `cibula_arrm` -- turns on Feist v. Rural Telephone: a
+    coefficient table in an article is a set of facts, and facts are not copyrightable, so the
+    article's CC BY-NC term does not reach the numbers. That argument does not transfer. What would
+    be taken here is a 2,394,000-row precomputed table and a SAS macro, i.e. a software artifact and
+    a database, and the EU sui generis database right reaches datasets that copyright does not --
+    the same distinction already recorded against `cibula_arrm`'s derived outcome grid. So this needs
+    its own determination rather than a citation of the others.
+  blocker_kind: code and data retrieved (public download, no password needed) — awaiting a licence determination
+  next_action: >-
+    The 2026-08-07 request to the Statistical Coordinating Center (kpwa.scc@kp.org) is likely moot now
+    that the source is confirmed reachable without it, but has not been withdrawn -- worth a follow-up
+    note either way, since they may still be the right contact for a licence determination. Separately,
+    `age_first_birth` is still not a field the platform holds, and that blocks v3 regardless of how the
+    licence question resolves.
+  tier_note: 'v3 (2024) is the target because it is the current version, and the replacement is not about
+    age: BCRAT needs age at menarche and age at first live birth, neither of which the platform holds,
+    while BCSC asks for BI-RADS breast density, which a screening centre already records as a structured
+    field. The swap turns a model that cannot run on this data into one that can. Two things are worth
+    stating plainly rather than discovering later: v3 requires age at first live birth, which the platform
+    also lacks and which has been requested, and v3''s reported discrimination (0.646) is LOWER than v2''s
+    (0.665). If the field does not arrive, v2 is the fallback and is not a worse choice on performance.'
+  paper_title: Extending the Breast Cancer Surveillance Consortium Model of Invasive Breast Cancer
+  citation_apa: Gard, C. C., Tice, J. A., Miglioretti, D. L., Sprague, B. L., Bissell, M. C. S., Henderson,
+    L. M., & Kerlikowske, K. (2024). Extending the Breast Cancer Surveillance Consortium Model of Invasive
+    Breast Cancer. Journal of Clinical Oncology, 42(7), 779-789. https://doi.org/10.1200/JCO.22.02470
+  citation_note: CORRECTED 2026-08-07. Recorded first as Kerlikowske K, who is the LAST author. The record
+    gives Gard CC first. This is the second time a hand-written citation here named the corresponding
+    author as first author -- pbcg_extended had the same error -- which is why citations are fetched rather
+    than typed.
+  development_data: registry
+  input_modality: mixed
+  development_cohort: '1,455,493 women aged 35-79 across six Breast Cancer Surveillance Consortium
+    registries, 5,262,185 screening and diagnostic mammograms and 30,266 invasive breast cancers, 2000-2017.
+    NO independent external validation: five-fold cross-validation only, which the authors list as their
+    first limitation. Verified from PMC10906584 (PMID 37976443) 2026-08-07.'
+  related_model_note: 'See `bcsc_v2` -- the earlier BCSC version this one extends, and the breast
+    detection flagship since 2026-08-17. v2 needs no age at first live birth (v3 does), and its own
+    concordance (0.66) is at least as good as v3''s AUC (0.646). Unlike this entry, v2''s 2008 base
+    algorithm is printed in full in its own paper and needed no source-code request to implement; this
+    v3 entry (and v2''s own 2015 BBD refinement) remain blocked on the same password-gated SAS macro.'
+- id: bcsc_v2_bbd_2015
+  disease: breast
+  axis: detection
+  role: catalog
+  status: catalog
+  year: 2015
+  title: BCSC v2.0 (Tice 2015 — adds benign breast disease and a ten-year horizon)
+  citation: Tice JA, Miglioretti DL, Li CS, Vachon CM, Gard CC, Kerlikowske K. J Clin Oncol. 2015;33(28):3137-3143
+  citation_apa: 'Tice, J. A., Miglioretti, D. L., Li, C. S., Vachon, C. M., Gard, C. C., & Kerlikowske,
+    K. (2015). Breast Density and Benign Breast Disease: Risk Assessment to Identify Women at High Risk
+    of Breast Cancer. Journal of Clinical Oncology, 33(28), 3137-3143. https://doi.org/10.1200/JCO.2015.60.8869'
+  paper_title: 'Breast Density and Benign Breast Disease: Risk Assessment to Identify Women at High Risk
+    of Breast Cancer'
+  source_url: https://pmc.ncbi.nlm.nih.gov/articles/PMC4582144/
+  license: restricted
+  license_url: https://pmc.ncbi.nlm.nih.gov/articles/PMC4582144/
+  license_basis: >-
+    Not open access. Europe PMC reports isOpenAccess "N" and license null for doi:10.1200/JCO.2015.60.8869,
+    the same status as the v3 paper. Recorded so nobody infers a licence from the PMC link being
+    reachable. Nothing has been taken from this article yet -- the entry is a catalog row, not an
+    implementation.
+  open_source: web_only
+  public_repo: https://tools.bcsc-scc.ucdavis.edu/BC5yearRisk_V2/sourcecode.htm
+  repro_tier: C
+  candidate_for: bcsc_v2
+  tier_note: >-
+    ADDED 2026-08-17 to close a gap that was invisible until the version labels were checked: the BCSC
+    calculator has three versions and this registry carried only two of them, with the wrong names.
+    This is the REAL version 2.0 -- the BCSC's own intro.htm says "This is version 2.0" on a page that
+    describes the 2015 update as adding "benign breast disease diagnoses" and "both five-year and
+    ten-year breast cancer risk". Both of those are exactly what `bcsc_v2` (Tice 2008, five-year, bare
+    biopsy yes/no) does NOT have.
+
+    What it would buy over the implemented Tice 2008 model: a ten-year horizon, and biopsy history
+    resolved into the six benign-breast-disease categories (no prior biopsy, benign unclassified,
+    non-proliferative, proliferative without atypia, proliferative with atypia, LCIS) rather than a
+    yes/no flag. Those six levels are the same ones the v3 lookup table uses, so implementing this
+    would also be the natural stepping stone to v3.
+
+    NOT a priority, and the reason is worth stating so it is not re-litigated: the Mayo Clinic Platform
+    does not hold benign-breast-disease pathology categories as a structured field, which is the whole
+    point of this version. Without that field it degrades to the 2008 model we already run.
+  blocker: >-
+    The SAS macro for v2.0 sits behind the download-request form at BC5yearRisk_V2/app2/DownloadRequest.aspx
+    -- verified 2026-08-17 that this form still exists and still gates the v2 software. Note this is a
+    DIFFERENT channel from v3, whose source ships unauthenticated as a static asset of the newer Flutter
+    calculator; the two must not be confused, and finding v3's open download says nothing about v2's.
+    Whether the coefficients are printed in the article itself has not been checked.
+  blocker_kind: source gated behind a download-request form; article not open access
+  next_action: >-
+    None planned. If the platform ever supplies benign-breast-disease categories, start by reading the
+    2015 article for a printed coefficient table before submitting the download request -- the same
+    order of operations that made the v3 password request unnecessary.
 - id: predict_breast
   disease: breast
   axis: prognosis
@@ -1523,6 +1816,60 @@ models:
       ''xb <= -2.60 (ALBI grade 1), more than -2.60 to <= -1.39 (ALBI grade 2), and xb more than -1.39
       (ALBI grade 3)''. Table 2 carries the underlying Cox parameters.'
     verified: read 2026-08-06 from PMC4322258
+- id: italica
+  disease: liver
+  axis: prognosis
+  role: catalog
+  status: catalog
+  year: 2016
+  title: ITA.LI.CA integrated prognostic score (HCC survival)
+  citation: Farinati F, Vitale A, Spolverato G, et al. Development and Validation of a New Prognostic
+    System for Patients with Hepatocellular Carcinoma. PLOS Medicine. 2016;13(4):e1002006
+  source_url: https://doi.org/10.1371/journal.pmed.1002006
+  paper_title: Development and Validation of a New Prognostic System for Patients with Hepatocellular
+    Carcinoma
+  license: open
+  open_source: paper_only
+  repro_tier: C
+  discrimination: C-index 0.72 training, 0.71 internal validation, 0.78 external validation (Taiwan);
+    significantly better than BCLC stage, CLIP score, JIS stage, MESIAH score and HKLC stage in the
+    same patients
+  discrimination_source: 'PLOS Medicine 2016, PMC4846017, Table 4, read 2026-08-07. Training n=3,628
+    and internal validation n=1,555 (Italy), external validation n=2,651 (Taiwan). The head-to-head
+    against five rival systems is the reason to prefer it, not the absolute number. A 2021 overview
+    in Cancers (PMC8037197) re-checked the field and still found ITA.LI.CA the best discriminator.'
+  candidate_for: albi
+  blocker: Points are in Table 3 and are complete -- one point per ITA.LI.CA tumour stage increment
+    (0 to 5 for stages 0, A, B1, B2, B3, C), Child-Pugh 5/6-7/8-9/>10 scoring 0/1/2/3, ECOG 0/1-2/3-4
+    scoring 0/1/3, and 2 points for AFP > 1,000 ug/L. What blocks running it is data, not the paper
+    -- ECOG performance status appears nowhere in the platform crosswalk, and Child-Pugh needs INR
+    and hepatic encephalopathy grade, which are also absent. Bilirubin, albumin, ascites and AFP are
+    already in the Minimal cut.
+  blocker_kind: inputs the platform does not hold
+  next_action: Request ECOG performance status, INR and hepatic encephalopathy grade, plus the tumour
+    staging detail the ITA.LI.CA stage needs (largest nodule diameter, nodule count, macroscopic
+    vascular invasion, extrahepatic spread). Then transcribe Table 3 against the PDF -- the points
+    above were read from the PMC rendering and have not yet been checked against the typeset table.
+  tier_note: 'RECORDED 2026-08-07. Chosen over BCLC deliberately: BCLC is the guideline standard and
+    the obvious safe pick, but it needs the same inputs (performance status, liver function, tumour
+    stage) and lost the head-to-head. The cost is the same and the discrimination is worse, so BCLC
+    is carried as the standard-of-care reference rather than as the comparator to beat. Worth stating
+    plainly: like ALBI, ITA.LI.CA publishes no baseline survival function -- Table 3 gives the
+    parametric model estimates and Table S2 median survival by quartile, but nothing that yields
+    S(t|x) directly. Under the common-recalibration design that is not disqualifying, because the
+    score is the model and the baseline hazard is a property of the cohort. It does mean absolute
+    survival for this cell comes from a locally fitted baseline, fitted on the development split.'
+  citation_apa: 'Farinati, F., Vitale, A., Spolverato, G., Pawlik, T. M., Huo, T., Lee, Y., Frigo, A.
+    C., Giacomin, A., Giannini, E. G., Ciccarese, F., Piscaglia, F., Rapaccini, G. L., Di Marco, M.,
+    Caturelli, E., Zoli, M., Borzio, F., Cabibbo, G., Felder, M., Sacco, R., ... Cillo, U. (2016).
+    Development and Validation of a New Prognostic System for Patients with Hepatocellular Carcinoma.
+    PLOS Medicine, 13(4), e1002006. https://doi.org/10.1371/journal.pmed.1002006'
+  citation_note: Open access under CC BY, so the points table is redistributable -- unlike the
+    riskcalc.org and BCSC sources, nothing here has to be withheld.
+  development_data: registry
+  input_modality: mixed
+  development_cohort: '3,628 training and 1,555 internal validation from the ITA.LI.CA multicentre database
+    (Italy); 2,651 external validation (Taiwan)'
 - id: bclc_catalog
   disease: liver
   axis: prognosis
