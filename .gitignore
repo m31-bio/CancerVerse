@@ -1,29 +1,13 @@
-.venv/
-__pycache__/
 *.py[cod]
+__pycache__/
 *.egg-info/
-.pytest_cache/
-.DS_Store
 dist/
 build/
-.cursor/
-.claude/
-M31 Onboard.pptx
-~$*
-slides/~$*
-vault/.obsidian/workspace.json
-vault/.obsidian/workspace-mobile.json
-src/mayo_baseline.egg-info/
+.venv/
+.DS_Store
 
-# ---- never publish -------------------------------------------------------
-# Private Obsidian notebook and internal meeting decks. Never publish either.
-# This rule is not hypothetical: both were public in the `baseline` repository
-# for a day in August 2026 before being purged from its history.
-vault/
-slides/
-
-# Third-party reference implementations, fetched on demand by
-# scripts/fetch_references.py and pinned in collected/MANIFEST.yaml. Two of
-# them (BCRA, PLCOm2012) are GPL while this repository is Apache-2.0, so they
-# are deliberately not redistributed here. See NOTICE.
+# Third-party reference implementations. Fetched on demand by
+# scripts/fetch_references.py and pinned by version and commit in
+# collected/MANIFEST.yaml, so the checkout stays free of vendored
+# source while the parity tests stay reproducible. See NOTICE.
 collected/*/
