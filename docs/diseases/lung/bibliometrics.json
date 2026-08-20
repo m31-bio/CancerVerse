@@ -1,0 +1,67 @@
+[
+  {
+    "id": "plcom2012",
+    "disease": "lung",
+    "axis": "detection",
+    "year": 2013,
+    "resolved_by": "doi:10.1056/NEJMoa1211776",
+    "title": "Selection Criteria for Lung-Cancer Screening",
+    "journal": "New England Journal of Medicine",
+    "citations": 1031,
+    "journal_2yr_mean_citedness": 30.251488095238095,
+    "openalex_url": "https://openalex.org/W2012944782",
+    "citations_per_year": 79.3
+  },
+  {
+    "id": "optum_lung_lasso",
+    "disease": "lung",
+    "axis": "detection",
+    "year": 2022,
+    "resolved_by": "doi:10.1158/1055-9965.EPI-22-0873",
+    "title": "Machine Learning and Real-World Data to Predict Lung Cancer Risk in Routine Care",
+    "journal": "Cancer Epidemiology Biomarkers & Prevention",
+    "citations": 49,
+    "journal_2yr_mean_citedness": 0.8481646273637374,
+    "openalex_url": "https://openalex.org/W4313279000",
+    "citations_per_year": 12.2
+  },
+  {
+    "id": "lipi",
+    "disease": "lung",
+    "axis": "response",
+    "year": 2018,
+    "resolved_by": "pmid:29327044",
+    "title": "Association of the Lung Immune Prognostic Index With Immune Checkpoint Inhibitor Outcomes in Patients With Advanced Non\u2013Small Cell Lung Cancer",
+    "journal": "JAMA Oncology",
+    "citations": 970,
+    "journal_2yr_mean_citedness": 7.94816414686825,
+    "openalex_url": "https://openalex.org/W2784283849",
+    "citations_per_year": 121.2
+  },
+  {
+    "id": "lipi_prognosis",
+    "disease": "lung",
+    "axis": "prognosis",
+    "year": 2018,
+    "resolved_by": "pmid:29327044",
+    "title": "Association of the Lung Immune Prognostic Index With Immune Checkpoint Inhibitor Outcomes in Patients With Advanced Non\u2013Small Cell Lung Cancer",
+    "journal": "JAMA Oncology",
+    "citations": 970,
+    "journal_2yr_mean_citedness": 7.94816414686825,
+    "openalex_url": "https://openalex.org/W2784283849",
+    "citations_per_year": 121.2
+  },
+  {
+    "id": "lung_prognosis_catalog",
+    "disease": "lung",
+    "axis": "prognosis",
+    "year": null,
+    "resolved_by": null,
+    "title": null,
+    "journal": null,
+    "citations": null,
+    "journal_2yr_mean_citedness": null,
+    "openalex_url": null,
+    "citations_per_year": null
+  }
+]

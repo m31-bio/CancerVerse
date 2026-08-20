@@ -1,0 +1,80 @@
+[
+  {
+    "id": "abc_method",
+    "disease": "gastric",
+    "axis": "detection",
+    "year": 2005,
+    "resolved_by": "doi:10.1136/gut.2004.055400",
+    "title": "Predicting the development of gastric cancer from combining <i>Helicobacter pylori</i> antibodies and serum pepsinogen status: a prospective endoscopic cohort study",
+    "journal": "Gut",
+    "citations": 405,
+    "journal_2yr_mean_citedness": 10.625779625779625,
+    "openalex_url": "https://openalex.org/W2102142721",
+    "citations_per_year": 19.3
+  },
+  {
+    "id": "gastric_response_gap",
+    "disease": "gastric",
+    "axis": "response",
+    "year": 2021,
+    "resolved_by": "pmid:33937020",
+    "title": "Prediction Model of Tumor Regression Grade for Advanced Gastric Cancer After Preoperative Chemotherapy",
+    "journal": "Frontiers in Oncology",
+    "citations": 16,
+    "journal_2yr_mean_citedness": 2.5609301571868417,
+    "openalex_url": "https://openalex.org/W3156698981",
+    "citations_per_year": 3.2
+  },
+  {
+    "id": "xu_gastric_trg_score",
+    "disease": "gastric",
+    "axis": "response",
+    "year": 2021,
+    "resolved_by": "doi:10.3389/fonc.2021.607640",
+    "title": "Prediction Model of Tumor Regression Grade for Advanced Gastric Cancer After Preoperative Chemotherapy",
+    "journal": "Frontiers in Oncology",
+    "citations": 16,
+    "journal_2yr_mean_citedness": 2.5609301571868417,
+    "openalex_url": "https://openalex.org/W3156698981",
+    "citations_per_year": 3.2
+  },
+  {
+    "id": "msk_gastric",
+    "disease": "gastric",
+    "axis": "prognosis",
+    "year": 2003,
+    "resolved_by": "pmid:14512396",
+    "title": "Postoperative Nomogram for Disease-Specific Survival After an R0 Resection for Gastric Carcinoma",
+    "journal": "Journal of Clinical Oncology",
+    "citations": 409,
+    "journal_2yr_mean_citedness": 1.6506504248439733,
+    "openalex_url": "https://openalex.org/W2151396892",
+    "citations_per_year": 17.8
+  },
+  {
+    "id": "msk_gastric_dss",
+    "disease": "gastric",
+    "axis": "prognosis",
+    "year": null,
+    "resolved_by": null,
+    "title": null,
+    "journal": null,
+    "citations": null,
+    "journal_2yr_mean_citedness": null,
+    "openalex_url": null,
+    "citations_per_year": null
+  },
+  {
+    "id": "gastric_prognosis_catalog",
+    "disease": "gastric",
+    "axis": "prognosis",
+    "year": null,
+    "resolved_by": null,
+    "title": null,
+    "journal": null,
+    "citations": null,
+    "journal_2yr_mean_citedness": null,
+    "openalex_url": null,
+    "citations_per_year": null
+  }
+]

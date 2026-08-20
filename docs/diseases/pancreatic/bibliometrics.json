@@ -1,0 +1,67 @@
+[
+  {
+    "id": "endpac",
+    "disease": "pancreatic",
+    "axis": "detection",
+    "year": 2018,
+    "resolved_by": "doi:10.1053/j.gastro.2018.05.023",
+    "title": "Model to Determine Risk of Pancreatic Cancer in Patients With New-Onset Diabetes",
+    "journal": "Gastroenterology",
+    "citations": 382,
+    "journal_2yr_mean_citedness": 0.6326680612879516,
+    "openalex_url": "https://openalex.org/W2803190522",
+    "citations_per_year": 47.8
+  },
+  {
+    "id": "pancpro",
+    "disease": "pancreatic",
+    "axis": "detection",
+    "year": null,
+    "resolved_by": null,
+    "title": null,
+    "journal": null,
+    "citations": null,
+    "journal_2yr_mean_citedness": null,
+    "openalex_url": null,
+    "citations_per_year": null
+  },
+  {
+    "id": "pancreatic_response_gap",
+    "disease": "pancreatic",
+    "axis": "response",
+    "year": null,
+    "resolved_by": null,
+    "title": null,
+    "journal": null,
+    "citations": null,
+    "journal_2yr_mean_citedness": null,
+    "openalex_url": null,
+    "citations_per_year": null
+  },
+  {
+    "id": "msk_pancreatic",
+    "disease": "pancreatic",
+    "axis": "prognosis",
+    "year": 2004,
+    "resolved_by": "doi:10.1097/01.sla.0000133125.85489.07",
+    "title": "Prognostic Nomogram for Patients Undergoing Resection for Adenocarcinoma of the Pancreas",
+    "journal": "Annals of Surgery",
+    "citations": 368,
+    "journal_2yr_mean_citedness": 5.109072375127421,
+    "openalex_url": "https://openalex.org/W2071096730",
+    "citations_per_year": 16.7
+  },
+  {
+    "id": "pancreatic_prognosis_catalog",
+    "disease": "pancreatic",
+    "axis": "prognosis",
+    "year": null,
+    "resolved_by": null,
+    "title": null,
+    "journal": null,
+    "citations": null,
+    "journal_2yr_mean_citedness": null,
+    "openalex_url": null,
+    "citations_per_year": null
+  }
+]

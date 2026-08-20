@@ -1,0 +1,67 @@
+[
+  {
+    "id": "kunzmann",
+    "disease": "esophageal",
+    "axis": "detection",
+    "year": 2018,
+    "resolved_by": "doi:10.1016/j.cgh.2018.03.014",
+    "title": "Model for Identifying Individuals at Risk for Esophageal Adenocarcinoma",
+    "journal": "Clinical Gastroenterology and Hepatology",
+    "citations": 62,
+    "journal_2yr_mean_citedness": 5.6373390557939915,
+    "openalex_url": "https://openalex.org/W2790336115",
+    "citations_per_year": 7.8
+  },
+  {
+    "id": "chau_eg",
+    "disease": "esophageal",
+    "axis": "response",
+    "year": 2004,
+    "resolved_by": "doi:10.1200/jco.2004.08.154",
+    "title": "Multivariate Prognostic Factor Analysis in Locally Advanced and Metastatic Esophago-Gastric Cancer\u2014Pooled Analysis From Three Multicenter, Randomized, Controlled Trials Using Individual Patient Data",
+    "journal": "Journal of Clinical Oncology",
+    "citations": 533,
+    "journal_2yr_mean_citedness": 1.6506504248439733,
+    "openalex_url": "https://openalex.org/W2167112387",
+    "citations_per_year": 24.2
+  },
+  {
+    "id": "esophageal_response_gap",
+    "disease": "esophageal",
+    "axis": "response",
+    "year": 2004,
+    "resolved_by": "pmid:15197201",
+    "title": "Multivariate Prognostic Factor Analysis in Locally Advanced and Metastatic Esophago-Gastric Cancer\u2014Pooled Analysis From Three Multicenter, Randomized, Controlled Trials Using Individual Patient Data",
+    "journal": "Journal of Clinical Oncology",
+    "citations": 533,
+    "journal_2yr_mean_citedness": 1.6506504248439733,
+    "openalex_url": "https://openalex.org/W2167112387",
+    "citations_per_year": 24.2
+  },
+  {
+    "id": "shapiro_ncrt",
+    "disease": "esophageal",
+    "axis": "prognosis",
+    "year": 2016,
+    "resolved_by": "doi:10.1002/bjs.10142",
+    "title": "Prediction of survival in patients with oesophageal or junctional cancer receiving neoadjuvant chemoradiotherapy and surgery",
+    "journal": "British journal of surgery",
+    "citations": 35,
+    "journal_2yr_mean_citedness": 0.4744705729505002,
+    "openalex_url": "https://openalex.org/W2344529982",
+    "citations_per_year": 3.5
+  },
+  {
+    "id": "esophageal_prognosis_catalog",
+    "disease": "esophageal",
+    "axis": "prognosis",
+    "year": null,
+    "resolved_by": null,
+    "title": null,
+    "journal": null,
+    "citations": null,
+    "journal_2yr_mean_citedness": null,
+    "openalex_url": null,
+    "citations_per_year": null
+  }
+]

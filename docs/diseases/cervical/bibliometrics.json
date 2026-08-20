@@ -1,0 +1,72 @@
+{
+ "cervical_cin_risk": {
+  "doi": "10.1186/s12916-021-02078-2",
+  "title": "Development of models for cervical cancer screening: construction in a cross-sectional population and validation in two screening cohorts in China",
+  "journal": "BMC Medicine",
+  "year": 2021,
+  "citations": 17,
+  "per_year": 3.4,
+  "journal_2yr": 7.377151799687011,
+  "journal_works": 6082
+ },
+ "yoo_2012": {
+  "doi": "10.1038/bjc.2012.340",
+  "title": "Nomogram prediction for overall survival of patients diagnosed with cervical cancer",
+  "journal": "British Journal of Cancer",
+  "year": 2012,
+  "citations": 100,
+  "per_year": 7.1,
+  "journal_2yr": 6.446393762183236,
+  "journal_works": 28459
+ },
+ "wang_2018": {
+  "doi": "10.7150/jca.26220",
+  "title": "A Prognostic Nomogram for Cervical Cancer after Surgery from SEER Database",
+  "journal": "Journal of Cancer",
+  "year": 2018,
+  "citations": 107,
+  "per_year": 13.4,
+  "journal_2yr": 4.246136865342163,
+  "journal_works": 5586
+ },
+ "front_oncol_2022": {
+  "doi": "10.3389/fonc.2022.961678",
+  "title": "Nomogram models for the prognosis of cervical cancer: A SEER-based study",
+  "journal": "Frontiers in Oncology",
+  "year": 2022,
+  "citations": 25,
+  "per_year": 6.2,
+  "journal_2yr": 2.5538324131211434,
+  "journal_works": 38002
+ },
+ "sci_rep_2024": {
+  "doi": "10.1038/s41598-024-57609-7",
+  "title": "Development and validation of prognostic nomographs for patients with cervical cancer: SEER-based Asian population study",
+  "journal": "Scientific Reports",
+  "year": 2024,
+  "citations": 7,
+  "per_year": 3.5,
+  "journal_2yr": 4.856982283359203,
+  "journal_works": 308369
+ },
+ "cibula_arrm": {
+  "doi": "10.1016/j.ejca.2021.09.008",
+  "title": "The annual recurrence risk model for tailored surveillance strategy in\u00a0patients with cervical cancer",
+  "journal": "European Journal of Cancer",
+  "year": 2021,
+  "citations": 39,
+  "per_year": 7.8,
+  "journal_2yr": 2.723100075244545,
+  "journal_works": 42032
+ },
+ "moore_2010": {
+  "doi": "10.1016/j.ygyno.2009.09.006",
+  "title": "Prognostic factors for response to cisplatin-based chemotherapy in advanced cervical carcinoma: A Gynecologic Oncology Group Study",
+  "journal": "Gynecologic Oncology",
+  "year": 2009,
+  "citations": 161,
+  "per_year": 9.5,
+  "journal_2yr": 1.370895264431386,
+  "journal_works": 28936
+ }
+}

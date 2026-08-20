@@ -1,0 +1,93 @@
+[
+  {
+    "id": "bcrat",
+    "disease": "breast",
+    "axis": "detection",
+    "year": 1989,
+    "resolved_by": "pmid:2593165",
+    "title": "Projecting Individualized Probabilities of Developing Breast Cancer for White Females Who Are Being Examined Annually",
+    "journal": "JNCI Journal of the National Cancer Institute",
+    "citations": 3395,
+    "journal_2yr_mean_citedness": 4.358433734939759,
+    "openalex_url": "https://openalex.org/W2165664908",
+    "citations_per_year": 91.8
+  },
+  {
+    "id": "bcsc",
+    "disease": "breast",
+    "axis": "detection",
+    "year": 2023,
+    "resolved_by": "doi:10.1200/JCO.22.02470",
+    "title": "Extending the Breast Cancer Surveillance Consortium Model of Invasive Breast Cancer",
+    "journal": "Journal of Clinical Oncology",
+    "citations": 26,
+    "journal_2yr_mean_citedness": 1.6506504248439733,
+    "openalex_url": "https://openalex.org/W4388751815",
+    "citations_per_year": 8.7
+  },
+  {
+    "id": "bcsc_v2_bbd_2015",
+    "disease": "breast",
+    "axis": "detection",
+    "year": 2015,
+    "resolved_by": null,
+    "title": null,
+    "journal": null,
+    "citations": null,
+    "journal_2yr_mean_citedness": null,
+    "openalex_url": null,
+    "citations_per_year": null
+  },
+  {
+    "id": "bcsc_v2",
+    "disease": "breast",
+    "axis": "detection",
+    "year": 2008,
+    "resolved_by": "doi:10.7326/0003-4819-148-5-200803040-00004",
+    "title": "Using Clinical Factors and Mammographic Breast Density to Estimate Breast Cancer Risk: Development and Validation of a New Predictive Model",
+    "journal": "Annals of Internal Medicine",
+    "citations": 550,
+    "journal_2yr_mean_citedness": 4.685043988269794,
+    "openalex_url": "https://openalex.org/W2013840898",
+    "citations_per_year": 30.6
+  },
+  {
+    "id": "predict_breast",
+    "disease": "breast",
+    "axis": "prognosis",
+    "year": 2017,
+    "resolved_by": "doi:10.1186/s13058-017-0852-3",
+    "title": "An updated PREDICT breast cancer prognostication and treatment benefit prediction model with independent validation",
+    "journal": "Breast Cancer Research",
+    "citations": 266,
+    "journal_2yr_mean_citedness": 5.299668874172186,
+    "openalex_url": "https://openalex.org/W2617924944",
+    "citations_per_year": 29.6
+  },
+  {
+    "id": "predict_breast_response",
+    "disease": "breast",
+    "axis": "response",
+    "year": 2017,
+    "resolved_by": "doi:10.1186/s13058-017-0852-3",
+    "title": "An updated PREDICT breast cancer prognostication and treatment benefit prediction model with independent validation",
+    "journal": "Breast Cancer Research",
+    "citations": 266,
+    "journal_2yr_mean_citedness": 5.299668874172186,
+    "openalex_url": "https://openalex.org/W2617924944",
+    "citations_per_year": 29.6
+  },
+  {
+    "id": "breast_prognosis_catalog",
+    "disease": "breast",
+    "axis": "prognosis",
+    "year": null,
+    "resolved_by": null,
+    "title": null,
+    "journal": null,
+    "citations": null,
+    "journal_2yr_mean_citedness": null,
+    "openalex_url": null,
+    "citations_per_year": null
+  }
+]

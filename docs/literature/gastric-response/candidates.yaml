@@ -1,0 +1,613 @@
+# Gastric cancer, response axis, the candidate shortlist.
+#
+# Searched 2026-08-14. 28 papers, 2018-2026, all PMIDs verified against
+# Europe PMC. This is the input to `scripts/rank_literature.py`, which adds
+# citation counts from OpenAlex and writes ranked.csv beside this file.
+#
+# Every field here was read out of the paper by hand. Nothing in this file is
+# inferred, and `unknown` means unknown rather than zero. In particular:
+#
+#   inputs  -- what the model needs at prediction time. This is the field that
+#              decides whether a paper is implementable in this library at all.
+#              `clinical` = routine clinic and lab values. `ct-measure` =
+#              numbers a radiologist reads off a scan (diameters, node size),
+#              no feature extraction. `radiomics` / `dl` / `wsi` = needs a
+#              segmentation or deep-learning pipeline we do not have.
+#
+#   usable  -- what the paper actually prints. `intercept` = a complete
+#              logistic model. `beta` = coefficients but no intercept, so it
+#              ranks patients and cannot state a probability, the exact trap
+#              that held the colorectal cell for three months. `points` = an
+#              integer score with a published cutoff, implementable as
+#              published without an intercept. `or-only` = odds ratios in a
+#              table with no model. `figure` = a nomogram picture and nothing
+#              else. `none` = nothing recoverable.
+#
+#   jif     -- Clarivate Journal Impact Factor. Left null on purpose: it is
+#              proprietary and must be typed in from Journal Citation Reports
+#              by hand. The ranking script never guesses it.
+
+meta:
+  disease: gastric
+  axis: response
+  searched: 2026-08-14
+  endpoint_scope: >-
+    pathological complete response (pCR / ypT0N0 / TRG0), major or good
+    pathological response (TRG0-1, Becker <10% residual viable tumour), and
+    radiological response (RECIST) after neoadjuvant chemotherapy,
+    chemoradiotherapy or chemo-immunotherapy in gastric or gastro-oesophageal
+    junction adenocarcinoma.
+  unverified: >-
+    Supplementary material could not be reached for PMIDs 34141620 (S6,
+    radscore formula), 38796795 (S2, coefficients), 36631788 (possible
+    intercept) and 40128827 (possible coefficient table). Those four are
+    recorded at what the main text prints, which may understate them.
+
+candidates:
+
+  # ---- routine clinical and lab inputs only ----------------------------
+
+  - key: xu-2021-points
+    pmid: '33937020'
+    year: 2021
+    journal: Frontiers in Oncology
+    endpoint: >-
+      Ryan TRG 0, complete regression of the PRIMARY tumour, which is NOT
+      ypT0N0. Of the 30 patients with TRG 0 in the retrospective cohort, 6
+      still had positive lymph nodes. Recorded here as "pCR" in the first pass
+      and corrected 2026-08-14; the distinction matters when comparing this
+      cell against the ypT0N0 endpoints elsewhere in the table.
+    inputs: clinical + LN short-axis on CT
+    usable: points
+    predictors: CA19-9, CA72-4, differentiation grade, largest LN diameter
+    n_train: 202
+    n_val: 226
+    val_kind: >-
+      internal 102 (2:1 random split) + prospective TEMPORAL 124, same
+      institution, the paper's word "external" overstates it
+    auc: >-
+      0.84 (0.77-0.91) training / 0.73 (0.55-0.91) internal / 0.82 (0.71-0.92)
+      prospective. No C-index and no calibration analysis anywhere in the paper.
+    locus: >-
+      Table 3 "Multivariate analysis: variables correlated with TRG in the
+      training set" (B, P, OR, 95% CI) and Table 4 "Risk Score of Prediction
+      Model for TRG" (the points). Both are HTML tables in PMC8082104.
+    locus_machine_readable: true
+    note: >-
+      Integer points, published in full and verified in the PMC HTML on
+      2026-08-14: CA19-9 <=10.90 = 5, CA72-4 <=3.19 = 4, well differentiated
+      = 7, LNmax >=1.535 cm = 7; range 0-23, cutoff 13.
+
+      Checked and corrected 2026-08-14: this paper has NO nomogram figure,
+      its three figures are two Kaplan-Meier panels and a ROC curve. So there
+      is no points-to-probability axis anywhere, in text or in pixels. The
+      only mapping printed is score -> binary risk group at 13 points, with
+      observed pCR rates of 0% (low) and 22.35% (high). The model ranks and
+      dichotomises; it cannot emit a calibrated probability, and no amount of
+      re-reading the PDF will change that because the quantity was never
+      estimated.
+
+      Table 3 also carries a complete-separation artefact: signet-ring cell
+      carcinoma, OR 33,985,914, P 0.998. The authors dropped it from the score,
+      but it is a sign the multivariate fit was unstable.
+
+      Validation claim checked against the full text 2026-08-14. The numbers
+      are right and the framing is not. 428 patients at Shanghai Ruijin
+      Hospital: 304 retrospective, split 2:1 at random into 202 training and
+      102 internal validation, then 124 enrolled PROSPECTIVELY from December
+      2018 to June 2020, after the model was locked. The paper calls that
+      third group a "prospective external validation group"; every author
+      affiliation is Ruijin, only one hospital is ever named, and the paper's
+      own limitations say "This was a single-center clinical study". So it is
+      prospective TEMPORAL validation, not geographic external validation.
+
+      It is still the better of the two validations here, and for a reason
+      worth keeping: the regimens changed between the eras (retrospective EOX
+      and taxane-containing, prospective SOX and FLOT), so it is a genuine
+      out-of-era test, which matters given that PMID 35280802 showed these
+      signatures collapsing when the regimen changes.
+
+      What it rests on is thin. 30 TRG=0 events retrospectively, 20 of them in
+      the training set against four retained predictors, so events per
+      variable is about 5 and the 0.84 is optimistic on its face. The internal
+      AUC of 0.73 rests on 10 events and its CI runs down to 0.55. The
+      prospective AUC of 0.82 rests on 9 events. Univariate screening was also
+      done on all 304 before the split, so the internal validation set was in
+      view when the predictors were chosen; the prospective cohort is
+      unaffected and is the cleaner of the two.
+
+      Two things the paper does not state: the rounding rule that maps ORs
+      5.615 / 4.531 / 7.426 / 7.945 to points 5 / 4 / 7 / 7, and whether the
+      13-point cutoff derived on the training set was the operating threshold
+      behind the reported validation sensitivities and specificities. Neither
+      blocks implementation, the points are printed directly, but neither
+      can be reconstructed either.
+
+  - key: liu-2023-lasso
+    pmid: '36631788'
+    year: 2023
+    journal: BMC Cancer
+    endpoint: RECIST CR/PR vs SD/PD
+    inputs: clinical
+    usable: beta
+    n_train: 307
+    n_val: 153
+    val_kind: internal 153 (random split); the external cohort is never defined
+    auc: C 0.842 dev / 0.806 internal / 0.760 "external"
+    locus: >-
+      Table 3 "Result of multivariable analysis in the training set. As
+      revealed by lasso analysis excluding tumor size variable, five prediction
+      factors were incorporated into the eventual model...". HTML table in
+      PMC9832661, columns Items / Regression coefficient / Exp(B) / 95%CI / P.
+    locus_machine_readable: true
+    note: >-
+      Betas verified in the PMC HTML 2026-08-14: location -1.561, tumour
+      differentiation 1.103, cT stage 1.361, cN stage 2.040, smoking history
+      1.129. The minus sign is U+2212, not ASCII, which will silently break a
+      naive parser.
+
+      and this demotes the paper. It was recorded here
+      as the strongest clinical-only design on the strength of an external
+      cohort of 108. Table 1 has only training 307 and validation 153, from a
+      set.seed random split of 460 patients; the cohort behind the 0.760
+      C-index is given no size and no source anywhere in the paper. Treat the
+      external claim as unsubstantiated until that is resolved.
+
+      Two blockers, not one. Beyond the missing intercept, the REFERENCE
+      LEVELS are not stated. Table 3 gives bare variable names. Checking the
+      signs against the Table 2 cell counts, four of the five coefficients are
+      consistent with the favourable level being indexed, and `location` is
+      the opposite sign under that same coding. The direction is therefore not
+      recoverable from the text; it can only be read off the Fig. 3 nomogram
+      image.
+
+  - key: hou-2026-mpr-complete
+    pmid: '41883960'
+    year: 2026
+    journal: Frontiers in Oncology
+    endpoint: MPR (TRG1a/1b)
+    inputs: clinical
+    usable: intercept
+    predictors: tumour-bed diameter, CEA, CA19-9, NLR, SII
+    n_train: 113
+    n_val: 0
+    val_kind: internal bootstrap only
+    auc: 0.848 (0.773-0.923)
+    locus: >-
+      Table 2 "Multivariate logistic regression analysis of predictors of major
+      pathological response (MPR) following NICT in patients with LAGC" --
+      HTML table in PMC13008680, columns Variable / B / SE / Wald / OR with CI
+      / P. The binarisation cutoffs are in the Results prose, not in a table.
+    locus_machine_readable: true
+    note: >-
+      The only paper in the whole set that prints a complete logistic model,
+      beta, SE, OR, CI for all predictors AND the intercept (3.081, SE 1.179).
+      Verified in the PMC HTML 2026-08-14, and internally consistent: exp(B)
+      reproduces every printed OR exactly, including exp(3.081) = 21.785.
+      Bought at the price of n=113 and no external cohort.
+
+      THREE THINGS MUST BE RESOLVED BEFORE THIS IS IMPLEMENTED.
+
+      1. The intercept belongs to a SEVEN-term fit that includes PNI (B 0.512,
+         P 0.310). The nomogram in Figure 2 uses only five predictors, dropping
+         PNI. Applying 3.081 to a five-predictor model is not the fitted model.
+      2. Coding direction is ambiguous and the paper appears to have it
+         backwards. All five biomarker betas are negative, and the Results text
+         attaches them to the LOW level ("CEA < 1.765 ng/mL, OR 0.26"), but
+         Table 1 shows the MPR group had LOWER CEA (median 1.520 vs 2.900),
+         lower CA19-9, lower NLR, lower SII and smaller tumour bed. A negative
+         beta on the low level contradicts the paper's own baseline table. It
+         is consistent only if the indexed level is the HIGH one. Shipping this
+         without resolving it ships a backwards model.
+      3. Text and table ORs disagree (text 0.22 / 0.26 / 0.148 / 0.194 against
+         table 0.248 / 0.267 / 0.150 / 0.210). Table 2 is self-consistent with
+         its own betas, so Table 2 is the one to trust.
+
+      Cutoffs, verbatim from Results: tumour bed diameter 3.75 cm, CEA 1.765
+      ng/mL, CA19-9 18.390 U/mL, NLR 2.422, SII 597.483. All five predictors
+      were binarised at these Youden points.
+
+  - key: neocrag-2024
+    pmid: '38523553'
+    year: 2024
+    journal: Cancer Medicine
+    endpoint: good response (TRG0-1 and ypN0)
+    inputs: clinical
+    usable: beta
+    predictors: differentiation, cT stage, monocyte count, CA72-4, use of nCRT
+    n_train: 221
+    n_val: 0
+    val_kind: internal bootstrap
+    auc: 0.777 (0.705-0.850), bias-corrected 0.752
+    note: Phase III Neo-CRAG trial data, Sun Yat-sen. Beta and ORs, no intercept.
+
+  - key: zhang-2026-calculator
+    pmid: '41924230'
+    year: 2026
+    journal: Cancer Management and Research
+    endpoint: MPR (Becker <=10% residual viable tumour)
+    inputs: clinical
+    usable: or-only
+    n_train: 227
+    n_val: 98
+    val_kind: internal 70:30 caret split, single institution, n=325
+    auc: 0.807 (0.751-0.863) / 0.799 (0.711-0.888)
+    code: https://prediction-123.shinyapps.io/Gastric_MPR_Predictor/
+    locus: >-
+      Table 2 "Univariate and Multivariate Analysis of Variables Related to MPR
+      in Training and Validation Sets". HTML table in PMC13035740. ORs only;
+      no B column, no constant.
+    locus_machine_readable: true
+    note: >-
+      The only live online calculator in the set, and the DynNom route that
+      closed the colorectal cell does NOT work on it. Fetched 2026-08-14: the
+      first request returns the shinyapps.io cold-start interstitial (HTTP 202)
+      and a warm request returns the real app. It carries a "Model Information"
+      panel rendered server-side into the initial HTML, which states model type
+      (logistic regression), the four predictors, the optimal threshold 0.576
+      by Youden, AUC 0.807 and training n=227, and NO coefficients and NO
+      intercept. Unlike DynNom, this app exposes a summary of the model rather
+      than the model. Recovering it would mean probing the websocket patient by
+      patient.
+
+      The deployed model and Table 2 are also not the same model: the
+      calculator takes four predictors (differentiation, location, SIRI, LDH)
+      while the Table 2 multivariate fit additionally carries gender, MSI and
+      MLR.
+
+      Table 2 training multivariate ORs: lower location 2.90 (1.35-6.22),
+      moderate/high differentiation 3.43 (1.77-6.63), MSI-H 6.63 (0.99-44.49),
+      SIRI 2.02 (1.02-3.97), LDH per U/L 1.02 (1.01-1.03).
+
+  - key: chen-2025-chemoio
+    pmid: '40755776'
+    year: 2025
+    journal: Frontiers in Immunology
+    endpoint: pCR (TRG1a) after chemo-immunotherapy
+    inputs: clinical + CT RECIST category
+    usable: or-only
+    predictors: CT complete response, tumour bed diameter, non-signet-ring, age >=70, CEA <4.25
+    n_train: 320
+    n_val: 136
+    val_kind: internal 7:3 random split of a seven-centre cohort
+    auc: 0.862 (0.807-0.916) / 0.934 (0.889-0.979)
+    locus: >-
+      Table 2 "Uni- and multivariate logistic regression analysis for
+      pathological complete response after NICT in the training set". HTML
+      table in PMC12313473. ORs only; there is no B column.
+    locus_machine_readable: true
+    note: >-
+      This was recorded as a seven-centre EXTERNAL
+      validation. The patients came from seven centres, but the paper then
+      "randomly allocated [them] into the training cohort and the validation
+      cohort at a ratio of 7:3", and calls the result an external validation
+      cohort in its own text. It is an internal split, and the 0.934 should be
+      read as an internal-split figure that happens to exceed the training AUC.
+
+      Reference levels ARE explicit here (1.000 rows), which is more than
+      papers 2 and 3 manage. Multivariate ORs: age >=70 3.030 (1.327-6.918),
+      non-CR radiological response 0.092 (0.033-0.257), tumour bed diameter
+      per cm 0.613 (0.469-0.801), signet-ring 0.108 (0.014-0.838), CEA after
+      NICT >=4.25 0.351 (0.136-0.908).
+
+      Betas are recoverable as ln(OR); the constant is not. The only
+      points-to-probability statement is the Figure 1 caption, "total points,
+      ranging from 0 to 220, and the associated risk value, ranging from 0.1
+      to 0.9", so the mapping exists only as pixels on a figure axis.
+      Supplementary Table 1 is demographics, not coefficients.
+
+  - key: wang-2020-wjg
+    pmid: '32476803'
+    year: 2020
+    journal: World Journal of Gastroenterology
+    endpoint: pCR (ypT0N0)
+    inputs: clinical
+    usable: or-only
+    predictors: CEA, lymphocyte ratio, monocyte count, differentiation grade
+    n_train: 208
+    n_val: 0
+    val_kind: internal bootstrap
+    auc: 0.823 / C 0.767
+    note: >-
+      Oldest of the clinical-only group, so the most cited. Caution: several
+      95% CI lower bounds equal their point estimate in the printed OR table
+      (CEA 1.57 [1.57-2.01]), a reporting artefact, do not use those CIs.
+
+  - key: li-2023-pd1
+    pmid: '38196541'
+    year: 2023
+    journal: Journal of Gastrointestinal Oncology
+    endpoint: pCR (TRG0) after chemotherapy + PD-1
+    inputs: clinical + PD-L1 CPS (IHC)
+    usable: or-only
+    n_train: 52
+    n_val: 0
+    val_kind: internal bootstrap only
+    auc: C 0.923 (0.844-1.0)
+    note: n=52 with C 0.923 and no external cohort. Almost certainly overfitted.
+
+  - key: bmc-gastro-2025
+    pmid: '40597721'
+    year: 2025
+    journal: BMC Gastroenterology
+    endpoint: good response (TRG0-1)
+    inputs: clinical
+    usable: or-only
+    n_train: 93
+    n_val: 41
+    val_kind: internal 70:30
+    auc: 0.751 / 0.702
+
+  - key: serial-cea-2025
+    pmid: '39995833'
+    year: 2025
+    journal: Frontiers in Oncology
+    endpoint: pCR
+    inputs: clinical (serial CEA)
+    usable: figure
+    n_train: 366
+    n_val: 0
+    val_kind: none
+    auc: not reported
+    note: No validation and no discrimination reported. Nomogram figure only.
+
+  - key: wjgs-2025
+    pmid: '41178868'
+    year: 2025
+    journal: World Journal of Gastrointestinal Surgery
+    endpoint: pCR (ypT0N0M0)
+    inputs: clinical
+    usable: or-only
+    n_train: 215
+    n_val: 0
+    val_kind: none
+    auc: not reported
+
+  - key: abcd-2025
+    pmid: '41417299'
+    year: 2025
+    journal: Arquivos Brasileiros de Cirurgia Digestiva
+    endpoint: Mandard TRG1-3 vs 4-5
+    inputs: clinical
+    usable: none
+    n_train: 40
+    n_val: 0
+    val_kind: none
+    auc: not reported
+    note: Two odds ratios. An association study, not a model. Listed for completeness.
+
+  # ---- structured imaging measurements, no feature extraction ----------
+
+  - key: ct-ratio-2023
+    pmid: '38012547'
+    year: 2023
+    journal: BMC Cancer
+    endpoint: TRG0-2 vs TRG3
+    inputs: ct-measure (pre/post-NAC ratios)
+    usable: intercept
+    n_train: 97
+    n_val: 0
+    val_kind: none
+    auc: 0.955 (0.911-0.998)
+    note: >-
+      Prints a full formula with intercept, but needs both pre- and post-NAC
+      scans, has no validation at all, and the printed exponent signs are
+      internally inconsistent, likely a typesetting sign loss. Verify against
+      the PDF before trusting it. AUC 0.955 unvalidated is a red flag, not a
+      selling point.
+
+  - key: semantic-ct-2025
+    pmid: '40371150'
+    year: 2025
+    journal: American Journal of Cancer Research
+    endpoint: TRG0-1 vs 2-3
+    inputs: ct-measure + serum markers
+    usable: beta
+    n_train: 304
+    n_val: 208
+    val_kind: internal second set
+    auc: 0.813 / 0.846
+    note: Full coefficient tables, no intercept.
+
+  - key: ct-us-ordinal-2025
+    pmid: '41057487'
+    year: 2025
+    journal: Scientific Reports
+    endpoint: TRG (ordinal), chemo-immunotherapy
+    inputs: ct-measure + ultrasound
+    usable: beta
+    n_train: 75
+    n_val: 0
+    val_kind: internal 10-fold CV
+    auc: 0.952 apparent / CV accuracy 0.73
+    note: Ordinal logistic; betas and CIs given but the category thresholds are not.
+
+  # ---- CT radiomics / deep learning ------------------------------------
+
+  - key: eclinicalmedicine-2022-dl
+    pmid: '35340629'
+    year: 2022
+    journal: eClinicalMedicine
+    endpoint: good response (TRG0-1)
+    inputs: radiomics + dl
+    usable: figure
+    n_train: 243
+    n_val: 476
+    val_kind: internal 103 + external 207 + external 166
+    auc: 0.848 / 0.829 / 0.804 / 0.827
+    note: >-
+      Best-validated imaging model here and the one most often cited, but the
+      nomogram is a figure and no code was released. Its clinical-only
+      submodel was near useless (0.518-0.626), so the imaging is doing the work.
+
+  - key: cellrepmed-2024-isclm
+    pmid: '39637859'
+    year: 2024
+    journal: Cell Reports Medicine
+    endpoint: responder TRG0-2 vs TRG3
+    inputs: radiomics + wsi + dl (multimodal)
+    usable: none
+    n_train: 1208
+    n_val: 516
+    val_kind: external 162 + external 222 + prospective 132
+    auc: 0.866 / 0.876 / 0.846 prospective
+    code: https://github.com/PengGao-cmu/iSCLM
+    note: >-
+      The only public code repository in the set, and by a wide margin the
+      largest and best-validated model (10 centres, prospective cohort). Also
+      the least usable here: it takes CT volumes and whole-slide pathology, not
+      variables. Weight availability not stated in the paper.
+
+  - key: radiomics-multicohort-2022
+    pmid: '35280802'
+    year: 2022
+    journal: Frontiers in Oncology
+    endpoint: responder vs non-responder (TRG)
+    inputs: radiomics
+    usable: figure
+    n_train: 134
+    n_val: 239
+    val_kind: internal + external + prospective
+    auc: 0.82 / 0.77 / 0.78 / 0.72 / 0.50 in the apatinib+SOX cohort
+    note: >-
+      The most useful negative result in the set: the signature held across
+      chemotherapy regimens and collapsed to chance under targeted therapy.
+      Direct evidence that these signatures are regimen-specific.
+
+  - key: abdomradiol-2024-dl
+    pmid: '38796795'
+    year: 2024
+    journal: Abdominal Radiology
+    endpoint: good response (TRG0-1)
+    inputs: radiomics + dl (3-phase CT)
+    usable: figure
+    n_train: 157
+    n_val: 165
+    val_kind: internal 68 + external 97
+    auc: 0.848 / 0.802 / 0.751 external
+    note: Coefficients said to be in Supplementary S2; not reached.
+
+  - key: majorresponse-2021
+    pmid: '34141620'
+    year: 2021
+    journal: Frontiers in Oncology
+    endpoint: major response (ypT0/ypT1)
+    inputs: radiomics
+    usable: figure
+    n_train: 144
+    n_val: 77
+    val_kind: internal 2:1
+    auc: 0.744 validation
+    note: Radscore formula said to be in Supplementary S6; not reached.
+
+  - key: digitalhealth-2025
+    pmid: '40351845'
+    year: 2025
+    journal: Digital Health
+    endpoint: responder TRG0-1
+    inputs: radiomics + clinical
+    usable: figure
+    n_train: 178
+    n_val: 77
+    val_kind: internal split
+    auc: 0.815 (0.701-0.912) validation
+    note: Formula structure printed without the feature weights.
+
+  - key: cjcr-2018
+    pmid: '30210220'
+    year: 2018
+    journal: Chinese Journal of Cancer Research
+    endpoint: good response TRG0-1
+    inputs: radiomics
+    usable: none
+    n_train: 30
+    n_val: 0
+    val_kind: LOOCV
+    auc: 0.722 (0.508-0.935)
+    note: n=30 against 19,985 extracted features. Included as the floor of the set.
+
+  - key: wjso-2025-flot
+    pmid: '40350424'
+    year: 2025
+    journal: World Journal of Surgical Oncology
+    endpoint: Mandard TRG1-2 vs TRG4-5
+    inputs: radiomics + clinical
+    usable: none
+    n_train: 77
+    n_val: 0
+    val_kind: internal bootstrap
+    auc: 0.876 / 0.871 major response; 0.907 FLOT non-response
+    note: Calibration equations only. Uses the MODDICOM feature-extraction package.
+
+  - key: jtranslmed-2025-delta
+    pmid: '40128827'
+    year: 2025
+    journal: Journal of Translational Medicine
+    endpoint: MPR (<10% viable) after neoadjuvant immunotherapy
+    inputs: radiomics (delta, pre vs post)
+    usable: figure
+    n_train: 86
+    n_val: 111
+    val_kind: internal 59 + external 52
+    auc: 0.828 / 0.777 / 0.714 external
+    note: Coefficient table may exist in the supplement; not reached.
+
+  - key: dect-2021
+    pmid: '34604085'
+    year: 2021
+    journal: Frontiers in Oncology
+    endpoint: RECIST CR/PR
+    inputs: radiomics (dual-energy CT)
+    usable: figure
+    n_train: 69
+    n_val: 0
+    val_kind: 10-fold CV
+    auc: 0.934 (0.877-0.991) combined; 0.775 clinical-only
+    note: Needs dual-energy CT, which most centres do not have.
+
+  - key: insightsimaging-2025-aeg
+    pmid: '41062745'
+    year: 2025
+    journal: Insights into Imaging
+    endpoint: disease control rate (RECIST 1.1), Siewert AEG
+    inputs: radiomics + clinical
+    usable: figure
+    n_train: 139
+    n_val: 120
+    val_kind: internal 60 + external 60
+    auc: 0.903 / 0.899 / 0.895 external
+    note: >-
+      Clinical-only submodel reached 0.824/0.813/0.804, the radiomics buys
+      about 0.09 AUC for the cost of a segmentation pipeline. One printed
+      radiomics-only external AUC (0.719) falls outside its own CI
+      (0.721-0.986); source error, unresolved.
+
+  # ---- pathology whole-slide imaging -----------------------------------
+
+  - key: jcoci-2023-wsi
+    pmid: '37527475'
+    year: 2023
+    journal: JCO Clinical Cancer Informatics
+    endpoint: metabolic response (SUVmax drop, MUNICON). NOT pCR
+    inputs: wsi + dl
+    usable: none
+    n_train: 25
+    n_val: 17
+    val_kind: internal, other hospitals
+    auc: 0.80 / 0.81 (0.61-1.00) pre-treatment; 0.84 on-treatment
+    note: >-
+      Arguably out of scope: the endpoint is PET metabolic response, not
+      pathological response. Kept in the list and flagged rather than dropped.
+
+  - key: cancers-2024-wsi
+    pmid: '39001507'
+    year: 2024
+    journal: Cancers
+    endpoint: Becker regression grade and ypN
+    inputs: wsi + dl + clinical
+    usable: none
+    n_train: 78
+    n_val: 59
+    val_kind: external (Cologne to Heidelberg)
+    auc: 0.648 external for regression grade
+    note: Honest external validation, and it shows the model barely works.

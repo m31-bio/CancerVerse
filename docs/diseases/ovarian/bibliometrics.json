@@ -1,0 +1,80 @@
+[
+  {
+    "id": "rmi",
+    "disease": "ovarian",
+    "axis": "detection",
+    "year": 1990,
+    "resolved_by": "doi:10.1111/j.1471-0528.1990.tb02448.x",
+    "title": "A risk of malignancy index incorporating CA 125, ultrasound and menopausal status for the accurate preoperative diagnosis of ovarian cancer",
+    "journal": "BJOG An International Journal of Obstetrics & Gynaecology",
+    "citations": 970,
+    "journal_2yr_mean_citedness": 2.8287128712871286,
+    "openalex_url": "https://openalex.org/W2126233390",
+    "citations_per_year": 26.9
+  },
+  {
+    "id": "iota_adnex",
+    "disease": "ovarian",
+    "axis": "detection",
+    "year": 2014,
+    "resolved_by": "doi:10.1136/bmj.g5920",
+    "title": "Evaluating the risk of ovarian cancer before surgery using the ADNEX model to differentiate between benign, borderline, early and advanced stage invasive, and secondary metastatic tumours: prospective multicentre diagnostic study",
+    "journal": "BMJ",
+    "citations": 510,
+    "journal_2yr_mean_citedness": 4.334621827084138,
+    "openalex_url": "https://openalex.org/W2099878111",
+    "citations_per_year": 42.5
+  },
+  {
+    "id": "roma",
+    "disease": "ovarian",
+    "axis": "detection",
+    "year": 2008,
+    "resolved_by": "doi:10.1016/j.ygyno.2008.08.031",
+    "title": "A novel multiple marker bioassay utilizing HE4 and CA125 for the prediction of ovarian cancer in patients with a pelvic mass",
+    "journal": "Gynecologic Oncology",
+    "citations": 875,
+    "journal_2yr_mean_citedness": 1.3750432077428276,
+    "openalex_url": "https://openalex.org/W1980181125",
+    "citations_per_year": 48.6
+  },
+  {
+    "id": "ovarian_response_gap",
+    "disease": "ovarian",
+    "axis": "response",
+    "year": null,
+    "resolved_by": null,
+    "title": null,
+    "journal": null,
+    "citations": null,
+    "journal_2yr_mean_citedness": null,
+    "openalex_url": null,
+    "citations_per_year": null
+  },
+  {
+    "id": "msk_ovarian",
+    "disease": "ovarian",
+    "axis": "prognosis",
+    "year": 2007,
+    "resolved_by": "doi:10.1016/j.ygyno.2007.09.020",
+    "title": "Nomogram for survival after primary surgery for bulky stage IIIC ovarian carcinoma",
+    "journal": "Gynecologic Oncology",
+    "citations": 69,
+    "journal_2yr_mean_citedness": 1.3750432077428276,
+    "openalex_url": "https://openalex.org/W1991078535",
+    "citations_per_year": 3.6
+  },
+  {
+    "id": "ovarian_prognosis_catalog",
+    "disease": "ovarian",
+    "axis": "prognosis",
+    "year": null,
+    "resolved_by": null,
+    "title": null,
+    "journal": null,
+    "citations": null,
+    "journal_2yr_mean_citedness": null,
+    "openalex_url": null,
+    "citations_per_year": null
+  }
+]

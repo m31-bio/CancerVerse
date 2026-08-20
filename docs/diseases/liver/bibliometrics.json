@@ -1,0 +1,80 @@
+[
+  {
+    "id": "amap",
+    "disease": "liver",
+    "axis": "detection",
+    "year": 2020,
+    "resolved_by": "doi:10.1016/j.jhep.2020.07.025",
+    "title": "aMAP risk score predicts hepatocellular carcinoma development in patients with chronic hepatitis",
+    "journal": "Journal of Hepatology",
+    "citations": 361,
+    "journal_2yr_mean_citedness": 2.2729091636654664,
+    "openalex_url": "https://openalex.org/W3044553904",
+    "citations_per_year": 60.2
+  },
+  {
+    "id": "hap",
+    "disease": "liver",
+    "axis": "response",
+    "year": 2013,
+    "resolved_by": "pmid:23857958",
+    "title": "A simple prognostic scoring system for patients receiving transarterial embolisation for hepatocellular cancer",
+    "journal": "Annals of Oncology",
+    "citations": 380,
+    "journal_2yr_mean_citedness": 1.5229564366128243,
+    "openalex_url": "https://openalex.org/W2159268982",
+    "citations_per_year": 29.2
+  },
+  {
+    "id": "abcr_art",
+    "disease": "liver",
+    "axis": "response",
+    "year": null,
+    "resolved_by": null,
+    "title": null,
+    "journal": null,
+    "citations": null,
+    "journal_2yr_mean_citedness": null,
+    "openalex_url": null,
+    "citations_per_year": null
+  },
+  {
+    "id": "albi",
+    "disease": "liver",
+    "axis": "prognosis",
+    "year": 2014,
+    "resolved_by": "doi:10.1200/JCO.2014.57.9151",
+    "title": "Assessment of Liver Function in Patients With Hepatocellular Carcinoma: A New Evidence-Based Approach\u2014The ALBI Grade",
+    "journal": "Journal of Clinical Oncology",
+    "citations": 2813,
+    "journal_2yr_mean_citedness": 1.6506504248439733,
+    "openalex_url": "https://openalex.org/W2119190881",
+    "citations_per_year": 234.4
+  },
+  {
+    "id": "italica",
+    "disease": "liver",
+    "axis": "prognosis",
+    "year": 2016,
+    "resolved_by": "doi:10.1371/journal.pmed.1002006",
+    "title": "Development and Validation of a New Prognostic System for Patients with Hepatocellular Carcinoma",
+    "journal": "PLoS Medicine",
+    "citations": 143,
+    "journal_2yr_mean_citedness": 8.094795539033457,
+    "openalex_url": "https://openalex.org/W2343903007",
+    "citations_per_year": 14.3
+  },
+  {
+    "id": "bclc_catalog",
+    "disease": "liver",
+    "axis": "prognosis",
+    "year": null,
+    "resolved_by": null,
+    "title": null,
+    "journal": null,
+    "citations": null,
+    "journal_2yr_mean_citedness": null,
+    "openalex_url": null,
+    "citations_per_year": null
+  }
+]

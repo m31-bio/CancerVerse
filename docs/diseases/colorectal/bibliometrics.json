@@ -1,0 +1,80 @@
+[
+  {
+    "id": "crc_pro",
+    "disease": "colorectal",
+    "axis": "detection",
+    "year": 2014,
+    "resolved_by": "doi:10.3122/jabfm.2014.01.130040",
+    "title": "ColoRectal Cancer Predicted Risk Online (CRC-PRO) Calculator Using Data from the Multi-Ethnic Cohort Study",
+    "journal": "The Journal of the American Board of Family Medicine",
+    "citations": 67,
+    "journal_2yr_mean_citedness": 1.951086956521739,
+    "openalex_url": "https://openalex.org/W2110762079",
+    "citations_per_year": 5.6
+  },
+  {
+    "id": "nci_crc",
+    "disease": "colorectal",
+    "axis": "detection",
+    "year": null,
+    "resolved_by": null,
+    "title": null,
+    "journal": null,
+    "citations": null,
+    "journal_2yr_mean_citedness": null,
+    "openalex_url": null,
+    "citations_per_year": null
+  },
+  {
+    "id": "colorectal_response_gap",
+    "disease": "colorectal",
+    "axis": "response",
+    "year": 2024,
+    "resolved_by": "pmid:38819440",
+    "title": "A dynamic nomogram for predicting pathologic complete response to neoadjuvant chemotherapy in locally advanced rectal cancer",
+    "journal": "Cancer Medicine",
+    "citations": 8,
+    "journal_2yr_mean_citedness": 3.614330874604847,
+    "openalex_url": "https://openalex.org/W4399211296",
+    "citations_per_year": 4.0
+  },
+  {
+    "id": "wang_larc_pcr",
+    "disease": "colorectal",
+    "axis": "response",
+    "year": 2024,
+    "resolved_by": "doi:10.1002/cam4.7251",
+    "title": "A dynamic nomogram for predicting pathologic complete response to neoadjuvant chemotherapy in locally advanced rectal cancer",
+    "journal": "Cancer Medicine",
+    "citations": 8,
+    "journal_2yr_mean_citedness": 3.614330874604847,
+    "openalex_url": "https://openalex.org/W4399211296",
+    "citations_per_year": 4.0
+  },
+  {
+    "id": "msk_rectal",
+    "disease": "colorectal",
+    "axis": "prognosis",
+    "year": 2021,
+    "resolved_by": "doi:10.1001/jamanetworkopen.2021.33457",
+    "title": "Development and Assessment of a Clinical Calculator for Estimating the Likelihood of Recurrence and Survival Among Patients With Locally Advanced Rectal Cancer Treated With Chemotherapy, Radiotherapy, and Surgery",
+    "journal": "JAMA Network Open",
+    "citations": 31,
+    "journal_2yr_mean_citedness": 9.20470242468773,
+    "openalex_url": "https://openalex.org/W3214650438",
+    "citations_per_year": 6.2
+  },
+  {
+    "id": "colorectal_prognosis_catalog",
+    "disease": "colorectal",
+    "axis": "prognosis",
+    "year": null,
+    "resolved_by": null,
+    "title": null,
+    "journal": null,
+    "citations": null,
+    "journal_2yr_mean_citedness": null,
+    "openalex_url": null,
+    "citations_per_year": null
+  }
+]
