@@ -37,8 +37,10 @@ def main() -> int:
     for pkg in data["packages"]:
         present = (ROOT / "collected" / pkg["name"]).exists()
         mark = "present" if present else "absent "
-        print(f"[{mark}] {pkg['name']:16} {str(pkg['version']):11} "
-              f"{pkg['license']:20} {pkg['source']}")
+        print(
+            f"[{mark}] {pkg['name']:16} {str(pkg['version']):11} "
+            f"{pkg['license']:20} {pkg['source']}"
+        )
         print(f"           verifies: {pkg['used_for']}")
 
     if not args.fetch:
@@ -55,10 +57,11 @@ def main() -> int:
         if "github.com" in src:
             cmd = ["git", "clone", "--depth", "1", src, str(dest / pkg["name"])]
         elif "cran.r-project.org" in src:
-            url = (f"https://cran.r-project.org/src/contrib/"
-                   f"{pkg['name']}_{pkg['version']}.tar.gz")
-            cmd = ["sh", "-c",
-                   f"curl -fsSL {url} | tar xz -C {dest}"]
+            url = (
+                f"https://cran.r-project.org/src/contrib/"
+                f"{pkg['name']}_{pkg['version']}.tar.gz"
+            )
+            cmd = ["sh", "-c", f"curl -fsSL {url} | tar xz -C {dest}"]
         else:
             print(f"!! {pkg['name']}: no known fetch method for {src!r}")
             continue

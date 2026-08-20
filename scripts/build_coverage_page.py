@@ -829,10 +829,23 @@ def main() -> int:
             file=sys.stderr,
         )
         return 1
-    models = yaml.safe_load(REGISTRY.read_text())["models"]
+    # Read the registry that SHIPS beside this page, not the one in this
+    # checkout, when they are different files. The sync drops keys that
+    # describe our own queue rather than the library, and a page rendered from
+    # the unstripped copy embeds their text as HTML, where no later stripping
+    # can reach it. One such field reached the published page that way before
+    # this was added.
+    registry = REGISTRY
+    constraints_path = CONSTRAINTS
+    shipped = out.parent / "registry" / "models.yaml"
+    if shipped.exists() and shipped.resolve() != REGISTRY.resolve():
+        registry = shipped
+        constraints_path = out.parent / "registry" / "constraints.yaml"
+
+    models = yaml.safe_load(registry.read_text())["models"]
     constraints = {}
-    if CONSTRAINTS.exists():
-        constraints = yaml.safe_load(CONSTRAINTS.read_text())["constraints"]
+    if constraints_path.exists():
+        constraints = yaml.safe_load(constraints_path.read_text())["constraints"]
     write_text_atomically(out, build(models, constraints))
     print(f"wrote {out}")
     return 0

@@ -20,15 +20,15 @@ classifiers = [
 ]
 
 # The library itself computes closed-form equations in pure Python. PyYAML is
-# here because the registry -- the single source of truth for every model's
-# provenance -- is a YAML file that ships with the package.
+# here because the registry, the single source of truth for every model's
+# provenance, is a YAML file that ships with the package.
 dependencies = ["PyYAML>=6.0"]
 
 [project.scripts]
 cancerverse-baseline = "cancerverse_baseline.cli:main"
 
 [project.urls]
-Repository = "https://github.com/Ziqi-Hao/baseline"
+Repository = "https://github.com/m31-bio/CancerVerse"
 
 # PEP 735. Split by what each group is actually for, so a contributor who only
 # wants to run the tests does not also install the reporting stack.
@@ -40,9 +40,9 @@ dev = [
 ]
 test = ["pytest>=7.0"]
 lint = ["ruff>=0.6", "mypy>=1.10", "pre-commit>=3.7"]
-# Only the scripts that render the coverage table, the spreadsheet and the
-# slide decks need these. Nothing under src/ imports them.
-reports = ["openpyxl>=3.1", "python-pptx>=0.6"]
+# Only the scripts that render the coverage table, the spreadsheet, the slide
+# decks and the Word tables need these. Nothing under src/ imports them.
+reports = ["openpyxl>=3.1", "python-pptx>=0.6", "python-docx>=1.2.0"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/cancerverse_baseline"]
@@ -57,7 +57,13 @@ include = ["src/", "tests/", "registry/", "README.md", "LICENSE", "NOTICE"]
 testpaths = ["tests"]
 pythonpath = ["src"]
 # Parity tests are slow-ish and network-free; keep them opt-outable by name.
-markers = ["parity: reproduces a published or vendor-computed reference value"]
+markers = [
+    "parity: reproduces a published or vendor-computed reference value",
+    # Builds each generated Office file twice with a deliberate pause between,
+    # so it costs a few seconds. The pause is load-bearing, see
+    # tests/test_reproducible_builds.py.
+    "slow: rebuilds artefacts; seconds rather than milliseconds",
+]
 
 [tool.ruff]
 line-length = 88
@@ -79,7 +85,51 @@ ignore = ["E501"]
 # line accumulator in slide-building code, not a variable worth renaming (E741).
 "scripts/*.py" = ["E402", "E741"]
 # Same import order reason, plus `l` is used as a loop line in one assertion.
-"tests/test_registry.py" = ["E741"]
+"tests/test_registry.py" = ["E741", "SIM102", "SIM103"]
+
+# --- rules this project has decided against, with the reason -------------
+# A linter carrying findings nobody intends to fix trains people to ignore it,
+# so anything left unfixed is silenced HERE, with why, rather than left as
+# noise. Each of these was looked at individually on 2026-08-18.
+#
+# The two in src/ are the important ones: ruff's suggestion would have made
+# clinical code worse, not better.
+#
+# ang2010_rpa implements a published RECURSIVE PARTITIONING tree, and its
+# nested if/else mirrors the branch structure Ang 2010 printed. HPV status
+# first, then smoking against N stage or T stage. Collapsing that to a ternary
+# (SIM108) would save two lines and destroy the correspondence with the figure
+# the code is checked against.
+"src/cancerverse_baseline/head_neck/prognosis/ang2010_rpa.py" = ["SIM108"]
+# dutasteride checks bounds and then required-known fields in two parallel
+# loops. Rewriting only the second as `all(...)` (SIM110) would make two checks
+# that do the same kind of job look like different kinds of code.
+"src/cancerverse_baseline/prostate/response/dutasteride.py" = ["SIM110"]
+# The Word-XML helpers pair "create element" with "set its one attribute" on a
+# line each. Splitting them (E702) doubles the block and separates two halves
+# of a single idea.
+"scripts/build_phase2_tables.py" = ["E402", "E741", "E702"]
+# `read` is bound to one of two implementations depending on whether the audit
+# targets a local directory or the live remote. A lambda per branch states that
+# more plainly than two nested defs (E731).
+"scripts/audit_public_repo.py" = ["E402", "E741", "E731"]
+# Nested `if` in the fixture derivation is a guard followed by a condition, and
+# reads as two separate questions rather than one compound one (SIM102).
+"tests/parity/reference/cibula_arrm_derive.py" = ["E741", "SIM102"]
+
+[tool.ruff.format]
+# Coefficient tables are DATA, laid out to be read against the paper they came
+# from, one row per printed row, columns aligned. `ruff format` reflows them
+# to one item per line and destroys that: prevent_coefficients.py went from 233
+# lines to 3003 on 2026-08-18 before this exclusion was added, with the numbers
+# unchanged but the correspondence with the source tables gone.
+# This is the same principle E501 is already ignored for, in [tool.ruff.lint]
+# above: "wrapping them makes them harder to check against the paper, which is
+# the whole point of this repository."
+exclude = [
+    "src/cancerverse_baseline/*/*/coefficients.py",
+    "src/cancerverse_baseline/cvd/detection/prevent_coefficients.py",
+]
 
 [tool.mypy]
 python_version = "3.10"

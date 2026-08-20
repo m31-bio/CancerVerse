@@ -23,12 +23,7 @@ REGISTRY = ROOT / "registry" / "models.yaml"
 # `src/` is not yet on the path.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from cancerverse_baseline.reporting import (  # noqa: E402
-    AXES,
-    AXIS_LABEL,
-    COLUMNS,
-    DISEASE_LABEL,
     GAP_CAPTION,
-    GAP_CELL_LABEL,
     build_rows,
     feature_top_predictors,
     grouped,
@@ -207,52 +202,42 @@ def build(models: list[dict]) -> str:
     A("---")
     A("")
 
-    # ---------------------------------------------------------------- the table
+    # -------------------------------------------------------------- coverage
     A("## Coverage")
     A("")
-    A("Every disease is asked the same three questions. " + GAP_CAPTION)
+    A(
+        f"**{len(impl)} models across {len(by)} diseases**, every disease asked the same"
+    )
+    A("three questions. " + GAP_CAPTION)
     A("")
-    # An HTML table, not a markdown one, because markdown pipe tables cannot
-    # merge cells. Each disease is ONE cell spanning its three questions, and
-    # each question is one cell spanning its models; otherwise the eye reads
-    # three unrelated rows instead of one disease asked three questions.
-    # GitHub renders this; note markdown syntax does not apply inside it, so
-    # emphasis and code are written as tags.
-    A("<table>")
-    A("<thead><tr>" + "".join(f"<th>{c}</th>" for c in COLUMNS) + "</tr></thead>")
-    A("<tbody>")
-
-    for did in sorted(DISEASE_LABEL, key=lambda k: DISEASE_LABEL[k]):
-        span = sum(max(1, len(by.get(did, {}).get(a, []))) for a in AXES)
-        first = True
-        for axis in AXES:
-            entries = by.get(did, {}).get(axis, [])
-            dcell = (
-                f'<td rowspan="{span}" valign="top"><b>{DISEASE_LABEL[did]}</b></td>'
-                if first
-                else ""
-            )
-            acell = (
-                f'<td rowspan="{max(1, len(entries))}" valign="top">'
-                f"{AXIS_LABEL[axis]}</td>"
-            )
-            if not entries:
-                A(
-                    f"<tr>{dcell}{acell}"
-                    f'<td colspan="{len(COLUMNS) - 2}">'
-                    f"<em>&mdash; {GAP_CELL_LABEL}</em></td></tr>"
-                )
-                first = False
-                continue
-            for k, r in enumerate(entries):
-                cells = [dcell if k == 0 else "", acell if k == 0 else ""]
-                for col in COLUMNS[2:]:
-                    cells.append(f'<td valign="top">{_render(col, r)}</td>')
-                A("<tr>" + "".join(cells) + "</tr>")
-                first = False
-
-    A("</tbody>")
-    A("</table>")
+    A("### The table lives in `coverage.html`")
+    A("")
+    A(
+        "One page, one row per disease and question, with the flagship for each: where the"
+    )
+    A(
+        "model applies and what it is misread as, the equation and where in the paper it"
+    )
+    A("sits, how it was verified, and the command that re-runs that check.")
+    A("")
+    A(
+        "It is a file in this repository. GitHub shows HTML as source rather than"
+    )
+    A("rendering it, so open it one of these ways:")
+    A("")
+    A("```")
+    A("git clone <this repo> && open coverage.html          # or xdg-open, or drag")
+    A("```")
+    A("")
+    A("Or download it alone from the file view and open it locally.")
+    A("")
+    A(
+        "It was an HTML table pasted into this README until 2026-08-19. That table was"
+    )
+    A(
+        "1,200 lines of markup nobody could scroll and GitHub truncated, and it went stale"
+    )
+    A("against the registry every time one was regenerated without the other.")
     A("")
     A(
         f"**{len(impl)} models across {len(by)} diseases. "
@@ -266,7 +251,7 @@ def build(models: list[dict]) -> str:
     A("paper's own worked example, or the vendor's live calculator.")
     A("")
     A(
-        "The evidence is per model, in the table above: **How it was verified** names the"
+        "The evidence is per model, in that page: **How it was verified** names the"
     )
     A(
         "route and the source, and **Re-run the check** gives the exact pytest command that"

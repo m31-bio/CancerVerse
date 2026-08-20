@@ -249,9 +249,13 @@ def model_cell(m: dict, planned: dict | None = None) -> str:
     if not repl:
         return title
     year = m.get("year")
+    # `blocker_kind` says what stands in the way, which a reader needs. The
+    # entry's `next_action` used to be printed beside it and is not the
+    # reader's business: it is our queue, it is stripped from the published
+    # registry, and printing it here carried the text into every generated
+    # artefact where that stripping could not reach.
     return (f"{flat(repl.get('title'))}\n"
-            f"[{flat(repl.get('blocker_kind') or 'not yet implemented')}] "
-            f"{flat(repl.get('next_action'))}\n"
+            f"[{flat(repl.get('blocker_kind') or 'not yet implemented')}]\n"
             f"Interim: {title}"
             + (f" ({year})" if year else ""))
 
