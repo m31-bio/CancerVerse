@@ -2,8 +2,8 @@
 
 import pytest
 
-from mayo_baseline.cvd.detection import score2_predict
-from mayo_baseline.cvd.detection.score2 import (
+from cancerverse_baseline.cvd.detection import score2_predict
+from cancerverse_baseline.cvd.detection.score2 import (
     linear_predictor,
     recalibrate,
     uncalibrated_risk,

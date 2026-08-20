@@ -42,8 +42,8 @@ from pathlib import Path
 
 import pytest
 
-from mayo_baseline.colorectal.detection import crc_pro_predict
-from mayo_baseline.colorectal.detection.crc_pro import (
+from cancerverse_baseline.colorectal.detection import crc_pro_predict
+from cancerverse_baseline.colorectal.detection.crc_pro import (
     ASPIRIN_BETA,
     ESTROGEN_BETA,
     ETHNICITY_BETA,
@@ -167,7 +167,7 @@ def test_bmi_is_derived_from_pounds_and_inches():
     """The spline knots assume the app's own conversion. Passing kilograms and
     metres instead would land the BMI off by a factor of about 703, which is
     silent — every knot would simply saturate."""
-    from mayo_baseline.colorectal.detection.crc_pro import bmi_from_imperial
+    from cancerverse_baseline.colorectal.detection.crc_pro import bmi_from_imperial
 
     # 25 kg/m^2 at 1.75 m is 76.5625 kg = 168.8 lb, 68.898 in.
     kg, m = 25.0 * 1.75**2, 1.75

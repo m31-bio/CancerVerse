@@ -4,9 +4,9 @@ import math
 
 import pytest
 
-from mayo_baseline.lung.detection import coefficients as C
-from mayo_baseline.lung.detection import plcom2012_predict
-from mayo_baseline.lung.detection.plcom2012 import (
+from cancerverse_baseline.lung.detection import coefficients as C
+from cancerverse_baseline.lung.detection import plcom2012_predict
+from cancerverse_baseline.lung.detection.plcom2012 import (
     linear_predictor,
     smoking_intensity_term,
 )

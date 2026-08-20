@@ -10,11 +10,11 @@ from __future__ import annotations
 
 import pytest
 
-from mayo_baseline.cvd.response import (
+from cancerverse_baseline.cvd.response import (
     cvd_statin_benefit_predict,
     ldl_reduction_mmol,
 )
-from mayo_baseline.cvd.response.statin_benefit import MMOL_PER_MG_DL, RATE_RATIO
+from cancerverse_baseline.cvd.response.statin_benefit import MMOL_PER_MG_DL, RATE_RATIO
 
 
 def test_rate_ratios_are_the_published_ctt_values():
@@ -85,7 +85,7 @@ def test_zero_reduction_is_zero_benefit():
 def test_it_composes_with_a_verified_risk_model():
     """The intended use: a baseline from PREVENT, which IS checked against a
     reference, then this transformation on top."""
-    import mayo_baseline as mb
+    import cancerverse_baseline as mb
 
     baseline = mb.predict(
         "prevent", sex="female", age=60, total_chol_mg_dl=240, hdl_mg_dl=45,

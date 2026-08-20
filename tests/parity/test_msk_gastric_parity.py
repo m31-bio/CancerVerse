@@ -33,8 +33,8 @@ from pathlib import Path
 
 import pytest
 
-from mayo_baseline.gastric.prognosis import msk_gastric_predict
-from mayo_baseline.gastric.prognosis.msk_gastric import (
+from cancerverse_baseline.gastric.prognosis import msk_gastric_predict
+from cancerverse_baseline.gastric.prognosis.msk_gastric import (
     DEPTH_LEVELS,
     LAUREN_BETA,
     PRIMARY_SITE_BETA,
@@ -88,7 +88,7 @@ def test_the_fixture_exercises_every_categorical_level():
 
 
 def test_the_fixture_reaches_both_ends_of_every_validated_bound():
-    from mayo_baseline.gastric.prognosis.msk_gastric import (
+    from cancerverse_baseline.gastric.prognosis.msk_gastric import (
         AGE_RANGE,
         NEGATIVE_NODES_RANGE,
         POSITIVE_NODES_RANGE,

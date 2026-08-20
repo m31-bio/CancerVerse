@@ -137,7 +137,7 @@ def build(models: list[dict]) -> str:
     # The cell count used to live only in docs/MODEL_SOURCE_TABLE.md, which was
     # deleted as redundant: every other figure in its summary was already here,
     # usually in better form. This one was not, so it moves up rather than out.
-    from mayo_baseline.registry.load import progress_report
+    from cancerverse_baseline.registry.load import progress_report
     cells = progress_report()
     A(f"`{len(impl)} models` · `12 diseases` · "
       f"`{cells['n_cells_implemented']}/{cells['n_cells_nominal']} cells` · "
@@ -149,7 +149,7 @@ def build(models: list[dict]) -> str:
     A("that each implementation reproduces an independent source.")
     A("")
     A("```python")
-    A("import mayo_baseline as mb")
+    A("import cancerverse_baseline as mb")
     A("")
     A("mb.predict(\"albi\", bilirubin_umol_l=20.0, albumin_g_l=40.0)")
     A("# {'score': -2.54, 'grade': 2, 'registry_id': 'albi',")
@@ -168,7 +168,7 @@ def build(models: list[dict]) -> str:
     A("")
     A("Every result carries the model's `scope` — running a model is not the same as")
     A("being entitled to believe it. There is deliberately no \"run everything\"")
-    A("convenience; see `mayo_baseline/api.py` for why.")
+    A("convenience; see `cancerverse_baseline/api.py` for why.")
     A("")
     A("---")
     A("")
@@ -255,7 +255,7 @@ def build(models: list[dict]) -> str:
     A("with no dependencies; the library needs **PyYAML** to read the registry,")
     A("which is where every model's provenance lives.")
     A("")
-    A("Models live under `src/mayo_baseline/<disease>/<question>/`, mirroring the table.")
+    A("Models live under `src/cancerverse_baseline/<disease>/<question>/`, mirroring the table.")
     A("")
 
     # ----------------------------------------------------------- architectures

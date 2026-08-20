@@ -36,7 +36,7 @@ from __future__ import annotations
 
 import pytest
 
-from mayo_baseline.pancreatic.detection.endpac import (
+from cancerverse_baseline.pancreatic.detection.endpac import (
     GLUCOSE_SCORE_RANGE,
     HIGH_RISK_THRESHOLD,
     INTERMEDIATE_SCORES,
@@ -116,7 +116,7 @@ def test_the_published_group_proportions_sum_to_one_hundred(cohort):
 def test_the_three_groups_partition_the_whole_score_line():
     """Every attainable total lands in exactly one group, with no gap. This is
     the property the abstract's "<0" breaks."""
-    from mayo_baseline.pancreatic.detection.endpac import TOTAL_SCORE_RANGE
+    from cancerverse_baseline.pancreatic.detection.endpac import TOTAL_SCORE_RANGE
 
     lo, hi = TOTAL_SCORE_RANGE
     for total in range(lo, hi + 1):

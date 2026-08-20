@@ -4,8 +4,8 @@ import math
 
 import pytest
 
-from mayo_baseline.cervical.detection import cervical_cin_risk_predict as predict
-from mayo_baseline.cervical.detection.cin_risk import (
+from cancerverse_baseline.cervical.detection import cervical_cin_risk_predict as predict
+from cancerverse_baseline.cervical.detection.cin_risk import (
     CYTOLOGY_LEVELS,
     GENOTYPE_GROUPS,
     MODELS,

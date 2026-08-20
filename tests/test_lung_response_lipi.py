@@ -2,7 +2,7 @@
 
 import pytest
 
-from mayo_baseline.lung.response import derived_nlr, lipi_predict
+from cancerverse_baseline.lung.response import derived_nlr, lipi_predict
 
 
 def test_derived_nlr_uses_non_neutrophil_white_count():

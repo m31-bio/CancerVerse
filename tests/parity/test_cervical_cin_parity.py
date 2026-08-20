@@ -27,7 +27,7 @@ from pathlib import Path
 
 import pytest
 
-from mayo_baseline.cervical.detection.cin_risk import MODELS
+from cancerverse_baseline.cervical.detection.cin_risk import MODELS
 
 S1_FILE = Path(__file__).parent / "reference" / "cervical_table_s1.json"
 

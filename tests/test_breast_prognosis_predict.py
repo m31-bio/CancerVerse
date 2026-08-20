@@ -2,8 +2,8 @@
 
 import pytest
 
-from mayo_baseline.breast.prognosis import predict_breast
-from mayo_baseline.breast.prognosis.predict_breast import (
+from cancerverse_baseline.breast.prognosis import predict_breast
+from cancerverse_baseline.breast.prognosis.predict_breast import (
     CHEMO_BETA,
     ER_NEG,
     ER_POS,
@@ -130,6 +130,6 @@ def test_metadata_and_dual_axis_export():
     assert out["disease"] == "breast"
     assert out["axis"] == "prognosis"
     # The same model backs the response cell.
-    from mayo_baseline.breast.response import predict_breast as response_export
+    from cancerverse_baseline.breast.response import predict_breast as response_export
 
     assert response_export is predict_breast

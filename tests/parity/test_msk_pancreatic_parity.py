@@ -18,8 +18,8 @@ from pathlib import Path
 
 import pytest
 
-from mayo_baseline.pancreatic.prognosis import msk_pancreatic_predict
-from mayo_baseline.pancreatic.prognosis.msk_pancreatic import (
+from cancerverse_baseline.pancreatic.prognosis import msk_pancreatic_predict
+from cancerverse_baseline.pancreatic.prognosis.msk_pancreatic import (
     DIFFERENTIATION_BETA,
     LOCATION_BETA,
     T_STAGE_BETA,
@@ -104,7 +104,7 @@ def test_size_is_centimetres_despite_the_tools_mm_label():
     """The hosted tool labels this field "mm" while validating 0.1-16 with
     knots at 2, 3.2 and 5.5. A 16 mm ceiling on resected pancreatic
     adenocarcinoma is not credible; these are centimetres."""
-    from mayo_baseline.pancreatic.prognosis.msk_pancreatic import SIZE_CM_RANGE
+    from cancerverse_baseline.pancreatic.prognosis.msk_pancreatic import SIZE_CM_RANGE
 
     assert SIZE_CM_RANGE == (0.1, 16.0)
     with pytest.raises(ValueError, match="size_cm"):

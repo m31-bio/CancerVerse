@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pytest
 
-import mayo_baseline as mb
+import cancerverse_baseline as mb
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
@@ -55,7 +55,7 @@ ALL_IDS = [m.id for m in mb.list_models()]
 
 
 def test_list_models_returns_every_implemented_model():
-    from mayo_baseline.api import _registry
+    from cancerverse_baseline.api import _registry
 
     implemented = {m["id"] for m in _registry() if m.get("status") == "implemented"}
     assert {m.id for m in mb.list_models()} == implemented
@@ -105,7 +105,7 @@ def test_unknown_model_says_what_is_available():
 
 def test_a_registered_but_unimplemented_model_says_so():
     """Catalog and gap rows are in the registry but have no code."""
-    from mayo_baseline.api import _registry
+    from cancerverse_baseline.api import _registry
 
     catalog = next(m["id"] for m in _registry()
                    if m.get("status") in {"catalog", "gap"})

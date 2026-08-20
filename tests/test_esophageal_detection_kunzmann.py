@@ -2,8 +2,8 @@
 
 import pytest
 
-from mayo_baseline.esophageal.detection import kunzmann_predict
-from mayo_baseline.esophageal.detection.kunzmann import (
+from cancerverse_baseline.esophageal.detection import kunzmann_predict
+from cancerverse_baseline.esophageal.detection.kunzmann import (
     MAX_POINTS,
     REFERRAL_THRESHOLD,
     age_points,

@@ -1,7 +1,7 @@
 """Tests for CHA2DS2-VASc (Lip et al., Chest 2010)."""
 
 
-from mayo_baseline.cvd.prognosis import cha2ds2_vasc_predict, cha2ds2_vasc_score
+from cancerverse_baseline.cvd.prognosis import cha2ds2_vasc_predict, cha2ds2_vasc_score
 
 NONE = dict(
     heart_failure=False,

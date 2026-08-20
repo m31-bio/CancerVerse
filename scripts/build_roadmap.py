@@ -16,7 +16,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from mayo_baseline.registry.load import load_models, progress_report  # noqa: E402
+from cancerverse_baseline.registry.load import load_models, progress_report  # noqa: E402
 
 sys.path.insert(0, str(ROOT / "scripts"))
 from model_table import DISEASE_LABEL  # noqa: E402

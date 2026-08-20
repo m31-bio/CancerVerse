@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "mayo-baseline"
+name = "cancerverse-baseline"
 version = "0.1.0"
 description = "Published clinical risk equations, reimplemented in Python and independently verified"
 readme = "README.md"
@@ -25,7 +25,7 @@ classifiers = [
 dependencies = ["PyYAML>=6.0"]
 
 [project.scripts]
-mayo-baseline = "mayo_baseline.cli:main"
+cancerverse-baseline = "cancerverse_baseline.cli:main"
 
 [project.urls]
 Repository = "https://github.com/Ziqi-Hao/baseline"
@@ -45,10 +45,10 @@ lint = ["ruff>=0.6", "mypy>=1.10", "pre-commit>=3.7"]
 reports = ["openpyxl>=3.1", "python-pptx>=0.6"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/mayo_baseline"]
+packages = ["src/cancerverse_baseline"]
 # Coefficient tables that ship with the code. dutasteride's 315 coefficients
 # are data, not a fixture, and an installed wheel must carry them.
-artifacts = ["src/mayo_baseline/**/data/*.json"]
+artifacts = ["src/cancerverse_baseline/**/data/*.json"]
 
 [tool.hatch.build.targets.sdist]
 include = ["src/", "tests/", "registry/", "README.md", "LICENSE", "NOTICE"]
@@ -72,7 +72,7 @@ ignore = ["E501"]
 
 [tool.ruff.lint.per-file-ignores]
 # Generated coefficient tables: long lines, and names that mirror the paper's.
-"src/mayo_baseline/*/*/coefficients.py" = ["E741"]
+"src/cancerverse_baseline/*/*/coefficients.py" = ["E741"]
 "tests/parity/reference/*" = ["E741"]
 # Report generators put `sys.path.insert` before importing the shared table
 # definition, so their imports cannot all sit at the top (E402). `l` there is a

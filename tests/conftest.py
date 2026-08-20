@@ -98,13 +98,13 @@ def pytest_configure(config):
 
     import yaml
 
-    import mayo_baseline.registry as pkg
+    import cancerverse_baseline.registry as pkg
 
     # `registry/__init__.py` re-exports a FUNCTION named `load`, which shadows
-    # the submodule of the same name -- `from mayo_baseline.registry import
+    # the submodule of the same name -- `from cancerverse_baseline.registry import
     # load` hands back the function. Go through sys.modules for the module.
-    importlib.import_module("mayo_baseline.registry.load")
-    loader = sys.modules["mayo_baseline.registry.load"]
+    importlib.import_module("cancerverse_baseline.registry.load")
+    loader = sys.modules["cancerverse_baseline.registry.load"]
 
     path = ROOT / "registry" / "models.yaml"
     snapshot = yaml.safe_load(path.read_text(encoding="utf-8"))["models"]
@@ -128,9 +128,9 @@ def pytest_unconfigure(config):
 
     if "original" not in _SNAPSHOT:
         return
-    import mayo_baseline.registry as pkg
+    import cancerverse_baseline.registry as pkg
 
-    sys.modules["mayo_baseline.registry.load"].load_models = _SNAPSHOT["original"]
+    sys.modules["cancerverse_baseline.registry.load"].load_models = _SNAPSHOT["original"]
     pkg.load_models = _SNAPSHOT["original"]
 
 

@@ -4,8 +4,8 @@ import math
 
 import pytest
 
-from mayo_baseline.ovarian.detection import roma_predict
-from mayo_baseline.ovarian.detection.roma import (
+from cancerverse_baseline.ovarian.detection import roma_predict
+from cancerverse_baseline.ovarian.detection.roma import (
     POSTMENOPAUSAL,
     PREMENOPAUSAL,
     predictive_index,
@@ -110,7 +110,7 @@ def test_paper_and_assay_cutoffs_differ_and_cross_over():
     directions by menopausal status. Premenopausally the commercial cut is more
     sensitive (11.4 vs 13.1); postmenopausally it is less (29.9 vs 27.7).
     """
-    from mayo_baseline.ovarian.detection.roma import CUTOFFS
+    from cancerverse_baseline.ovarian.detection.roma import CUTOFFS
 
     assert CUTOFFS["paper"]["premenopausal"] > CUTOFFS["assay_insert"]["premenopausal"]
     assert CUTOFFS["paper"]["postmenopausal"] < CUTOFFS["assay_insert"]["postmenopausal"]

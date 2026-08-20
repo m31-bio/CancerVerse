@@ -109,7 +109,7 @@ def summary(models: list[dict], rows: list[dict]) -> list[tuple[str, object]]:
 
     # Derive the reachable denominator from the registry rather than hardcoding
     # it. It has already been wrong once (24 when it should have been 26).
-    from mayo_baseline.registry.load import progress_report
+    from cancerverse_baseline.registry.load import progress_report
     rep = progress_report()
     reachable = rep["n_cells_reachable"]
     unreachable = rep["n_cells_unreachable"]

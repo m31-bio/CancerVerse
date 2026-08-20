@@ -1,4 +1,4 @@
-"""Human-readable progress report. Run: python -m mayo_baseline.registry.report"""
+"""Human-readable progress report. Run: python -m cancerverse_baseline.registry.report"""
 
 from __future__ import annotations
 
@@ -49,7 +49,7 @@ def render() -> str:
     header = f"  {'disease':12}" + "".join(f"{a:<12}" for a in AXES)
     w(header)
     tiers = {(d, a): t for (d, a), t in __import__(
-        "mayo_baseline.registry.load", fromlist=["cell_tiers"]
+        "cancerverse_baseline.registry.load", fromlist=["cell_tiers"]
     ).cell_tiers().items()}
     for d in diseases:
         row = [f"  {d['id']:12}"]

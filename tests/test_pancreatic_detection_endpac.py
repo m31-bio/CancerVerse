@@ -2,8 +2,8 @@
 
 import pytest
 
-from mayo_baseline.pancreatic.detection import endpac as E
-from mayo_baseline.pancreatic.detection import endpac_predict
+from cancerverse_baseline.pancreatic.detection import endpac as E
+from cancerverse_baseline.pancreatic.detection import endpac_predict
 
 
 def test_worked_contrast_between_pc_related_and_ordinary_diabetes():

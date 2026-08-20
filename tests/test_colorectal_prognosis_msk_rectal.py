@@ -4,9 +4,9 @@ import math
 
 import pytest
 
-from mayo_baseline.colorectal.prognosis import msk_rectal as M
-from mayo_baseline.colorectal.prognosis import msk_rectal_predict
-from mayo_baseline.colorectal.prognosis.msk_rectal import linear_predictor
+from cancerverse_baseline.colorectal.prognosis import msk_rectal as M
+from cancerverse_baseline.colorectal.prognosis import msk_rectal_predict
+from cancerverse_baseline.colorectal.prognosis.msk_rectal import linear_predictor
 
 # Reference patient: ypT0, node-negative, low tumour, no VI/PNI.
 REF = dict(

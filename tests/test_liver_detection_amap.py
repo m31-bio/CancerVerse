@@ -4,9 +4,9 @@ import math
 
 import pytest
 
-from mayo_baseline.liver.detection import amap as A
-from mayo_baseline.liver.detection import amap_predict
-from mayo_baseline.liver.prognosis import albi_score
+from cancerverse_baseline.liver.detection import amap as A
+from cancerverse_baseline.liver.detection import amap_predict
+from cancerverse_baseline.liver.prognosis import albi_score
 
 REF = dict(age=50, male=True, platelets=200, bilirubin_umol_l=15.0, albumin_g_l=42.0)
 

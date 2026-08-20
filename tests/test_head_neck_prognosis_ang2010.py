@@ -2,7 +2,7 @@
 
 import pytest
 
-from mayo_baseline.head_neck.prognosis import ang2010_rpa_predict
+from cancerverse_baseline.head_neck.prognosis import ang2010_rpa_predict
 
 
 def test_hpv_positive_light_smoker_any_n_stage_is_low_risk():

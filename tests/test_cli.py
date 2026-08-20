@@ -11,7 +11,7 @@ import json
 
 import pytest
 
-from mayo_baseline.cli import _coerce, _parse_predictors, main
+from cancerverse_baseline.cli import _coerce, _parse_predictors, main
 
 
 # ---------------------------------------------------------------- parsing
@@ -76,7 +76,7 @@ def test_info_on_an_unknown_model_fails_cleanly(capsys):
 
 # --------------------------------------------------------------- predict
 def test_predict_returns_the_same_number_as_the_api(capsys):
-    from mayo_baseline import predict
+    from cancerverse_baseline import predict
 
     assert main(["predict", "albi", "--bilirubin_umol_l", "20",
                  "--albumin_g_l", "40", "--json"]) == 0

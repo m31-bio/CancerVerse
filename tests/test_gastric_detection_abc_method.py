@@ -2,7 +2,7 @@
 
 import pytest
 
-from mayo_baseline.gastric.detection import abc_group, abc_method_predict
+from cancerverse_baseline.gastric.detection import abc_group, abc_method_predict
 
 
 @pytest.mark.parametrize(

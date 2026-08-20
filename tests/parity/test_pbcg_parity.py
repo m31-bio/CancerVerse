@@ -23,8 +23,8 @@ from pathlib import Path
 
 import pytest
 
-from mayo_baseline.prostate.detection import pbcg_predict, rounded_like_riskcalc
-from mayo_baseline.prostate.detection.pbcg import COEFFICIENTS
+from cancerverse_baseline.prostate.detection import pbcg_predict, rounded_like_riskcalc
+from cancerverse_baseline.prostate.detection.pbcg import COEFFICIENTS
 
 CASES_FILE = Path(__file__).parent / "reference" / "pbcg_cases.json"
 

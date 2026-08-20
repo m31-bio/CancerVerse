@@ -55,7 +55,7 @@ import math
 
 import pytest
 
-from mayo_baseline.esophageal.detection.kunzmann import (
+from cancerverse_baseline.esophageal.detection.kunzmann import (
     ESOPHAGEAL_CONDITION_POINTS,
     MAX_POINTS,
     REFERRAL_THRESHOLD,

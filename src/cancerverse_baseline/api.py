@@ -4,7 +4,7 @@ Every model has its own module path and its own signature, which is correct —
 they take different clinical inputs — but it means a consumer had to know 27
 import paths to use this library. This module is the dispatcher:
 
-    >>> import mayo_baseline as mb
+    >>> import cancerverse_baseline as mb
     >>> mb.predict("albi", bilirubin_umol_l=20.0, albumin_g_l=40.0)["grade"]
     2
 

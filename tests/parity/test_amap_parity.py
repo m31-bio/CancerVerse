@@ -23,7 +23,7 @@ from pathlib import Path
 
 import pytest
 
-from mayo_baseline.liver.detection.amap import amap_predict
+from cancerverse_baseline.liver.detection.amap import amap_predict
 
 CASES_FILE = Path(__file__).parent / "reference" / "amap_cases.json"
 

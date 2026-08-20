@@ -10,7 +10,7 @@ tested Python — with the provenance of every coefficient recorded, and with ev
 that each implementation reproduces an independent source.
 
 ```python
-import mayo_baseline as mb
+import cancerverse_baseline as mb
 
 mb.predict("albi", bilirubin_umol_l=20.0, albumin_g_l=40.0)
 # {'score': -2.54, 'grade': 2, 'registry_id': 'albi',
@@ -29,7 +29,7 @@ mb.predict_many(["albi", "amap"], age=55, male=True, platelets=200,
 
 Every result carries the model's `scope` — running a model is not the same as
 being entitled to believe it. There is deliberately no "run everything"
-convenience; see `mayo_baseline/api.py` for why.
+convenience; see `cancerverse_baseline/api.py` for why.
 
 ---
 
@@ -242,7 +242,7 @@ Python 3.10+. The equations themselves are plain arithmetic
 with no dependencies; the library needs **PyYAML** to read the registry,
 which is where every model's provenance lives.
 
-Models live under `src/mayo_baseline/<disease>/<question>/`, mirroring the table.
+Models live under `src/cancerverse_baseline/<disease>/<question>/`, mirroring the table.
 
 ## What kind of models these are
 

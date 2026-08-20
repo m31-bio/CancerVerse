@@ -32,7 +32,7 @@ import zlib
 
 SWF_URL = "https://www.prostatecancer-riskcalculator.com/2011/swf/c03dre.swf"
 
-# From mayo_baseline.prostate.detection.coefficients
+# From cancerverse_baseline.prostate.detection.coefficients
 OURS = {
     "RC3_INTERCEPT": -1.826,
     "RC3_PSA": 1.024,

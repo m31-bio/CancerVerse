@@ -125,7 +125,7 @@ parameters:
       x = [1, log2(PSA), age, african_ancestry, (prior_biopsy), (dre), (family_history)]
     coefficient_note: >-
       Coefficients below are the ALL-PREDICTORS-KNOWN set (True, True, True).
-      Seven other sets exist; see src/mayo_baseline/prostate/detection/pbcg.py.
+      Seven other sets exist; see src/cancerverse_baseline/prostate/detection/pbcg.py.
       Two coefficients are given per term because the outcome is multinomial:
       low grade (Gleason 6) and high grade (Gleason 7+), both against "no
       cancer" as the reference outcome.
@@ -405,7 +405,7 @@ parameters:
     coefficient_note: >-
       Coefficients shown are the FEMALE / BASE / 10-YEAR / TOTAL-CVD set, one
       of 100. The transforms are shared by all 100 sets and are the part that
-      generalises; see src/mayo_baseline/cvd/detection/prevent_coefficients.py
+      generalises; see src/cancerverse_baseline/cvd/detection/prevent_coefficients.py
       for the rest.
     params:
       - name: age
@@ -568,7 +568,7 @@ parameters:
       lp = sum(beta_i * x_i) + sum(beta_ij * age_c * x_j)
       uncalibrated = 1 - S0 ** exp(lp)
       calibrated  = 1 - exp(-exp(scale1 + scale2 * ln(-ln(1 - uncalibrated))))
-    coefficient_note: "Coefficients shown are MALE; the female set is in src/mayo_baseline/cvd/detection/coefficients.py."
+    coefficient_note: "Coefficients shown are MALE; the female set is in src/cancerverse_baseline/cvd/detection/coefficients.py."
     params:
       - name: age
         label: Age

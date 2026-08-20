@@ -13,8 +13,8 @@ from __future__ import annotations
 
 import pytest
 
-from mayo_baseline.breast.detection import bcrat_predict
-from mayo_baseline.breast.prognosis import predict_breast
+from cancerverse_baseline.breast.detection import bcrat_predict
+from cancerverse_baseline.breast.prognosis import predict_breast
 
 # Percentage points. R prints 6 dp; we match far tighter than that.
 TOL = 1e-5
@@ -112,7 +112,7 @@ SCORE2_CASES = [
 
 @pytest.mark.parametrize("region,kwargs,expected", SCORE2_CASES)
 def test_score2_matches_riskscorescvd(region, kwargs, expected):
-    from mayo_baseline.cvd.detection import score2_predict
+    from cancerverse_baseline.cvd.detection import score2_predict
 
     got = score2_predict(**kwargs, region=region)["risk"] * 100
     assert got == pytest.approx(expected, abs=SCORE2_TOL)
@@ -120,7 +120,7 @@ def test_score2_matches_riskscorescvd(region, kwargs, expected):
 
 def test_score2_regional_recalibration_is_ordered():
     """All four ESC risk regions, same patient: risk must increase low -> very high."""
-    from mayo_baseline.cvd.detection import score2_predict
+    from cancerverse_baseline.cvd.detection import score2_predict
 
     kw = dict(sex="male", age=50, sbp=140, total_chol_mmol=6.0,
               hdl_mmol=1.0, smoker=True)
@@ -142,7 +142,7 @@ def test_riskscorescvd_grace_is_a_different_model_and_is_not_our_reference():
     implementation to agree with a model the paper did not publish. Recorded
     here so nobody wires it up later.
     """
-    from mayo_baseline.cvd.prognosis import grace_predict
+    from cancerverse_baseline.cvd.prognosis import grace_predict
 
     ours = grace_predict(killip_class=1, sbp=80, heart_rate=60, age=55,
                          creatinine_mg_dl=0.4)
@@ -174,7 +174,7 @@ SWF_RC3_CONSTANTS = {
 
 @pytest.mark.parametrize("name,pair", sorted(SWF_RC3_CONSTANTS.items()))
 def test_erspc_rc3_coefficients_match_swop_flash_calculator(name, pair):
-    from mayo_baseline.prostate.detection import coefficients as C
+    from cancerverse_baseline.prostate.detection import coefficients as C
 
     ours, in_swf = pair
     assert getattr(C, name) == pytest.approx(ours)
@@ -193,7 +193,7 @@ def test_erspc_rc3_coefficients_match_swop_flash_calculator(name, pair):
 # two DISAGREE — that is how the ALBI `-0.0852` error was found.
 
 def test_capra_point_table_matches_mdcalc():
-    from mayo_baseline.prostate.prognosis.capra import (
+    from cancerverse_baseline.prostate.prognosis.capra import (
         gleason_points,
         psa_points,
         t_stage_points,
@@ -211,7 +211,7 @@ def test_capra_point_table_matches_mdcalc():
 
 
 def test_cha2ds2_vasc_point_table_matches_mdcalc():
-    from mayo_baseline.cvd.prognosis import cha2ds2_vasc_score
+    from cancerverse_baseline.cvd.prognosis import cha2ds2_vasc_score
 
     base = dict(heart_failure=False, hypertension=False, age=50, diabetes=False,
                 prior_stroke_tia_thromboembolism=False, vascular_disease=False,
@@ -232,7 +232,7 @@ def test_cha2ds2_vasc_point_table_matches_mdcalc():
 def test_albi_formula_matches_mdcalc_statement():
     """MDCalc prints: ALBI = (log10 bilirubin x 0.66) + (albumin x -0.085),
     bilirubin in umol/L, albumin in g/L. Identical to Johnson 2015."""
-    from mayo_baseline.liver.prognosis import albi as A
+    from cancerverse_baseline.liver.prognosis import albi as A
 
     assert A.BILIRUBIN_COEF == 0.66
     assert A.ALBUMIN_COEF == -0.085

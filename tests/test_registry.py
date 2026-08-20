@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from mayo_baseline.registry import (
+from cancerverse_baseline.registry import (
     AXES,
     cell_tiers,
     coverage_matrix,
@@ -205,18 +205,18 @@ def test_registry_ids_match_the_model_ids_the_code_returns():
     import importlib
 
     calls = {
-        "bcrat": ("mayo_baseline.breast.detection", "bcrat_predict",
+        "bcrat": ("cancerverse_baseline.breast.detection", "bcrat_predict",
                   dict(start_age=50, end_age=55, n_biopsies=0, age_menarche=13,
                        age_first_birth=25, n_relatives=0)),
-        "albi": ("mayo_baseline.liver.prognosis", "albi_predict",
+        "albi": ("cancerverse_baseline.liver.prognosis", "albi_predict",
                  dict(bilirubin_umol_l=20.0, albumin_g_l=40.0)),
-        "grace": ("mayo_baseline.cvd.prognosis", "grace_predict",
+        "grace": ("cancerverse_baseline.cvd.prognosis", "grace_predict",
                   dict(killip_class=1, sbp=130, heart_rate=80, age=60,
                        creatinine_mg_dl=1.0)),
-        "kunzmann": ("mayo_baseline.esophageal.detection", "kunzmann_predict",
+        "kunzmann": ("cancerverse_baseline.esophageal.detection", "kunzmann_predict",
                      dict(age=60, male=True, bmi=28, smoking="former",
                           esophageal_condition=False)),
-        "roma": ("mayo_baseline.ovarian.detection", "roma_predict",
+        "roma": ("cancerverse_baseline.ovarian.detection", "roma_predict",
                  dict(he4_pmol_l=60.0, ca125_u_ml=30.0, postmenopausal=True)),
     }
     registry_ids = {m["id"] for m in load_models()}
@@ -275,7 +275,7 @@ def test_every_model_module_in_the_code_has_a_registry_row():
     import ast
     from pathlib import Path
 
-    src = Path(__file__).resolve().parents[1] / "src" / "mayo_baseline"
+    src = Path(__file__).resolve().parents[1] / "src" / "cancerverse_baseline"
     registry_ids = {m["id"] for m in load_models()}
 
     missing = []

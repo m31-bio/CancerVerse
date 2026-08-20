@@ -33,8 +33,8 @@ def _rng():
 # --------------------------------------------------------------------------
 
 def test_prevent_probability_bounds_over_the_whole_legal_domain():
-    from mayo_baseline.cvd.detection import prevent_coefficients as C
-    from mayo_baseline.cvd.detection import prevent_predict
+    from cancerverse_baseline.cvd.detection import prevent_coefficients as C
+    from cancerverse_baseline.cvd.detection import prevent_predict
 
     r = _rng()
     for _ in range(N):
@@ -59,8 +59,8 @@ def test_prevent_probability_bounds_over_the_whole_legal_domain():
 
 
 def test_plcom2012_probability_bounds():
-    from mayo_baseline.lung.detection import coefficients as C
-    from mayo_baseline.lung.detection import plcom2012_predict
+    from cancerverse_baseline.lung.detection import coefficients as C
+    from cancerverse_baseline.lung.detection import plcom2012_predict
 
     r = _rng()
     for _ in range(N):
@@ -82,7 +82,7 @@ def test_plcom2012_probability_bounds():
 
 
 def test_bcrat_probability_bounds_and_horizon_monotonicity():
-    from mayo_baseline.breast.detection import bcrat_predict
+    from cancerverse_baseline.breast.detection import bcrat_predict
 
     r = _rng()
     for _ in range(N // 3):
@@ -102,7 +102,7 @@ def test_bcrat_probability_bounds_and_horizon_monotonicity():
 
 
 def test_predict_breast_survival_bounds_and_benefit_is_never_negative():
-    from mayo_baseline.breast.prognosis import predict_breast
+    from cancerverse_baseline.breast.prognosis import predict_breast
 
     r = _rng()
     for _ in range(N // 3):
@@ -128,10 +128,10 @@ def test_predict_breast_survival_bounds_and_benefit_is_never_negative():
 
 
 def test_score2_and_roma_and_cervical_probability_bounds():
-    from mayo_baseline.cervical.detection import cervical_cin_risk_predict
-    from mayo_baseline.cervical.detection.cin_risk import CYTOLOGY_LEVELS, MODELS
-    from mayo_baseline.cvd.detection import score2_predict
-    from mayo_baseline.ovarian.detection import roma_predict
+    from cancerverse_baseline.cervical.detection import cervical_cin_risk_predict
+    from cancerverse_baseline.cervical.detection.cin_risk import CYTOLOGY_LEVELS, MODELS
+    from cancerverse_baseline.cvd.detection import score2_predict
+    from cancerverse_baseline.ovarian.detection import roma_predict
 
     r = _rng()
     for _ in range(N):
@@ -163,7 +163,7 @@ def test_score2_and_roma_and_cervical_probability_bounds():
 
 
 def test_grace_risk_stays_within_the_published_lookup_range():
-    from mayo_baseline.cvd.prognosis import grace_predict
+    from cancerverse_baseline.cvd.prognosis import grace_predict
 
     r = _rng()
     for _ in range(N):
@@ -184,11 +184,11 @@ def test_grace_risk_stays_within_the_published_lookup_range():
 # --------------------------------------------------------------------------
 
 def test_point_scores_respect_their_published_bounds_and_sum():
-    from mayo_baseline.cvd.prognosis import cha2ds2_vasc_score
-    from mayo_baseline.esophageal.detection import kunzmann_predict
-    from mayo_baseline.pancreatic.detection import endpac as E
-    from mayo_baseline.pancreatic.detection import endpac_predict
-    from mayo_baseline.prostate.prognosis import capra_predict
+    from cancerverse_baseline.cvd.prognosis import cha2ds2_vasc_score
+    from cancerverse_baseline.esophageal.detection import kunzmann_predict
+    from cancerverse_baseline.pancreatic.detection import endpac as E
+    from cancerverse_baseline.pancreatic.detection import endpac_predict
+    from cancerverse_baseline.prostate.prognosis import capra_predict
 
     r = _rng()
     for _ in range(N):
@@ -241,7 +241,7 @@ def test_point_scores_respect_their_published_bounds_and_sum():
 
 @pytest.mark.parametrize("factor", ["psa", "cores", "age"])
 def test_capra_is_monotone_in_each_continuous_factor(factor):
-    from mayo_baseline.prostate.prognosis import capra_predict
+    from cancerverse_baseline.prostate.prognosis import capra_predict
 
     base = dict(psa=5.0, gleason_primary=3, gleason_secondary=3,
                 t_stage="T1c", percent_positive_cores=10.0, age=45)
@@ -254,7 +254,7 @@ def test_capra_is_monotone_in_each_continuous_factor(factor):
 
 
 def test_prevent_is_monotone_in_age_and_sbp_above_the_knot():
-    from mayo_baseline.cvd.detection import prevent_predict
+    from cancerverse_baseline.cvd.detection import prevent_predict
 
     base = dict(sex="male", total_chol_mg_dl=200, hdl_mg_dl=45, diabetes=False,
                 smoker=False, bmi=27, egfr=90)
@@ -268,8 +268,8 @@ def test_prevent_is_monotone_in_age_and_sbp_above_the_knot():
 
 
 def test_albi_and_amap_are_monotone_in_liver_dysfunction():
-    from mayo_baseline.liver.detection import amap_predict
-    from mayo_baseline.liver.prognosis import albi_score
+    from cancerverse_baseline.liver.detection import amap_predict
+    from cancerverse_baseline.liver.prognosis import albi_score
 
     # Rising bilirubin and falling albumin both worsen ALBI.
     bili = [5, 10, 20, 40, 90]
@@ -291,7 +291,7 @@ def test_albi_and_amap_are_monotone_in_liver_dysfunction():
 
 
 def test_msk_rectal_survival_is_monotone_in_time_and_nodes():
-    from mayo_baseline.colorectal.prognosis import msk_rectal_predict
+    from cancerverse_baseline.colorectal.prognosis import msk_rectal_predict
 
     base = dict(ypt="ypT3", positive_nodes=2, distance_to_anal_verge_cm=4.0,
                 venous_invasion=False, perineural_invasion=False)
@@ -306,7 +306,7 @@ def test_msk_rectal_survival_is_monotone_in_time_and_nodes():
 
 
 def test_lipi_is_monotone_and_bounded():
-    from mayo_baseline.lung.response import lipi_predict
+    from cancerverse_baseline.lung.response import lipi_predict
 
     r = _rng()
     for _ in range(N):

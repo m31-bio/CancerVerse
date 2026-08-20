@@ -2,9 +2,9 @@
 
 import pytest
 
-from mayo_baseline.cvd.detection import prevent_coefficients as C
-from mayo_baseline.cvd.detection import prevent_predict, prevent_predict_all
-from mayo_baseline.cvd.detection.prevent import linear_predictor, select_variant
+from cancerverse_baseline.cvd.detection import prevent_coefficients as C
+from cancerverse_baseline.cvd.detection import prevent_predict, prevent_predict_all
+from cancerverse_baseline.cvd.detection.prevent import linear_predictor, select_variant
 
 # Supplemental Table S25 vignette from the development article.
 S25 = dict(
@@ -245,9 +245,9 @@ def test_bmi_only_affects_the_heart_failure_outcome():
     Pinned so the zero is understood as published behaviour, and so a future
     coefficient refresh that silently drops the heart-failure BMI terms fails.
     """
-    from mayo_baseline.cvd.detection import prevent_coefficients as C
-    from mayo_baseline.cvd.detection import prevent_predict
-    from mayo_baseline.cvd.detection.prevent import BMI_ONLY_AFFECTS
+    from cancerverse_baseline.cvd.detection import prevent_coefficients as C
+    from cancerverse_baseline.cvd.detection import prevent_predict
+    from cancerverse_baseline.cvd.detection.prevent import BMI_ONLY_AFFECTS
 
     common = dict(sex="female", age=55, total_chol_mg_dl=200, hdl_mg_dl=50,
                   sbp=130, diabetes=False, smoker=False, egfr=90,

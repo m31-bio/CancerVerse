@@ -35,7 +35,7 @@ from pathlib import Path
 # ---------------------------------------------------------------------------
 SPEC = {
     "bcrat": (
-        "mayo_baseline.breast.detection", "bcrat_predict", "risk", 100,
+        "cancerverse_baseline.breast.detection", "bcrat_predict", "risk", 100,
         dict(start_age=50, end_age=55, race="white", n_biopsies=0,
              atypical_hyperplasia="unknown", age_menarche=13,
              age_first_birth=25, n_relatives=0),
@@ -46,7 +46,7 @@ SPEC = {
          "current age": ("start_age", [40, 50, 65])},
     ),
     "prevent": (
-        "mayo_baseline.cvd.detection", "prevent_predict", "risk", 100,
+        "cancerverse_baseline.cvd.detection", "prevent_predict", "risk", 100,
         dict(sex="female", age=55, total_chol_mg_dl=200, hdl_mg_dl=50, sbp=130,
              diabetes=False, smoker=False, bmi=27, egfr=90, htn_meds=False,
              statin=False),
@@ -60,7 +60,7 @@ SPEC = {
          "BMI (total CVD — no effect, see note)": ("bmi", [20, 27, 40])},
     ),
     "score2": (
-        "mayo_baseline.cvd.detection", "score2_predict", "risk", 100,
+        "cancerverse_baseline.cvd.detection", "score2_predict", "risk", 100,
         dict(sex="male", age=55, sbp=130, total_chol_mmol=5.5, hdl_mmol=1.3,
              smoker=False, region="moderate"),
         {"age": ("age", [40, 55, 69]),
@@ -70,7 +70,7 @@ SPEC = {
          "smoking": ("smoker", [False, True])},
     ),
     "grace": (
-        "mayo_baseline.cvd.prognosis", "grace_predict", "score", 1,
+        "cancerverse_baseline.cvd.prognosis", "grace_predict", "score", 1,
         dict(killip_class=1, sbp=130, heart_rate=80, age=65,
              creatinine_mg_dl=1.0),
         {"age": ("age", [35, 65, 85]),
@@ -81,7 +81,7 @@ SPEC = {
          "cardiac arrest": ("cardiac_arrest_at_admission", [False, True])},
     ),
     "cha2ds2_vasc": (
-        "mayo_baseline.cvd.prognosis", "cha2ds2_vasc_predict", "score", 1,
+        "cancerverse_baseline.cvd.prognosis", "cha2ds2_vasc_predict", "score", 1,
         dict(heart_failure=False, hypertension=False, age=60, diabetes=False,
              prior_stroke_tia_thromboembolism=False, vascular_disease=False,
              female=False),
@@ -94,7 +94,7 @@ SPEC = {
          "female sex": ("female", [False, True])},
     ),
     "plcom2012": (
-        "mayo_baseline.lung.detection", "plcom2012_predict", "risk", 100,
+        "cancerverse_baseline.lung.detection", "plcom2012_predict", "risk", 100,
         dict(age=62, race="white", education_level=4, bmi=27, copd=False,
              personal_cancer_history=False, family_history_lung_cancer=False,
              current_smoker=False, cigarettes_per_day=20,
@@ -109,14 +109,14 @@ SPEC = {
          "family history": ("family_history_lung_cancer", [False, True])},
     ),
     "erspc_rc3": (
-        "mayo_baseline.prostate.detection", "erspc_rc3_predict", "risk", 100,
+        "cancerverse_baseline.prostate.detection", "erspc_rc3_predict", "risk", 100,
         dict(psa=4.0, volume_ml=40, dre_positive=False),
         {"PSA": ("psa", [1.0, 4.0, 30.0]),
          "prostate volume": ("volume_ml", [20, 40, 80]),
          "abnormal DRE": ("dre_positive", [False, True])},
     ),
     "pbcg": (
-        "mayo_baseline.prostate.detection", "pbcg_predict", "risk", 100,
+        "cancerverse_baseline.prostate.detection", "pbcg_predict", "risk", 100,
         dict(psa=6.0, age=65, african_ancestry=False, prior_biopsy=False,
              dre_abnormal=False, family_history=False),
         {"PSA": ("psa", [1.0, 6.0, 30.0]),
@@ -127,7 +127,7 @@ SPEC = {
          "family history": ("family_history", [False, True])},
     ),
     "capra": (
-        "mayo_baseline.prostate.prognosis", "capra_predict", "score", 1,
+        "cancerverse_baseline.prostate.prognosis", "capra_predict", "score", 1,
         dict(psa=6.0, gleason_primary=3, gleason_secondary=3, t_stage="T1c",
              percent_positive_cores=20, age=60),
         {"PSA": ("psa", [3.0, 6.0, 35.0]),
@@ -137,7 +137,7 @@ SPEC = {
          "age": ("age", [45, 60])},
     ),
     "amap": (
-        "mayo_baseline.liver.detection", "amap_predict", "score", 1,
+        "cancerverse_baseline.liver.detection", "amap_predict", "score", 1,
         dict(age=55, male=True, platelets=200, bilirubin_umol_l=15,
              albumin_g_l=42),
         {"age": ("age", [30, 55, 80]),
@@ -147,13 +147,13 @@ SPEC = {
          "male sex": ("male", [False, True])},
     ),
     "albi": (
-        "mayo_baseline.liver.prognosis", "albi_predict", "score", 1,
+        "cancerverse_baseline.liver.prognosis", "albi_predict", "score", 1,
         dict(bilirubin_umol_l=20, albumin_g_l=40),
         {"albumin": ("albumin_g_l", [25, 40, 50]),
          "bilirubin": ("bilirubin_umol_l", [5, 20, 100])},
     ),
     "hap": (
-        "mayo_baseline.liver.response", "hap_predict", "score", 1,
+        "cancerverse_baseline.liver.response", "hap_predict", "score", 1,
         dict(albumin_g_l=40, bilirubin_umol_l=15, afp_ng_ml=100,
              dominant_tumour_size_cm=5),
         {"albumin < 36 g/L": ("albumin_g_l", [40, 30]),
@@ -162,7 +162,7 @@ SPEC = {
          "tumour > 7 cm": ("dominant_tumour_size_cm", [5, 9])},
     ),
     "kunzmann": (
-        "mayo_baseline.esophageal.detection", "kunzmann_predict", "score", 1,
+        "cancerverse_baseline.esophageal.detection", "kunzmann_predict", "score", 1,
         dict(age=60, male=False, bmi=24, smoking="never",
              esophageal_condition=False),
         {"male sex": ("male", [False, True]),
@@ -172,14 +172,14 @@ SPEC = {
          "oesophageal condition": ("esophageal_condition", [False, True])},
     ),
     "roma": (
-        "mayo_baseline.ovarian.detection", "roma_predict", "risk", 100,
+        "cancerverse_baseline.ovarian.detection", "roma_predict", "risk", 100,
         dict(he4_pmol_l=60, ca125_u_ml=30, postmenopausal=True),
         {"HE4": ("he4_pmol_l", [25, 60, 400]),
          "CA-125": ("ca125_u_ml", [10, 30, 500]),
          "postmenopausal": ("postmenopausal", [False, True])},
     ),
     "rmi": (
-        "mayo_baseline.ovarian.detection", "rmi_predict", "index", 1,
+        "cancerverse_baseline.ovarian.detection", "rmi_predict", "index", 1,
         dict(ultrasound_score=1, postmenopausal=False, ca125=30,
              variant="rmi1"),
         {"CA-125": ("ca125", [10, 30, 500]),
@@ -187,7 +187,7 @@ SPEC = {
          "postmenopausal": ("postmenopausal", [False, True])},
     ),
     "cervical_cin_risk": (
-        "mayo_baseline.cervical.detection", "cervical_cin_risk_predict",
+        "cancerverse_baseline.cervical.detection", "cervical_cin_risk_predict",
         "risk", 100,
         dict(hrhpv_positive=False, cytology="NILM", age=40, variant="base"),
         {"cytology grade": ("cytology",
@@ -196,7 +196,7 @@ SPEC = {
          "age": ("age", [25, 40, 65])},
     ),
     "endpac": (
-        "mayo_baseline.pancreatic.detection", "endpac_predict", "score", 1,
+        "cancerverse_baseline.pancreatic.detection", "endpac_predict", "score", 1,
         dict(glucose_at_diabetes_mg_dl=130, glucose_one_year_before_mg_dl=105,
              weight_change_kg=0.0, age_at_diabetes_onset=65),
         {"weight change": ("weight_change_kg", [6.0, 0.0, -7.0]),
@@ -204,7 +204,7 @@ SPEC = {
          "age at onset": ("age_at_diabetes_onset", [55, 65, 75])},
     ),
     "abc_method": (
-        "mayo_baseline.gastric.detection", "abc_method_predict", "risk", 100,
+        "cancerverse_baseline.gastric.detection", "abc_method_predict", "risk", 100,
         dict(h_pylori_antibody_positive=False, pepsinogen_i=60,
              pepsinogen_i_ii_ratio=4.0),
         # Atrophy requires PG I <= 70 AND PG I/II <= 3.0, so sweeping PG I
@@ -213,7 +213,7 @@ SPEC = {
          "H. pylori antibody": ("h_pylori_antibody_positive", [False, True])},
     ),
     "msk_gastric": (
-        "mayo_baseline.gastric.prognosis", "msk_gastric_predict", "risk", 100,
+        "cancerverse_baseline.gastric.prognosis", "msk_gastric_predict", "risk", 100,
         dict(age=60, male=True, primary_site="antrum_or_pyloric",
              lauren="intestinal", size_cm=4.0, positive_nodes=3,
              negative_nodes=15, depth="subserosa", years=5),
@@ -229,7 +229,7 @@ SPEC = {
          "male sex": ("male", [False, True])},
     ),
     "crc_pro": (
-        "mayo_baseline.colorectal.detection", "crc_pro_predict", "risk", 100,
+        "cancerverse_baseline.colorectal.detection", "crc_pro_predict", "risk", 100,
         dict(male=True, age=62, ethnicity="white", weight_lb=180, height_in=69,
              years_education=14, pack_years=10, alcohol_drinks_per_day=1.0,
              family_history=False, multivitamin=False, diabetes=False,
@@ -249,7 +249,7 @@ SPEC = {
          "multivitamin": ("multivitamin", [False, True])},
     ),
     "msk_ovarian": (
-        "mayo_baseline.ovarian.prognosis", "msk_ovarian_predict", "risk", 100,
+        "cancerverse_baseline.ovarian.prognosis", "msk_ovarian_predict", "risk", 100,
         dict(age=60, grade="3", histology_yes=False, platelets=400,
              ascites=False, residual_disease="0.5_1_cm"),
         {"residual disease": ("residual_disease",
@@ -261,7 +261,7 @@ SPEC = {
          "grade 3": ("grade", ["1-2", "3"])},
     ),
     "msk_pancreatic": (
-        "mayo_baseline.pancreatic.prognosis", "msk_pancreatic_predict", "risk", 100,
+        "cancerverse_baseline.pancreatic.prognosis", "msk_pancreatic_predict", "risk", 100,
         dict(age=62, male=True, location="head", differentiation="moderate",
              positive_nodes=2, negative_nodes=12, t_stage="2", size_cm=3.0,
              months=12),
@@ -278,7 +278,7 @@ SPEC = {
          "age": ("age", [33, 62, 89])},
     ),
     "msk_rectal": (
-        "mayo_baseline.colorectal.prognosis", "msk_rectal_predict", "risk", 100,
+        "cancerverse_baseline.colorectal.prognosis", "msk_rectal_predict", "risk", 100,
         dict(endpoint="os", months=60, ypt="ypT3", positive_nodes=2,
              distance_to_anal_verge_cm=6.0, venous_invasion=False,
              perineural_invasion=False, age=60),
@@ -290,7 +290,7 @@ SPEC = {
          "distance to anal verge": ("distance_to_anal_verge_cm", [2.0, 8.0])},
     ),
     "lipi": (
-        "mayo_baseline.lung.response", "lipi_predict", "score", 1,
+        "cancerverse_baseline.lung.response", "lipi_predict", "score", 1,
         dict(dnlr=2.0, ldh=200, ldh_upper_limit_normal=250),
         {"dNLR > 3": ("dnlr", [2.0, 5.0]),
          "LDH > ULN": ("ldh", [200, 400])},

@@ -2,8 +2,8 @@
 
 import pytest
 
-from mayo_baseline.cvd.prognosis import grace_predict
-from mayo_baseline.cvd.prognosis.grace import (
+from cancerverse_baseline.cvd.prognosis import grace_predict
+from cancerverse_baseline.cvd.prognosis.grace import (
     age_points,
     creatinine_points,
     heart_rate_points,

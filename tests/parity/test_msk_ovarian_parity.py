@@ -20,8 +20,8 @@ from pathlib import Path
 
 import pytest
 
-from mayo_baseline.ovarian.prognosis import msk_ovarian_predict
-from mayo_baseline.ovarian.prognosis.msk_ovarian import RESIDUAL_BETA
+from cancerverse_baseline.ovarian.prognosis import msk_ovarian_predict
+from cancerverse_baseline.ovarian.prognosis.msk_ovarian import RESIDUAL_BETA
 
 CASES_FILE = Path(__file__).parent / "reference" / "msk_ovarian_cases.json"
 

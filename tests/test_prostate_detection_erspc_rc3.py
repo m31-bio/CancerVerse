@@ -4,8 +4,8 @@ import math
 
 import pytest
 
-from mayo_baseline.base import logit_risk
-from mayo_baseline.prostate.detection import (
+from cancerverse_baseline.base import logit_risk
+from cancerverse_baseline.prostate.detection import (
     erspc_rc3_predict,
     linear_predictor_rc3,
     volume_class,

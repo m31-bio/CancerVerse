@@ -7,9 +7,9 @@ from __future__ import annotations
 
 import pytest
 
-from mayo_baseline.cvd.detection import prevent_predict_all
-from mayo_baseline.cvd.prognosis import grace_predict
-from mayo_baseline.lung.detection import plcom2012_predict
+from cancerverse_baseline.cvd.detection import prevent_predict_all
+from cancerverse_baseline.cvd.prognosis import grace_predict
+from cancerverse_baseline.lung.detection import plcom2012_predict
 
 
 def test_prevent_supplemental_table_s25_vignette():

@@ -1,9 +1,9 @@
 """Command-line entry point: list, describe, predict, verify.
 
-    mayo-baseline list [--disease liver] [--axis prognosis]
-    mayo-baseline info albi
-    mayo-baseline predict albi --bilirubin_umol_l 20 --albumin_g_l 40
-    mayo-baseline verify [--model albi]
+    cancerverse-baseline list [--disease liver] [--axis prognosis]
+    cancerverse-baseline info albi
+    cancerverse-baseline predict albi --bilirubin_umol_l 20 --albumin_g_l 40
+    cancerverse-baseline verify [--model albi]
 
 The CLI exists mainly for the colleague who has a patient's numbers and one
 question, and should not have to learn the Python API to get an answer.
@@ -123,7 +123,7 @@ def _cmd_info(args: argparse.Namespace) -> int:
 def _cmd_predict(args: argparse.Namespace, rest: list[str]) -> int:
     kwargs = _parse_predictors(rest)
     if not kwargs:
-        print("no predictors given; try `mayo-baseline info "
+        print("no predictors given; try `cancerverse-baseline info "
               f"{args.model}` to see what it takes", file=sys.stderr)
         return 1
     try:
@@ -137,7 +137,7 @@ def _cmd_predict(args: argparse.Namespace, rest: list[str]) -> int:
         # the validated range. Both mean "you asked wrongly", and both should
         # end in a pointer rather than a traceback.
         print(f"{args.model}: {exc}", file=sys.stderr)
-        print(f"try `mayo-baseline info {args.model}`", file=sys.stderr)
+        print(f"try `cancerverse-baseline info {args.model}`", file=sys.stderr)
         return 1
 
     if args.json:
@@ -199,7 +199,7 @@ def _cmd_verify(args: argparse.Namespace) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        prog="mayo-baseline",
+        prog="cancerverse-baseline",
         description="Published clinical risk equations, independently verified.")
     sub = parser.add_subparsers(dest="command", required=True)
 

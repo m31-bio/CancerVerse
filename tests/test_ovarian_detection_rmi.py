@@ -2,7 +2,7 @@
 
 import pytest
 
-from mayo_baseline.ovarian.detection import rmi_predict
+from cancerverse_baseline.ovarian.detection import rmi_predict
 
 
 def test_rmi1_worked_example():

@@ -25,8 +25,8 @@ from pathlib import Path
 
 import pytest
 
-from mayo_baseline.prostate.response import dutasteride_predict
-from mayo_baseline.prostate.response.dutasteride import HARMS, OUTCOMES
+from cancerverse_baseline.prostate.response import dutasteride_predict
+from cancerverse_baseline.prostate.response.dutasteride import HARMS, OUTCOMES
 
 CASES_FILE = Path(__file__).parent / "reference" / "dutasteride_cases.json"
 

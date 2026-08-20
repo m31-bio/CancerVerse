@@ -32,7 +32,7 @@ Sources read (not search summaries):
      and gives the dNLR formula as
          "neutrophil count/(white blood cell count - neutrophil count)"
 
-Both agree with each other and with `mayo_baseline.lung.response.lipi`. The
+Both agree with each other and with `cancerverse_baseline.lung.response.lipi`. The
 same index is registered twice, on the response and prognosis axes; both share
 this module and therefore this check.
 """
@@ -41,7 +41,7 @@ from __future__ import annotations
 
 import pytest
 
-from mayo_baseline.lung.response.lipi import (
+from cancerverse_baseline.lung.response.lipi import (
     DNLR_THRESHOLD,
     derived_nlr,
     lipi_predict,
@@ -124,7 +124,7 @@ def test_the_index_is_symmetric_between_its_two_items():
 def test_the_prognosis_axis_registration_shares_this_model():
     """`lipi` and `lipi_prognosis` are two registry rows over one module, so
     this check covers both. If they ever diverge, this fails loudly."""
-    from mayo_baseline.lung.response.lipi import MODEL_ID
+    from cancerverse_baseline.lung.response.lipi import MODEL_ID
 
     assert MODEL_ID == "lipi"
     out = _call(dnlr=4.0, ldh=300.0)

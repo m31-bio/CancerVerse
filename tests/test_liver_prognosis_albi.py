@@ -4,8 +4,8 @@ import math
 
 import pytest
 
-from mayo_baseline.liver.prognosis import albi as A
-from mayo_baseline.liver.prognosis import albi_grade, albi_predict, albi_score
+from cancerverse_baseline.liver.prognosis import albi as A
+from cancerverse_baseline.liver.prognosis import albi_grade, albi_predict, albi_score
 
 
 def test_formula_matches_published_coefficients():

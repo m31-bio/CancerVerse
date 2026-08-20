@@ -4,8 +4,8 @@ import math
 
 import pytest
 
-from mayo_baseline.breast.detection import bcrat_predict, categorise, relative_risk
-from mayo_baseline.breast.detection import coefficients as C
+from cancerverse_baseline.breast.detection import bcrat_predict, categorise, relative_risk
+from cancerverse_baseline.breast.detection import coefficients as C
 
 
 def test_categorise_reference_profile_is_all_zero():

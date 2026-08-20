@@ -2,8 +2,8 @@
 
 import pytest
 
-from mayo_baseline.liver.response import hap as H
-from mayo_baseline.liver.response import hap_grade, hap_predict
+from cancerverse_baseline.liver.response import hap as H
+from cancerverse_baseline.liver.response import hap_grade, hap_predict
 
 # A patient scoring 0 on every criterion.
 CLEAN = dict(

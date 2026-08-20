@@ -2,8 +2,8 @@
 
 import pytest
 
-from mayo_baseline.prostate.prognosis import capra_predict, capra_score, risk_group
-from mayo_baseline.prostate.prognosis.capra import (
+from cancerverse_baseline.prostate.prognosis import capra_predict, capra_score, risk_group
+from cancerverse_baseline.prostate.prognosis.capra import (
     gleason_points,
     psa_points,
     t_stage_points,

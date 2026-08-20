@@ -40,7 +40,7 @@ from pathlib import Path
 
 import pytest
 
-from mayo_baseline.colorectal.prognosis.msk_rectal import msk_rectal_predict
+from cancerverse_baseline.colorectal.prognosis.msk_rectal import msk_rectal_predict
 
 CASES_FILE = Path(__file__).parent / "reference" / "msk_rectal_cases.json"
 
