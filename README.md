@@ -47,24 +47,15 @@ convenience; see `cancerverse_baseline/api.py` for why.
 **42 models across 12 diseases**, every disease asked the same
 three questions. A dash means we have not implemented that cell. It does not mean the literature is empty: every one of the 36 cells has a published candidate, and each unfilled cell records the specific thing that blocks it, a missing intercept, an unreachable supplement, inputs we do not take, or a model that is not a closed-form equation at all.
 
-### The table lives in `coverage.html`
+### [The coverage table](https://m31-bio.github.io/CancerVerse/coverage.html)
 
-One page, one row per disease and question, with the flagship for each: where the
-model applies and what it is misread as, the equation and where in the paper it
-sits, how it was verified, and the command that re-runs that check.
+One row per disease and question, with the flagship for each: where the model
+applies and what it is misread as, the equation and where in the paper it sits,
+how it was verified, and the command that re-runs that check.
 
-It is a file in this repository. GitHub shows HTML as source rather than
-rendering it, so open it one of these ways:
-
-```
-git clone <this repo> && open coverage.html          # or xdg-open, or drag
-```
-
-Or download it alone from the file view and open it locally.
-
-It was an HTML table pasted into this README until 2026-08-19. That table was
-1,200 lines of markup nobody could scroll and GitHub truncated, and it went stale
-against the registry every time one was regenerated without the other.
+It is `coverage.html` in this repository, served by GitHub Pages so that the
+rendered page and the file cannot differ. The file view shows HTML as source,
+which is why the link goes to the page.
 
 **42 models across 12 diseases. 32 of 42 verified against a source we did not write.**
 

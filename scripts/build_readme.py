@@ -210,34 +210,23 @@ def build(models: list[dict]) -> str:
     )
     A("three questions. " + GAP_CAPTION)
     A("")
-    A("### The table lives in `coverage.html`")
+    A("### [The coverage table](https://m31-bio.github.io/CancerVerse/coverage.html)")
     A("")
     A(
-        "One page, one row per disease and question, with the flagship for each: where the"
+        "One row per disease and question, with the flagship for each: where the model"
     )
     A(
-        "model applies and what it is misread as, the equation and where in the paper it"
+        "applies and what it is misread as, the equation and where in the paper it sits,"
     )
-    A("sits, how it was verified, and the command that re-runs that check.")
+    A("how it was verified, and the command that re-runs that check.")
     A("")
     A(
-        "It is a file in this repository. GitHub shows HTML as source rather than"
-    )
-    A("rendering it, so open it one of these ways:")
-    A("")
-    A("```")
-    A("git clone <this repo> && open coverage.html          # or xdg-open, or drag")
-    A("```")
-    A("")
-    A("Or download it alone from the file view and open it locally.")
-    A("")
-    A(
-        "It was an HTML table pasted into this README until 2026-08-19. That table was"
+        "It is `coverage.html` in this repository, served by GitHub Pages so that the"
     )
     A(
-        "1,200 lines of markup nobody could scroll and GitHub truncated, and it went stale"
+        "rendered page and the file cannot differ. The file view shows HTML as source,"
     )
-    A("against the registry every time one was regenerated without the other.")
+    A("which is why the link goes to the page.")
     A("")
     A(
         f"**{len(impl)} models across {len(by)} diseases. "
