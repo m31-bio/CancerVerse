@@ -34,21 +34,37 @@ def _cases():
 
 
 def _kwargs(c):
-    return dict(psa=c["psa"], age=c["age"],
-                african_ancestry=c["african_ancestry"],
-                prior_biopsy=c["prior_biopsy"], dre_abnormal=c["dre_abnormal"],
-                family_history=c["family_history"])
+    return dict(
+        psa=c["psa"],
+        age=c["age"],
+        african_ancestry=c["african_ancestry"],
+        prior_biopsy=c["prior_biopsy"],
+        dre_abnormal=c["dre_abnormal"],
+        family_history=c["family_history"],
+    )
 
 
 def _id(c):
-    known = "".join(k for k, f in (("B", "prior_biopsy"), ("D", "dre_abnormal"),
-                                   ("F", "family_history")) if c[f] is not None)
+    known = "".join(
+        k
+        for k, f in (
+            ("B", "prior_biopsy"),
+            ("D", "dre_abnormal"),
+            ("F", "family_history"),
+        )
+        if c[f] is not None
+    )
     return f"psa{c['psa']}-{known or 'none'}"
 
 
-@pytest.mark.parametrize("outcome,key", [("no_cancer", "no_cancer_pct"),
-                                         ("low_grade", "low_grade_pct"),
-                                         ("high_grade", "high_grade_pct")])
+@pytest.mark.parametrize(
+    "outcome,key",
+    [
+        ("no_cancer", "no_cancer_pct"),
+        ("low_grade", "low_grade_pct"),
+        ("high_grade", "high_grade_pct"),
+    ],
+)
 @pytest.mark.parametrize("case", _cases(), ids=_id)
 def test_matches_the_vendor_r(case, outcome, key):
     ours = pbcg_predict(**_kwargs(case))["probabilities"][outcome] * 100
@@ -59,8 +75,11 @@ def test_the_fixture_exercises_all_eight_submodels():
     """PBCG's whole point is one fitted model per missing-data pattern. A
     fixture of complete records would test one of eight."""
     seen = {
-        (c["prior_biopsy"] is not None, c["dre_abnormal"] is not None,
-         c["family_history"] is not None)
+        (
+            c["prior_biopsy"] is not None,
+            c["dre_abnormal"] is not None,
+            c["family_history"] is not None,
+        )
         for c in _cases()
     }
     assert seen == set(COEFFICIENTS), f"untested sub-models: {set(COEFFICIENTS) - seen}"
@@ -87,13 +106,15 @@ def test_risk_is_the_high_grade_probability():
     convenience `risk` key must not quietly mean 'any cancer'."""
     out = pbcg_predict(psa=6.0, age=65, african_ancestry=False)
     assert out["risk"] == out["probabilities"]["high_grade"]
-    assert out["risk"] < out["probabilities"]["no_cancer"] + out["probabilities"]["low_grade"]
+    assert (
+        out["risk"]
+        < out["probabilities"]["no_cancer"] + out["probabilities"]["low_grade"]
+    )
 
 
 def test_unknown_predictors_select_a_smaller_model_rather_than_imputing():
     """Dropping DRE must change which coefficient set runs, not set DRE to 0."""
-    known = pbcg_predict(psa=6.0, age=65, african_ancestry=False,
-                         dre_abnormal=False)
+    known = pbcg_predict(psa=6.0, age=65, african_ancestry=False, dre_abnormal=False)
     unknown = pbcg_predict(psa=6.0, age=65, african_ancestry=False)
     assert known["submodel"] == ("dre_abnormal",)
     assert unknown["submodel"] == ()
@@ -104,17 +125,23 @@ def test_unknown_predictors_select_a_smaller_model_rather_than_imputing():
 
 def test_the_rounding_artefact_is_reproduced_only_on_request():
     """riskcalc.org rounds no-cancer and low-grade, then derives high grade as
-    the remainder — so all the rounding error lands on the clinically decisive
+    the remainder, so all the rounding error lands on the clinically decisive
     number. We return unrounded; this reproduces the tool."""
     for c in _cases():
         out = pbcg_predict(**_kwargs(c))
         shown = rounded_like_riskcalc(out)
-        assert [shown["no_cancer"], shown["low_grade"], shown["high_grade"]] == c["rounded"]
+        assert [shown["no_cancer"], shown["low_grade"], shown["high_grade"]] == c[
+            "rounded"
+        ]
     # and the artefact is real: at least one case is off by a point
     off = [
-        c for c in _cases()
-        if abs(rounded_like_riskcalc(pbcg_predict(**_kwargs(c)))["high_grade"]
-               - c["high_grade_pct"]) > 0.5
+        c
+        for c in _cases()
+        if abs(
+            rounded_like_riskcalc(pbcg_predict(**_kwargs(c)))["high_grade"]
+            - c["high_grade_pct"]
+        )
+        > 0.5
     ]
     assert off, "expected the derive-the-remainder rounding to bite somewhere"
 

@@ -1,4 +1,4 @@
-"""BCRAT (Gail model) — absolute risk of invasive breast cancer.
+"""BCRAT (Gail model), absolute risk of invasive breast cancer.
 
 Model shape
 -----------
@@ -9,8 +9,7 @@ It is a competing-risk absolute-risk model with two separable pieces:
    menarche, age at first birth, affected first-degree relatives, and biopsy
    histology), fitted in the BCDDP case-control study.
 2. **Baseline hazards** — SEER breast-cancer incidence and NCHS all-cause
-   mortality, by race/ethnicity and five-year attained-age band — which
-   already contain the population's average relative risk, so they are
+   mortality, by race/ethnicity and five-year attained-age band, which    already contain the population's average relative risk, so they are
    scaled by ``1 - attributable risk`` to get a risk-factor-free baseline.
 
 Absolute risk between ages T1 and T2 integrates the two, one year at a
@@ -27,7 +26,7 @@ Why this is the breast flagship
 BCRAT is the model behind the NCI's public Breast Cancer Risk Assessment
 Tool, NCCN/USPSTF chemoprevention pathways, and NSABP P-1/STAR eligibility
 (5-year risk >= 1.66%). Discrimination is modest (pooled AUC ~0.60) but
-calibration in US populations is good — exactly the property a
+calibration in US populations is good, exactly the property a
 population-level screening/chemoprevention policy needs.
 
 Scope note
@@ -127,16 +126,24 @@ def categorise(
     if nr == 2 and race in ("asian",) + C._HISPANIC:
         nr = 1  # 2+ relatives pooled with 1 in these strata
 
-    return {"nb": float(nb), "am": float(am), "af": float(af),
-            "nr": float(nr), "r_hyp": r_hyp}
+    return {
+        "nb": float(nb),
+        "am": float(am),
+        "af": float(af),
+        "nr": float(nr),
+        "r_hyp": r_hyp,
+    }
 
 
 def relative_risk(cats: dict, race: str) -> tuple[float, float]:
     """(RR before age 50, RR at/after age 50), per ``relative.risk.R``."""
     beta = C.BETA[race]
     lp1 = (
-        beta[0] * cats["nb"] + beta[1] * cats["am"] + beta[2] * cats["af"]
-        + beta[3] * cats["nr"] + beta[5] * cats["af"] * cats["nr"]
+        beta[0] * cats["nb"]
+        + beta[1] * cats["am"]
+        + beta[2] * cats["af"]
+        + beta[3] * cats["nr"]
+        + beta[5] * cats["af"] * cats["nr"]
         + math.log(cats["r_hyp"])
     )
     rr_under_50 = math.exp(lp1)
@@ -145,8 +152,12 @@ def relative_risk(cats: dict, race: str) -> tuple[float, float]:
 
 
 def _integrate(
-    *, start_age: float, end_age: float,
-    lambda1: tuple, lambda2: tuple, one_ar_rr: list,
+    *,
+    start_age: float,
+    end_age: float,
+    lambda1: tuple,
+    lambda2: tuple,
+    one_ar_rr: list,
 ) -> float:
     """Discrete competing-risk integral, per ``absolute.risk.R``.
 
@@ -207,17 +218,24 @@ def bcrat_predict(
         raise ValueError(f"ages must fall within [{C.AGE_MIN}, {C.AGE_MAX}]")
 
     cats = categorise(
-        age=start_age, race=race, n_biopsies=n_biopsies,
-        atypical_hyperplasia=atypical_hyperplasia, age_menarche=age_menarche,
-        age_first_birth=age_first_birth, n_relatives=n_relatives,
+        age=start_age,
+        race=race,
+        n_biopsies=n_biopsies,
+        atypical_hyperplasia=atypical_hyperplasia,
+        age_menarche=age_menarche,
+        age_first_birth=age_first_birth,
+        n_relatives=n_relatives,
     )
     rr_under_50, rr_50_plus = relative_risk(cats, race)
     one_ar = C.ONE_MINUS_AR[race]
     one_ar_rr = [one_ar[0] * rr_under_50] * 30 + [one_ar[1] * rr_50_plus] * 40
 
     risk = _integrate(
-        start_age=start_age, end_age=end_age,
-        lambda1=C.LAMBDA1[race], lambda2=C.LAMBDA2[race], one_ar_rr=one_ar_rr,
+        start_age=start_age,
+        end_age=end_age,
+        lambda1=C.LAMBDA1[race],
+        lambda2=C.LAMBDA2[race],
+        one_ar_rr=one_ar_rr,
     )
 
     if race in ("white", "other"):
@@ -225,8 +243,11 @@ def bcrat_predict(
     else:
         avg_l1, avg_l2 = C.LAMBDA1[race], C.LAMBDA2[race]
     average_risk = _integrate(
-        start_age=start_age, end_age=end_age,
-        lambda1=avg_l1, lambda2=avg_l2, one_ar_rr=[1.0] * 70,
+        start_age=start_age,
+        end_age=end_age,
+        lambda1=avg_l1,
+        lambda2=avg_l2,
+        one_ar_rr=[1.0] * 70,
     )
 
     years = end_age - start_age

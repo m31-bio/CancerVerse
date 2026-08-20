@@ -115,16 +115,18 @@ def _cmd_info(args: argparse.Namespace) -> int:
     if info.optional_inputs:
         print(f"  optional      {', '.join(info.optional_inputs)}")
     if info.core_formula:
-        print("\n" + "\n".join("  " + ln
-                               for ln in info.core_formula.splitlines()))
+        print("\n" + "\n".join("  " + ln for ln in info.core_formula.splitlines()))
     return 0
 
 
 def _cmd_predict(args: argparse.Namespace, rest: list[str]) -> int:
     kwargs = _parse_predictors(rest)
     if not kwargs:
-        print("no predictors given; try `cancerverse-baseline info "
-              f"{args.model}` to see what it takes", file=sys.stderr)
+        print(
+            "no predictors given; try `cancerverse-baseline info "
+            f"{args.model}` to see what it takes",
+            file=sys.stderr,
+        )
         return 1
     try:
         result = api.predict(args.model, **kwargs)
@@ -133,7 +135,7 @@ def _cmd_predict(args: argparse.Namespace, rest: list[str]) -> int:
         return 1
     except (TypeError, ValueError) as exc:
         # TypeError is an unexpected keyword; ValueError is a model refusing
-        # its own inputs -- a missing predictor, a bad unit, a value outside
+        # its own inputs, a missing predictor, a bad unit, a value outside
         # the validated range. Both mean "you asked wrongly", and both should
         # end in a pointer rather than a traceback.
         print(f"{args.model}: {exc}", file=sys.stderr)
@@ -165,7 +167,7 @@ def _cmd_predict(args: argparse.Namespace, rest: list[str]) -> int:
 def _cmd_verify(args: argparse.Namespace) -> int:
     """Point at the evidence rather than re-running it here.
 
-    The parity checks are pytest tests, and they should stay that way -- a
+    The parity checks are pytest tests, and they should stay that way, a
     second runner would be a second thing to keep in step with the registry.
     """
     # The re-run command lives in the registry's `evidence` block rather than
@@ -200,7 +202,8 @@ def _cmd_verify(args: argparse.Namespace) -> int:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="cancerverse-baseline",
-        description="Published clinical risk equations, independently verified.")
+        description="Published clinical risk equations, independently verified.",
+    )
     sub = parser.add_subparsers(dest="command", required=True)
 
     p_list = sub.add_parser("list", help="list available models")
@@ -213,7 +216,8 @@ def main(argv: list[str] | None = None) -> int:
     p_info.add_argument("--json", action="store_true")
 
     p_pred = sub.add_parser(
-        "predict", help="run one model: predict ID --predictor value ...")
+        "predict", help="run one model: predict ID --predictor value ..."
+    )
     p_pred.add_argument("model")
     p_pred.add_argument("--json", action="store_true")
 

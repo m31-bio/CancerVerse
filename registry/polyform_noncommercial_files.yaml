@@ -1,0 +1,34 @@
+# Files in this repository that are licensed PolyForm Noncommercial 1.0.0,
+# NOT by this repository's Apache-2.0 LICENSE.
+#
+# Each copies arithmetic verbatim from ClevelandClinicQHS/riskcalc-website.
+# Nobody may relicense someone else's work by placing it in their tree, so each
+# file carries its own LICENCE NOTICE saying so, and the sync refuses to run if
+# one is missing.
+#
+# THESE FILES SHIP. They were withheld until 2026-08-18 on the reasoning in
+# docs/THIRD_PARTY_CODE.md that a company repository could not be a
+# noncommercial purpose, which tested the wrong thing, since PolyForm gates
+# on PURPOSE rather than on who holds the repository. M31 confirmed the
+# project's use is academic research only, and the files were reinstated so
+# that every parity fixture can be regenerated from the vendor's own
+# arithmetic. See docs/ACADEMIC_USE_LICENSE_REVIEW.md.
+#
+# The list lives here rather than inside scripts/sync_public_repo.py because
+# two things need it and only one of them ships:
+#
+#   scripts/sync_public_repo.py   private, enforces the per-file notice
+#   scripts/build_notice.py       public  -- names the files in NOTICE
+#
+# While the list lived in the sync script, build_notice.py imported that script
+# to read it, and so could not run at all in the published repository, where
+# the module it imported is the one thing guaranteed to be absent.
+
+polyform_noncommercial:
+  - tests/parity/reference/crc_pro_reference.R
+  - tests/parity/reference/dutasteride_extract.py
+  - tests/parity/reference/dutasteride_reference.R
+  - tests/parity/reference/msk_gastric_reference.R
+  - tests/parity/reference/msk_ovarian_reference.R
+  - tests/parity/reference/msk_pancreatic_reference.R
+  - tests/parity/reference/pbcg_reference.R

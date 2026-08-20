@@ -1,6 +1,6 @@
 """Parity: the dutasteride chemoprevention model vs. the vendor's deployed R.
 
-Nguyen CT, Isariyawongse B, Yu C, Kattan MW — models for men with a prior
+Nguyen CT, Isariyawongse B, Yu C, Kattan MW, models for men with a prior
 negative biopsy considering dutasteride (REDUCE).
 
 Route 1. `dutasteride_reference.R` copies the 17 `predict.*` functions
@@ -31,10 +31,20 @@ from cancerverse_baseline.prostate.response.dutasteride import HARMS, OUTCOMES
 CASES_FILE = Path(__file__).parent / "reference" / "dutasteride_cases.json"
 
 PATIENT_KEYS = [
-    "age", "psa", "dre_abnormal", "sexually_active", "history_of_impotence",
-    "history_of_libido_problems", "family_history_prostate_cancer",
-    "percent_free_psa", "bmi", "ipss_score", "max_urinary_flow_ml_s",
-    "biopsy_cores", "prostate_volume_ml", "residual_urine_ml",
+    "age",
+    "psa",
+    "dre_abnormal",
+    "sexually_active",
+    "history_of_impotence",
+    "history_of_libido_problems",
+    "family_history_prostate_cancer",
+    "percent_free_psa",
+    "bmi",
+    "ipss_score",
+    "max_urinary_flow_ml_s",
+    "biopsy_cores",
+    "prostate_volume_ml",
+    "residual_urine_ml",
 ]
 
 
@@ -66,10 +76,16 @@ def test_matches_the_vendor_r(case, outcome):
 def test_asap_has_no_off_treatment_arm_in_the_source():
     """Reproduced, not smoothed: `difference` is None rather than 0, because
     the source provides no comparator and a zero would read as 'no effect'."""
-    out = dutasteride_predict(age=63, psa=5.7, dre_abnormal=False,
-                              percent_free_psa=16.0, bmi=26.8, biopsy_cores=9,
-                              prostate_volume_ml=43.5,
-                              family_history_prostate_cancer=False)
+    out = dutasteride_predict(
+        age=63,
+        psa=5.7,
+        dre_abnormal=False,
+        percent_free_psa=16.0,
+        bmi=26.8,
+        biopsy_cores=9,
+        prostate_volume_ml=43.5,
+        family_history_prostate_cancer=False,
+    )
     asap = out["outcomes"]["asap"]
     assert asap["dutasteride"] is not None
     assert asap["no_dutasteride"] is None
@@ -77,15 +93,21 @@ def test_asap_has_no_off_treatment_arm_in_the_source():
 
 
 def test_hgpin_on_dutasteride_is_a_constant():
-    """No predictors at all — the same 3.838831% for everyone in scope, while
+    """No predictors at all, the same 3.838831% for everyone in scope, while
     the off-treatment arm is a full 28-term model. That is what the source
     says."""
-    common = dict(dre_abnormal=False, percent_free_psa=16.0,
-                  family_history_prostate_cancer=False, biopsy_cores=9)
-    a = dutasteride_predict(age=55, psa=3.0, bmi=22.0, prostate_volume_ml=30.0,
-                            **common)["outcomes"]["hgpin"]
-    b = dutasteride_predict(age=72, psa=9.0, bmi=34.0, prostate_volume_ml=70.0,
-                            **common)["outcomes"]["hgpin"]
+    common = dict(
+        dre_abnormal=False,
+        percent_free_psa=16.0,
+        family_history_prostate_cancer=False,
+        biopsy_cores=9,
+    )
+    a = dutasteride_predict(
+        age=55, psa=3.0, bmi=22.0, prostate_volume_ml=30.0, **common
+    )["outcomes"]["hgpin"]
+    b = dutasteride_predict(
+        age=72, psa=9.0, bmi=34.0, prostate_volume_ml=70.0, **common
+    )["outcomes"]["hgpin"]
     assert a["dutasteride"] == b["dutasteride"] == pytest.approx(0.03838831)
     assert a["no_dutasteride"] != b["no_dutasteride"], (
         "the off-treatment arm must still depend on the patient"
@@ -96,13 +118,22 @@ def test_it_reproduces_the_reduce_finding_that_high_grade_cancer_goes_up():
     """The clinically important asymmetry: dutasteride lowered overall
     prostate cancer but RAISED high-grade disease. A model that only reported
     the overall reduction would be answering half the question."""
-    out = dutasteride_predict(age=63, psa=5.7, dre_abnormal=False,
-                              sexually_active=True, history_of_impotence=False,
-                              history_of_libido_problems=False,
-                              family_history_prostate_cancer=False,
-                              percent_free_psa=16.0, bmi=26.8, ipss_score=12,
-                              max_urinary_flow_ml_s=12.0, biopsy_cores=9,
-                              prostate_volume_ml=43.5, residual_urine_ml=40.0)
+    out = dutasteride_predict(
+        age=63,
+        psa=5.7,
+        dre_abnormal=False,
+        sexually_active=True,
+        history_of_impotence=False,
+        history_of_libido_problems=False,
+        family_history_prostate_cancer=False,
+        percent_free_psa=16.0,
+        bmi=26.8,
+        ipss_score=12,
+        max_urinary_flow_ml_s=12.0,
+        biopsy_cores=9,
+        prostate_volume_ml=43.5,
+        residual_urine_ml=40.0,
+    )
     o = out["outcomes"]
     assert o["prostate"]["difference"] < 0, "overall cancer should fall"
     assert o["highgrade"]["difference"] > 0, "high-grade disease should rise"
@@ -110,14 +141,22 @@ def test_it_reproduces_the_reduce_finding_that_high_grade_cancer_goes_up():
 
 
 def test_the_harms_are_labelled_and_go_the_right_way():
-    out = dutasteride_predict(age=63, psa=5.7, sexually_active=True,
-                              history_of_impotence=False,
-                              history_of_libido_problems=False,
-                              dre_abnormal=False, percent_free_psa=16.0,
-                              bmi=26.8, ipss_score=12,
-                              max_urinary_flow_ml_s=12.0, biopsy_cores=9,
-                              prostate_volume_ml=43.5, residual_urine_ml=40.0,
-                              family_history_prostate_cancer=False)
+    out = dutasteride_predict(
+        age=63,
+        psa=5.7,
+        sexually_active=True,
+        history_of_impotence=False,
+        history_of_libido_problems=False,
+        dre_abnormal=False,
+        percent_free_psa=16.0,
+        bmi=26.8,
+        ipss_score=12,
+        max_urinary_flow_ml_s=12.0,
+        biopsy_cores=9,
+        prostate_volume_ml=43.5,
+        residual_urine_ml=40.0,
+        family_history_prostate_cancer=False,
+    )
     assert set(HARMS) == {"erectile", "gynecomastia", "uti"}
     for key in ("erectile", "gynecomastia"):
         assert out["outcomes"][key]["is_harm"] is True
@@ -139,8 +178,9 @@ def test_the_fixture_covers_every_outcome_and_both_arms():
     assert {k for c in cases for k in c["outcomes"]} == set(OUTCOMES)
     assert len(cases) >= 8
     # and at least one patient is out of scope somewhere, so the None path is real
-    assert any(v["nd"] is None or v["d"] is None
-               for c in cases for v in c["outcomes"].values())
+    assert any(
+        v["nd"] is None or v["d"] is None for c in cases for v in c["outcomes"].values()
+    )
 
 
 def test_metadata():

@@ -18,8 +18,7 @@ mis-transcribed a coefficient, a knot, or the depth level order, this fails.
 
 The cases deliberately hit both ends of every validated input bound (age 25 and
 96, positive nodes 0 and 23, negative nodes 0 and 146, size 0.1 and 21 cm), all
-seven depth levels, all four primary sites and all three Lauren types — because
-the model is splined in four variables and a knot error only shows up on one
+seven depth levels, all four primary sites and all three Lauren types, because the model is splined in four variables and a knot error only shows up on one
 side of the knot.
 
 Fixture captured by `Rscript tests/parity/reference/msk_gastric_reference.R`.
@@ -59,9 +58,13 @@ def _cases():
 
 def _kwargs(c: dict) -> dict:
     return dict(
-        age=c["age"], male=c["male"], primary_site=SITE[c["primary_site"]],
-        lauren=c["lauren"].lower(), size_cm=c["size_cm"],
-        positive_nodes=c["positive_nodes"], negative_nodes=c["negative_nodes"],
+        age=c["age"],
+        male=c["male"],
+        primary_site=SITE[c["primary_site"]],
+        lauren=c["lauren"].lower(),
+        size_cm=c["size_cm"],
+        positive_nodes=c["positive_nodes"],
+        negative_nodes=c["negative_nodes"],
         depth=DEPTH_LEVELS[c["depth_code"] - 1],
     )
 
@@ -96,9 +99,12 @@ def test_the_fixture_reaches_both_ends_of_every_validated_bound():
     )
 
     cases = _cases()
-    for field, bounds in (("age", AGE_RANGE), ("size_cm", SIZE_CM_RANGE),
-                          ("positive_nodes", POSITIVE_NODES_RANGE),
-                          ("negative_nodes", NEGATIVE_NODES_RANGE)):
+    for field, bounds in (
+        ("age", AGE_RANGE),
+        ("size_cm", SIZE_CM_RANGE),
+        ("positive_nodes", POSITIVE_NODES_RANGE),
+        ("negative_nodes", NEGATIVE_NODES_RANGE),
+    ):
         values = {c[field] for c in cases}
         assert min(values) == bounds[0], f"{field}: fixture never reaches {bounds[0]}"
         assert max(values) == bounds[1], f"{field}: fixture never reaches {bounds[1]}"
@@ -110,11 +116,18 @@ def test_depth_is_ordinal_and_its_order_is_part_of_the_model():
     assert DEPTH_LEVELS[0] == "mucosa"
     assert DEPTH_LEVELS[-1] == "adjacent_organ_involvement"
     assert len(DEPTH_LEVELS) == 7
-    common = dict(age=60, male=True, primary_site="antrum_or_pyloric",
-                  lauren="intestinal", size_cm=3.0, positive_nodes=2,
-                  negative_nodes=15)
-    survivals = [msk_gastric_predict(**common, depth=d)["survival"]
-                 for d in DEPTH_LEVELS]
+    common = dict(
+        age=60,
+        male=True,
+        primary_site="antrum_or_pyloric",
+        lauren="intestinal",
+        size_cm=3.0,
+        positive_nodes=2,
+        negative_nodes=15,
+    )
+    survivals = [
+        msk_gastric_predict(**common, depth=d)["survival"] for d in DEPTH_LEVELS
+    ]
     assert survivals == sorted(survivals, reverse=True), (
         "deeper invasion must not improve survival"
     )
@@ -124,20 +137,38 @@ def test_negative_nodes_improve_survival():
     """The stage-migration property: a more thorough lymphadenectomy raises the
     prediction. -0.047 per node over a range to 146 makes this one of the
     model's largest effects, which surprises people."""
-    common = dict(age=60, male=True, primary_site="antrum_or_pyloric",
-                  lauren="intestinal", size_cm=3.0, positive_nodes=3,
-                  depth="subserosa")
+    common = dict(
+        age=60,
+        male=True,
+        primary_site="antrum_or_pyloric",
+        lauren="intestinal",
+        size_cm=3.0,
+        positive_nodes=3,
+        depth="subserosa",
+    )
     few = msk_gastric_predict(**common, negative_nodes=3)["survival"]
     many = msk_gastric_predict(**common, negative_nodes=40)["survival"]
     assert many > few
 
 
 def test_out_of_scope_inputs_are_refused():
-    ok = dict(age=60, male=True, primary_site="antrum_or_pyloric",
-              lauren="intestinal", size_cm=3.0, positive_nodes=2,
-              negative_nodes=15, depth="subserosa")
-    for field, bad in (("age", 20), ("age", 100), ("positive_nodes", 24),
-                       ("negative_nodes", 200), ("size_cm", 25.0)):
+    ok = dict(
+        age=60,
+        male=True,
+        primary_site="antrum_or_pyloric",
+        lauren="intestinal",
+        size_cm=3.0,
+        positive_nodes=2,
+        negative_nodes=15,
+        depth="subserosa",
+    )
+    for field, bad in (
+        ("age", 20),
+        ("age", 100),
+        ("positive_nodes", 24),
+        ("negative_nodes", 200),
+        ("size_cm", 25.0),
+    ):
         with pytest.raises(ValueError, match=field):
             msk_gastric_predict(**{**ok, field: bad})
     with pytest.raises(ValueError, match="years"):
@@ -147,9 +178,16 @@ def test_out_of_scope_inputs_are_refused():
 
 
 def test_metadata():
-    out = msk_gastric_predict(age=60, male=True, primary_site="antrum_or_pyloric",
-                              lauren="intestinal", size_cm=3.0, positive_nodes=2,
-                              negative_nodes=15, depth="subserosa")
+    out = msk_gastric_predict(
+        age=60,
+        male=True,
+        primary_site="antrum_or_pyloric",
+        lauren="intestinal",
+        size_cm=3.0,
+        positive_nodes=2,
+        negative_nodes=15,
+        depth="subserosa",
+    )
     assert out["model_id"] == "msk_gastric"
     assert out["axis"] == "prognosis"
     assert out["disease"] == "gastric"

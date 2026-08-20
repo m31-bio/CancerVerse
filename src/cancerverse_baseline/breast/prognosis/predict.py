@@ -1,4 +1,4 @@
-"""PREDICT Breast v2.2 — prognosis and adjuvant treatment benefit.
+"""PREDICT Breast v2.2, prognosis and adjuvant treatment benefit.
 
 Equation source
 ---------------
@@ -16,14 +16,14 @@ It is the only model in this repo that spans TWO axes: it predicts survival
 (prognosis) AND the absolute benefit of each adjuvant treatment combination
 (response). The NHS uses it ~30,000 times a month to decide adjuvant chemo.
 
-Structure — a competing-risks model, not a single regression:
+Structure, a competing-risks model, not a single regression:
 
   1. Two prognostic indices, each a log-hazard:
        mi = other-cause mortality (age only)
        pi = breast-cancer-specific mortality (fractional polynomials in age,
             size and nodes, plus grade / screen-detection / HER2 / Ki67)
      The age and size terms use DIFFERENT fractional-polynomial transforms for
-     ER-positive and ER-negative disease — not merely different coefficients.
+     ER-positive and ER-negative disease, not merely different coefficients.
 
   2. Two published cumulative baseline hazards, one per cause, each its own
      closed-form function of time in years.
@@ -84,10 +84,15 @@ HER2_BETA = {1: 0.2413, 0: -0.0762, 9: 0.0}
 KI67_BETA = {1: 0.14904, 0: -0.11333, 9: 0.0}
 
 # --- treatment log-hazard-ratios ---
-CHEMO_BETA = {0: 0.0, 2: -0.248, 3: -0.446}   # generation of regimen
+CHEMO_BETA = {0: 0.0, 2: -0.248, 3: -0.446}  # generation of regimen
 HORMONE_BETA = -0.3857
-HORMONE_EXTENDED_BETA = -0.26                  # years 11-15, ATLAS/aTTom
+HORMONE_EXTENDED_BETA = -0.26  # years 11-15, ATLAS/aTTom
 TRASTUZUMAB_BETA = -0.3567
+#: Reference `benefits22.R:80` carries the caveat "Only applicable to
+#: menopausal women." Neither the R nor this module gates on menopausal
+#: status, the term applies whenever the flag is set, so the restriction
+#: is the CALLER's to honour. Setting bisphosphonate=True for a
+#: premenopausal woman produces a benefit the source says does not apply.
 BISPHOSPHONATE_BETA = -0.198
 
 # Imputation constants the reference applies for unknown inputs.
@@ -153,7 +158,7 @@ def _treatment_log_hr(
     """Additive treatment effect on the breast-cancer log hazard, for one year.
 
     `hormone` is standard adjuvant endocrine therapy. `extended_hormone` is the
-    reference implementation's separate `h10` option — continuing beyond 10
+    reference implementation's separate `h10` option, continuing beyond 10
     years, which adds a further -0.26 log-HR in years 11-15 only (ATLAS/aTTom).
     They are DISTINCT treatment arms in the source, not one option: its output
     matrix carries both `hctb` and `h10ctb` columns.

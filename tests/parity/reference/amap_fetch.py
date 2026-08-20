@@ -56,21 +56,21 @@ UNIT_PLT_SI = "x10<sup>9</sup>/L"
 # straddles both band cut-offs (50 and 60). The three cases marked `historic`
 # are the exact inputs that produced the previously recorded 56/44/68.
 CASES = [
-    dict(age=50, male=True,  bili=15, alb=42, plt=200, historic=56),
-    dict(age=30, male=True,  bili=10, alb=45, plt=250, historic=44),
-    dict(age=65, male=True,  bili=25, alb=38, plt=150, historic=68),
-    dict(age=50, male=False, bili=15, alb=42, plt=200),   # sex is the only change
+    dict(age=50, male=True, bili=15, alb=42, plt=200, historic=56),
+    dict(age=30, male=True, bili=10, alb=45, plt=250, historic=44),
+    dict(age=65, male=True, bili=25, alb=38, plt=150, historic=68),
+    dict(age=50, male=False, bili=15, alb=42, plt=200),  # sex is the only change
     dict(age=30, male=False, bili=10, alb=45, plt=250),
     dict(age=65, male=False, bili=25, alb=38, plt=150),
-    dict(age=18, male=True,  bili=5,  alb=50, plt=400),   # low extreme
-    dict(age=85, male=True,  bili=60, alb=28, plt=60),    # high extreme
+    dict(age=18, male=True, bili=5, alb=50, plt=400),  # low extreme
+    dict(age=85, male=True, bili=60, alb=28, plt=60),  # high extreme
     dict(age=45, male=False, bili=20, alb=40, plt=180),
-    dict(age=70, male=True,  bili=12, alb=35, plt=120),
+    dict(age=70, male=True, bili=12, alb=35, plt=120),
     dict(age=55, male=False, bili=30, alb=44, plt=300),
-    dict(age=60, male=True,  bili=18, alb=41, plt=220),
-    dict(age=40, male=True,  bili=8,  alb=47, plt=280),
+    dict(age=60, male=True, bili=18, alb=41, plt=220),
+    dict(age=40, male=True, bili=8, alb=47, plt=280),
     dict(age=75, male=False, bili=35, alb=33, plt=100),
-    dict(age=62, male=True,  bili=22, alb=39, plt=160),
+    dict(age=62, male=True, bili=22, alb=39, plt=160),
 ]
 
 
@@ -123,8 +123,11 @@ def main() -> None:
                 "source": AJAX,
                 "tool": "CUHK MDAC aMAP calculator",
                 "page": PAGE,
-                "units": {"bilirubin": "umol/L", "albumin": "g/L",
-                          "platelets": "x10^9/L"},
+                "units": {
+                    "bilirubin": "umol/L",
+                    "albumin": "g/L",
+                    "platelets": "x10^9/L",
+                },
                 "resolution": "integer score, as returned by the tool",
                 "cases": rows,
             },

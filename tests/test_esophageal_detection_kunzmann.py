@@ -42,7 +42,7 @@ def test_bmi_bands_from_table_2():
 
 
 def test_male_sex_is_the_single_largest_factor():
-    """4.0 of 15 points — half the referral threshold, from sex alone."""
+    """4.0 of 15 points, half the referral threshold, from sex alone."""
     male_only = kunzmann_predict(**{**LOWEST, "male": True})
     assert male_only["score"] == 4.0
     assert male_only["components"]["sex"] == 4.0

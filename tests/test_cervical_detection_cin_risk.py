@@ -57,42 +57,67 @@ def test_hrhpv_positivity_raises_risk_in_every_variant():
             kw["e6_positive"] = False
         if any(g in MODELS[variant] for g in GENOTYPE_GROUPS):
             kw["genotypes"] = {}
-        neg = predict(hrhpv_positive=False, cytology="ASC-US", age=40,
-                      variant=variant, **kw)["risk"]
-        pos = predict(hrhpv_positive=True, cytology="ASC-US", age=40,
-                      variant=variant, **kw)["risk"]
+        neg = predict(
+            hrhpv_positive=False, cytology="ASC-US", age=40, variant=variant, **kw
+        )["risk"]
+        pos = predict(
+            hrhpv_positive=True, cytology="ASC-US", age=40, variant=variant, **kw
+        )["risk"]
         assert pos > neg, variant
 
 
 def test_e6_positivity_raises_risk():
-    off = predict(hrhpv_positive=True, cytology="ASC-US", age=40,
-                  variant="e6", e6_positive=False)["risk"]
-    on = predict(hrhpv_positive=True, cytology="ASC-US", age=40,
-                 variant="e6", e6_positive=True)["risk"]
+    off = predict(
+        hrhpv_positive=True, cytology="ASC-US", age=40, variant="e6", e6_positive=False
+    )["risk"]
+    on = predict(
+        hrhpv_positive=True, cytology="ASC-US", age=40, variant="e6", e6_positive=True
+    )["risk"]
     assert on > off
 
 
 def test_some_genotype_groups_carry_negative_betas():
-    """HPV59/56/66 and HPV51 reduce risk relative to other hrHPV types —
+    """HPV59/56/66 and HPV51 reduce risk relative to other hrHPV types,
     published, and clinically sensible since they are lower-oncogenic-risk."""
     g = MODELS["genotyping"]
     assert g["HPV16"] > 0 and g["HPV33/58"] > 0
     assert g["HPV59/56/66"] < 0 and g["HPV51"] < 0
 
-    base = predict(hrhpv_positive=True, cytology="ASC-US", age=40,
-                   variant="genotyping", genotypes={})["risk"]
-    hpv16 = predict(hrhpv_positive=True, cytology="ASC-US", age=40,
-                    variant="genotyping", genotypes={"HPV16": True})["risk"]
-    low_risk_type = predict(hrhpv_positive=True, cytology="ASC-US", age=40,
-                            variant="genotyping",
-                            genotypes={"HPV59/56/66": True})["risk"]
+    base = predict(
+        hrhpv_positive=True,
+        cytology="ASC-US",
+        age=40,
+        variant="genotyping",
+        genotypes={},
+    )["risk"]
+    hpv16 = predict(
+        hrhpv_positive=True,
+        cytology="ASC-US",
+        age=40,
+        variant="genotyping",
+        genotypes={"HPV16": True},
+    )["risk"]
+    low_risk_type = predict(
+        hrhpv_positive=True,
+        cytology="ASC-US",
+        age=40,
+        variant="genotyping",
+        genotypes={"HPV59/56/66": True},
+    )["risk"]
     assert hpv16 > base > low_risk_type
 
 
 def test_cytology_aliases_normalize():
-    for alias, canonical in (("normal", "NILM"), ("ASCUS", "ASC-US"),
-                             ("hsil", "HSIL/AIS"), ("scc", "SCC/ADC")):
-        assert predict(hrhpv_positive=True, cytology=alias, age=40)["cytology"] == canonical
+    for alias, canonical in (
+        ("normal", "NILM"),
+        ("ASCUS", "ASC-US"),
+        ("hsil", "HSIL/AIS"),
+        ("scc", "SCC/ADC"),
+    ):
+        assert (
+            predict(hrhpv_positive=True, cytology=alias, age=40)["cytology"]
+            == canonical
+        )
 
 
 def test_variant_input_requirements_are_enforced():
@@ -103,8 +128,13 @@ def test_variant_input_requirements_are_enforced():
     with pytest.raises(ValueError, match="requires genotypes"):
         predict(hrhpv_positive=True, cytology="NILM", age=40, variant="genotyping")
     with pytest.raises(ValueError, match="unknown genotype"):
-        predict(hrhpv_positive=True, cytology="NILM", age=40,
-                variant="genotyping", genotypes={"HPV99": True})
+        predict(
+            hrhpv_positive=True,
+            cytology="NILM",
+            age=40,
+            variant="genotyping",
+            genotypes={"HPV99": True},
+        )
 
 
 def test_invalid_inputs():

@@ -1,6 +1,5 @@
 """Tests for CHA2DS2-VASc (Lip et al., Chest 2010)."""
 
-
 from cancerverse_baseline.cvd.prognosis import cha2ds2_vasc_predict, cha2ds2_vasc_score
 
 NONE = dict(
@@ -36,7 +35,7 @@ def test_age_points_are_mutually_exclusive_bands():
     assert cha2ds2_vasc_score(**{**NONE, "age": 65}) == 1
     assert cha2ds2_vasc_score(**{**NONE, "age": 74}) == 1
     assert cha2ds2_vasc_score(**{**NONE, "age": 75}) == 2
-    # Never both bands at once — score should never exceed the higher band alone.
+    # Never both bands at once, score should never exceed the higher band alone.
     assert cha2ds2_vasc_score(**{**NONE, "age": 90}) == 2
 
 

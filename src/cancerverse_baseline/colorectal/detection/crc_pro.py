@@ -1,11 +1,11 @@
-"""CRC-PRO — 10-year colorectal cancer risk (Multi-Ethnic Cohort).
+"""CRC-PRO, 10-year colorectal cancer risk (Multi-Ethnic Cohort).
 
 Equation source
 ---------------
-Kattan MW, Cooper GS, Jackson L, Koroukian S. "ColoRectal Cancer Predicted Risk
-Online (CRC-PRO) Calculator Using Data from the Multi-Ethnic Cohort Study."
-J Am Board Fam Med. 2014;27(1):42-55. doi:10.3122/jabfm.2014.01.130040
-(open access). PMC4219857.
+Wells BJ, Kattan MW, Cooper GS, Jackson L, Koroukian S. "Colorectal cancer
+predicted risk online (CRC-PRO) calculator using data from the multi-ethnic
+cohort study." J Am Board Fam Med. 2014;27(1):42-55.
+doi:10.3122/jabfm.2014.01.130040 (open access). PMC4219857.
 
 Coefficients transcribed from the deployed calculator's published R source,
 
@@ -38,7 +38,7 @@ UI offers three choices —
 
     'No'  |  'Yes, but not currently'  |  'Yes-currently'
 
-— while the model tests for
+while the model tests for
 
     (Estrogen == "Yes-currently")     -> reachable
     (Estrogen == "Yes-previously")    -> matches nothing the UI can produce
@@ -56,7 +56,7 @@ Units, from the app's own input validation
 ------------------------------------------
 Weight is in POUNDS and height in INCHES; BMI is derived internally as
 (lb x 0.45359237) / (in x 0.0254)^2. Alcohol is drinks per day, red meat is
-ounces per day, activity is hours per day of moderate exercise -- all
+ounces per day, activity is hours per day of moderate exercise, all
 continuous, and all splined at knots that assume those units.
 
 Validated input ranges (enforced): age 45-85, weight 75-350 lb, height 60-80 in,
@@ -79,10 +79,20 @@ IN_TO_M = 0.0254
 # Ethnicity reference level is Black, which carries no term.
 ETHNICITIES = ("hawaiian", "japanese", "latino", "white", "black")
 ETHNICITY_BETA = {
-    "female": {"hawaiian": -0.24100367, "japanese": 0.014010715,
-               "latino": -0.39669678, "white": -0.34056094, "black": 0.0},
-    "male": {"hawaiian": 0.16092241, "japanese": 0.25353936,
-             "latino": -0.13659953, "white": -0.16728044, "black": 0.0},
+    "female": {
+        "hawaiian": -0.24100367,
+        "japanese": 0.014010715,
+        "latino": -0.39669678,
+        "white": -0.34056094,
+        "black": 0.0,
+    },
+    "male": {
+        "hawaiian": 0.16092241,
+        "japanese": 0.25353936,
+        "latino": -0.13659953,
+        "white": -0.16728044,
+        "black": 0.0,
+    },
 }
 # Women's model. "previously" is the level the deployed tool cannot reach.
 ESTROGEN_BETA = {"no": 0.0, "previously": -0.044320489, "currently": -0.24500762}
@@ -102,7 +112,7 @@ RANGES = {
 }
 
 MODEL_CITATION = (
-    "Kattan MW, Cooper GS, Jackson L, Koroukian S. J Am Board Fam Med. "
+    "Wells BJ, Kattan MW, Cooper GS, Jackson L, Koroukian S. J Am Board Fam Med. "
     "2014;27(1):42-55 (CRC-PRO). doi:10.3122/jabfm.2014.01.130040"
 )
 
@@ -121,10 +131,17 @@ def _check(name: str, value: float) -> float:
 
 def _level(value: str, table: dict, name: str) -> str:
     key = str(value).strip().lower().replace("-", "_").replace(" ", "_")
-    aliases = {"yes": "currently", "yes_currently": "currently",
-               "yes_previously": "previously", "former": "previously",
-               "current": "currently", "never": "no", "none": "no",
-               "african_american": "black", "caucasian": "white"}
+    aliases = {
+        "yes": "currently",
+        "yes_currently": "currently",
+        "yes_previously": "previously",
+        "former": "previously",
+        "current": "currently",
+        "never": "no",
+        "none": "no",
+        "african_american": "black",
+        "caucasian": "white",
+    }
     key = aliases.get(key, key)
     if key not in table:
         raise ValueError(f"{name} must be one of {sorted(table)}, got {value!r}")
@@ -136,80 +153,128 @@ def bmi_from_imperial(*, weight_lb: float, height_in: float) -> float:
     return (weight_lb * LB_TO_KG) / ((height_in * IN_TO_M) ** 2)
 
 
-def _female_lp(*, age, ethnicity, years_education, estrogen, diabetes,
-               pack_years, family_history, multivitamin, bmi, nsaid, alcohol,
-               emulate_deployed_defect):
+def _female_lp(
+    *,
+    age,
+    ethnicity,
+    years_education,
+    estrogen,
+    diabetes,
+    pack_years,
+    family_history,
+    multivitamin,
+    bmi,
+    nsaid,
+    alcohol,
+    emulate_deployed_defect,
+):
     lp = -5.9026635
-    lp += (0.090012542 * age
-           - 4.4217156e-05 * _p3(age - 47.0)
-           + 9.2119076e-05 * _p3(age - 60.0)
-           - 4.7901919e-05 * _p3(age - 72.0))
+    lp += (
+        0.090012542 * age
+        - 4.4217156e-05 * _p3(age - 47.0)
+        + 9.2119076e-05 * _p3(age - 60.0)
+        - 4.7901919e-05 * _p3(age - 72.0)
+    )
     lp += ETHNICITY_BETA["female"][ethnicity]
-    lp += (0.07443905 * years_education
-           - 0.00062546554 * _p3(years_education - 7.0)
-           + 0.0017200302 * _p3(years_education - 14.0)
-           - 0.0010945647 * _p3(years_education - 18.0))
+    lp += (
+        0.07443905 * years_education
+        - 0.00062546554 * _p3(years_education - 7.0)
+        + 0.0017200302 * _p3(years_education - 14.0)
+        - 0.0010945647 * _p3(years_education - 18.0)
+    )
     if emulate_deployed_defect and estrogen == "previously":
-        pass                                   # the dead branch, reproduced
+        pass  # the dead branch, reproduced
     else:
         lp += ESTROGEN_BETA[estrogen]
     lp += 0.23328937 * diabetes
-    lp += (0.062703176 * pack_years
-           - 0.002446026 * _p3(pack_years)
-           + 0.003038396 * _p3(pack_years - 1.25)
-           - 0.00059134632 * _p3(pack_years - 6.375)
-           - 1.023614e-06 * _p3(pack_years - 27.5125))
+    lp += (
+        0.062703176 * pack_years
+        - 0.002446026 * _p3(pack_years)
+        + 0.003038396 * _p3(pack_years - 1.25)
+        - 0.00059134632 * _p3(pack_years - 6.375)
+        - 1.023614e-06 * _p3(pack_years - 27.5125)
+    )
     lp += 0.31589053 * family_history
     lp += -0.1665365 * multivitamin
-    lp += (0.0075233925 * bmi
-           + 6.7918662e-05 * _p3(bmi - 20.371336)
-           - 0.00011039091 * _p3(bmi - 25.508027)
-           + 4.2472244e-05 * _p3(bmi - 33.722266))
+    lp += (
+        0.0075233925 * bmi
+        + 6.7918662e-05 * _p3(bmi - 20.371336)
+        - 0.00011039091 * _p3(bmi - 25.508027)
+        + 4.2472244e-05 * _p3(bmi - 33.722266)
+    )
     lp += NSAID_BETA[nsaid]
-    lp += (-0.08856241 * alcohol
-           + 0.62375456 * _p3(alcohol)
-           - 0.7191129 * _p3(alcohol - 0.10740682)
-           + 0.095358349 * _p3(alcohol - 0.8099724))
+    lp += (
+        -0.08856241 * alcohol
+        + 0.62375456 * _p3(alcohol)
+        - 0.7191129 * _p3(alcohol - 0.10740682)
+        + 0.095358349 * _p3(alcohol - 0.8099724)
+    )
     return lp
 
 
-def _male_lp(*, age, ethnicity, pack_years, alcohol, bmi, years_education,
-             aspirin, family_history, multivitamin, red_meat, diabetes,
-             activity):
+def _male_lp(
+    *,
+    age,
+    ethnicity,
+    pack_years,
+    alcohol,
+    bmi,
+    years_education,
+    aspirin,
+    family_history,
+    multivitamin,
+    red_meat,
+    diabetes,
+    activity,
+):
     lp = -6.6419738
-    lp += (0.091669179 * age
-           - 3.7411814e-05 * _p3(age - 47.0)
-           + 7.794128e-05 * _p3(age - 60.0)
-           - 4.0529466e-05 * _p3(age - 72.0))
+    lp += (
+        0.091669179 * age
+        - 3.7411814e-05 * _p3(age - 47.0)
+        + 7.794128e-05 * _p3(age - 60.0)
+        - 4.0529466e-05 * _p3(age - 72.0)
+    )
     lp += ETHNICITY_BETA["male"][ethnicity]
-    lp += (0.00022581331 * pack_years
-           + 1.1341047e-05 * _p3(pack_years)
-           - 1.3522018e-05 * _p3(pack_years - 6.375)
-           + 2.1809706e-06 * _p3(pack_years - 39.525))
-    lp += (0.28379769 * alcohol
-           - 0.21424251 * _p3(alcohol)
-           + 0.22570057 * _p3(alcohol - 0.14457189)
-           - 0.011458065 * _p3(alcohol - 2.8477722))
-    lp += (0.018020786 * bmi
-           + 9.4715899e-05 * _p3(bmi - 22.047175)
-           - 0.00015791645 * _p3(bmi - 25.941735)
-           + 6.3200548e-05 * _p3(bmi - 31.778341))
-    lp += (0.072052428 * years_education
-           - 0.00060634342 * _p3(years_education - 7.0)
-           + 0.0016674444 * _p3(years_education - 14.0)
-           - 0.001061101 * _p3(years_education - 18.0))
+    lp += (
+        0.00022581331 * pack_years
+        + 1.1341047e-05 * _p3(pack_years)
+        - 1.3522018e-05 * _p3(pack_years - 6.375)
+        + 2.1809706e-06 * _p3(pack_years - 39.525)
+    )
+    lp += (
+        0.28379769 * alcohol
+        - 0.21424251 * _p3(alcohol)
+        + 0.22570057 * _p3(alcohol - 0.14457189)
+        - 0.011458065 * _p3(alcohol - 2.8477722)
+    )
+    lp += (
+        0.018020786 * bmi
+        + 9.4715899e-05 * _p3(bmi - 22.047175)
+        - 0.00015791645 * _p3(bmi - 25.941735)
+        + 6.3200548e-05 * _p3(bmi - 31.778341)
+    )
+    lp += (
+        0.072052428 * years_education
+        - 0.00060634342 * _p3(years_education - 7.0)
+        + 0.0016674444 * _p3(years_education - 14.0)
+        - 0.001061101 * _p3(years_education - 18.0)
+    )
     lp += ASPIRIN_BETA[aspirin]
     lp += 0.24250922 * family_history
     lp += -0.19175375 * multivitamin
-    lp += (0.073141733 * red_meat
-           - 0.0043503766 * _p3(red_meat - 0.59081962)
-           + 0.0065250851 * _p3(red_meat - 2.0822052)
-           - 0.0021747085 * _p3(red_meat - 5.0656345))
+    lp += (
+        0.073141733 * red_meat
+        - 0.0043503766 * _p3(red_meat - 0.59081962)
+        + 0.0065250851 * _p3(red_meat - 2.0822052)
+        - 0.0021747085 * _p3(red_meat - 5.0656345)
+    )
     lp += 0.11020556 * diabetes
-    lp += (-0.090669913 * activity
-           + 0.0093816671 * _p3(activity - 0.10714286)
-           - 0.011850527 * _p3(activity - 0.82142857)
-           + 0.0024688598 * _p3(activity - 3.5357143))
+    lp += (
+        -0.090669913 * activity
+        + 0.0093816671 * _p3(activity - 0.10714286)
+        - 0.011850527 * _p3(activity - 0.82142857)
+        + 0.0024688598 * _p3(activity - 3.5357143)
+    )
     return lp
 
 
@@ -238,12 +303,12 @@ def crc_pro_predict(
     """
     10-year colorectal cancer risk.
 
-    Weight in POUNDS, height in INCHES — the spline knots assume the app's own
+    Weight in POUNDS, height in INCHES, the spline knots assume the app's own
     conversion. `estrogen`, `nsaid` and `aspirin` are "no" / "previously" /
     "currently".
 
     The sex-specific arguments are ignored for the other sex, because the two
-    models genuinely have different predictor sets — see the module docstring.
+    models genuinely have different predictor sets, see the module docstring.
 
     `emulate_deployed_defect` reproduces the hosted calculator's inability to
     apply its own previous-estrogen coefficient. Leave it False unless you are
@@ -260,7 +325,11 @@ def crc_pro_predict(
 
     if male:
         lp = _male_lp(
-            age=a, ethnicity=eth, pack_years=py, alcohol=alc, bmi=bmi,
+            age=a,
+            ethnicity=eth,
+            pack_years=py,
+            alcohol=alc,
+            bmi=bmi,
             years_education=edu,
             aspirin=_level(aspirin, ASPIRIN_BETA, "aspirin"),
             family_history=float(family_history),
@@ -272,12 +341,17 @@ def crc_pro_predict(
         s0 = BASELINE_SURVIVAL["male"]
     else:
         lp = _female_lp(
-            age=a, ethnicity=eth, years_education=edu,
+            age=a,
+            ethnicity=eth,
+            years_education=edu,
             estrogen=_level(estrogen, ESTROGEN_BETA, "estrogen"),
-            diabetes=float(diabetes), pack_years=py,
+            diabetes=float(diabetes),
+            pack_years=py,
             family_history=float(family_history),
-            multivitamin=float(multivitamin), bmi=bmi,
-            nsaid=_level(nsaid, NSAID_BETA, "nsaid"), alcohol=alc,
+            multivitamin=float(multivitamin),
+            bmi=bmi,
+            nsaid=_level(nsaid, NSAID_BETA, "nsaid"),
+            alcohol=alc,
             emulate_deployed_defect=emulate_deployed_defect,
         )
         s0 = BASELINE_SURVIVAL["female"]

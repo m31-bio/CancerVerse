@@ -1,6 +1,6 @@
 """The derived statin-benefit calculation.
 
-There is no external reference to check this against — that is the point of
+There is no external reference to check this against, that is the point of
 its `derived_not_published` marker. What can be tested is everything else: the
 trial effect matches the paper, the arithmetic identity holds, the confidence
 interval runs the right way, and the assumptions travel with the result.
@@ -26,8 +26,7 @@ def test_rate_ratios_are_the_published_ctt_values():
 def test_the_arithmetic_identity():
     """ARR = baseline x (1 - RR^delta). Checked by hand at delta = 1, where
     the rate ratio applies once and the answer is legible."""
-    out = cvd_statin_benefit_predict(baseline_risk=0.20,
-                                     ldl_reduction_mmol_l=1.0)
+    out = cvd_statin_benefit_predict(baseline_risk=0.20, ldl_reduction_mmol_l=1.0)
     assert out["relative_risk_reduction"] == pytest.approx(1 - 0.78)
     assert out["absolute_risk_reduction"] == pytest.approx(0.20 * 0.22)
     assert out["treated_risk"] == pytest.approx(0.20 - 0.20 * 0.22)
@@ -35,7 +34,7 @@ def test_the_arithmetic_identity():
 
 
 def test_the_effect_compounds_with_the_size_of_the_reduction():
-    """Two mmol/L is RR^2, not 2 x the one-mmol effect — the difference is the
+    """Two mmol/L is RR^2, not 2 x the one-mmol effect, the difference is the
     whole reason this is exponentiated rather than multiplied."""
     one = cvd_statin_benefit_predict(baseline_risk=0.2, ldl_reduction_mmol_l=1.0)
     two = cvd_statin_benefit_predict(baseline_risk=0.2, ldl_reduction_mmol_l=2.0)
@@ -58,8 +57,7 @@ def test_absolute_benefit_scales_with_baseline_risk():
 def test_the_confidence_interval_runs_the_right_way():
     """A SMALLER rate ratio is a LARGER benefit, so CTT's lower RR bound gives
     the upper ARR bound. Getting this backwards is easy and silent."""
-    out = cvd_statin_benefit_predict(baseline_risk=0.20,
-                                     ldl_reduction_mmol_l=1.0)
+    out = cvd_statin_benefit_predict(baseline_risk=0.20, ldl_reduction_mmol_l=1.0)
     lo, hi = out["arr_ci"]
     assert lo < out["absolute_risk_reduction"] < hi
     assert lo == pytest.approx(0.20 * (1 - 0.80))
@@ -88,12 +86,22 @@ def test_it_composes_with_a_verified_risk_model():
     import cancerverse_baseline as mb
 
     baseline = mb.predict(
-        "prevent", sex="female", age=60, total_chol_mg_dl=240, hdl_mg_dl=45,
-        sbp=145, diabetes=False, smoker=True, bmi=29, egfr=85,
-        htn_meds=True, statin=False,
+        "prevent",
+        sex="female",
+        age=60,
+        total_chol_mg_dl=240,
+        hdl_mg_dl=45,
+        sbp=145,
+        diabetes=False,
+        smoker=True,
+        bmi=29,
+        egfr=85,
+        htn_meds=True,
+        statin=False,
     )["risk"]
     out = cvd_statin_benefit_predict(
-        baseline_risk=baseline, ldl_reduction_mg_dl=50,
+        baseline_risk=baseline,
+        ldl_reduction_mg_dl=50,
         baseline_risk_source="prevent 10-year total_cvd",
     )
     assert 0 < out["absolute_risk_reduction"] < baseline
@@ -115,8 +123,9 @@ def test_invalid_inputs():
     with pytest.raises(ValueError, match="baseline_risk"):
         cvd_statin_benefit_predict(baseline_risk=1.5, ldl_reduction_mmol_l=1.0)
     with pytest.raises(ValueError, match="outcome"):
-        cvd_statin_benefit_predict(baseline_risk=0.2, ldl_reduction_mmol_l=1.0,
-                                   outcome="bogus")
+        cvd_statin_benefit_predict(
+            baseline_risk=0.2, ldl_reduction_mmol_l=1.0, outcome="bogus"
+        )
     with pytest.raises(ValueError, match=">= 0"):
         cvd_statin_benefit_predict(baseline_risk=0.2, ldl_reduction_mmol_l=-1.0)
 

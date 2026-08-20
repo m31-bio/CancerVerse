@@ -35,7 +35,7 @@ resolves them differently from a literal reading.
 **1. What "nonsmokers" means.** Ang's Results text says ">10 pack-years" on the
 HPV-positive branch but "nonsmokers" on the HPV-negative one. Fakhry et al.'s
 external validation (Cancer 2019;125:2027-2038, PMC6594017) operationalizes
-BOTH branches as "low tobacco exposure" -- the same <=10 pack-years split.
+BOTH branches as "low tobacco exposure", the same <=10 pack-years split.
 That settles it; this module applies <=10/>10 to both branches either way.
 
 **2. Where T1 falls.** Ang names only "T2 or T3" in the HPV-negative
@@ -71,8 +71,8 @@ HIGH_N_STAGES = {"n2b", "n2c", "n3"}
 
 # HPV-negative intermediate-risk exception, by operationalization.
 INTERMEDIATE_T_STAGES_HPV_NEGATIVE = {
-    "ang2010": {"t2", "t3"},           # literal: the primary names only T2/T3
-    "fakhry": {"t1", "t2", "t3"},      # validation: "<T4"
+    "ang2010": {"t2", "t3"},  # literal: the primary names only T2/T3
+    "fakhry": {"t1", "t2", "t3"},  # validation: "<T4"
 }
 DEFINITIONS = tuple(INTERMEDIATE_T_STAGES_HPV_NEGATIVE)
 
@@ -134,9 +134,7 @@ def ang2010_rpa_predict(
         module docstring.
     """
     if definition not in INTERMEDIATE_T_STAGES_HPV_NEGATIVE:
-        raise ValueError(
-            f"definition must be one of {DEFINITIONS}, got {definition!r}"
-        )
+        raise ValueError(f"definition must be one of {DEFINITIONS}, got {definition!r}")
     if pack_years < 0:
         raise ValueError(f"pack_years must be >= 0, got {pack_years}")
     n = _normalize_stage(n_stage, kind="n")

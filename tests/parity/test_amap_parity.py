@@ -1,7 +1,7 @@
 """Parity: our aMAP implementation vs. CUHK's custodial calculator.
 
 aMAP publishes no worked example, so the calculator hosted by CUHK's Medical
-Data Analytics Centre — an aMAP collaborating site — is the only external check
+Data Analytics Centre, an aMAP collaborating site, is the only external check
 available. Route 3 (POST to a server-side endpoint).
 
 **This test closes what this repo recorded as its one unresolved conflict.** An
@@ -69,7 +69,9 @@ def test_the_historic_discrepancy_does_not_reproduce():
     published values. Pinned so the closed conflict is not silently reopened by
     a future capture, and so the old numbers stay on the record."""
     historic = [c for c in _cases() if c.get("historic") is not None]
-    assert len(historic) == 3, "the three original probe patients must stay in the fixture"
+    assert len(historic) == 3, (
+        "the three original probe patients must stay in the fixture"
+    )
     for c in historic:
         ours = _ours(c)["score"]
         assert round(ours) == c["score"]
@@ -96,9 +98,13 @@ def test_sex_is_the_only_difference_in_the_paired_cases():
         if not c["male"]:
             continue
         mate = next(
-            (o for o in cases
-             if not o["male"] and (o["age"], o["bili"], o["alb"], o["plt"])
-             == (c["age"], c["bili"], c["alb"], c["plt"])),
+            (
+                o
+                for o in cases
+                if not o["male"]
+                and (o["age"], o["bili"], o["alb"], o["plt"])
+                == (c["age"], c["bili"], c["alb"], c["plt"])
+            ),
             None,
         )
         if mate:

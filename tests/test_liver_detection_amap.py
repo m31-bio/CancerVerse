@@ -25,8 +25,11 @@ def test_score_stays_in_the_published_0_100_range_over_clinical_inputs():
         for plt in (50, 150, 400):
             for alb in (25, 35, 50):
                 s = amap_predict(
-                    age=age, male=True, platelets=plt,
-                    bilirubin_umol_l=20.0, albumin_g_l=alb,
+                    age=age,
+                    male=True,
+                    platelets=plt,
+                    bilirubin_umol_l=20.0,
+                    albumin_g_l=alb,
                 )["score"]
                 assert 0.0 <= s <= 100.0, (age, plt, alb)
 
@@ -47,11 +50,11 @@ def test_each_risk_factor_moves_the_score_in_the_published_direction():
     low_plt = amap_predict(**{**REF, "platelets": 80})["score"]
     low_alb = amap_predict(**{**REF, "albumin_g_l": 30.0})["score"]
     high_bili = amap_predict(**{**REF, "bilirubin_umol_l": 60.0})["score"]
-    assert older > base          # age raises risk
-    assert female < base         # male sex raises risk
-    assert low_plt > base        # thrombocytopenia raises risk
-    assert low_alb > base        # via ALBI
-    assert high_bili > base      # via ALBI
+    assert older > base  # age raises risk
+    assert female < base  # male sex raises risk
+    assert low_plt > base  # thrombocytopenia raises risk
+    assert low_alb > base  # via ALBI
+    assert high_bili > base  # via ALBI
 
 
 def test_amap_embeds_albi():
@@ -59,7 +62,7 @@ def test_amap_embeds_albi():
 
     aMAP rounds ALBI's albumin coefficient to -0.085; Johnson's original is
     -0.0852. We keep each model's own rounding, so these agree closely but
-    are not bit-identical — that is deliberate, not drift.
+    are not bit-identical, that is deliberate, not drift.
     """
     out = amap_predict(**REF)
     standalone = albi_score(bilirubin_umol_l=15.0, albumin_g_l=42.0)
@@ -70,7 +73,9 @@ def test_amap_embeds_albi():
 def test_us_units_convert():
     si = amap_predict(**REF)
     us = amap_predict(
-        age=50, male=True, platelets=200,
+        age=50,
+        male=True,
+        platelets=200,
         bilirubin_mg_dl=15.0 / A.BILIRUBIN_MG_DL_TO_UMOL_L,
         albumin_g_dl=4.2,
     )
@@ -104,12 +109,15 @@ def test_published_formula_values_are_pinned():
     formula to agree with the calculator, this test should fail loudly and the
     change should be a deliberate, documented decision.
     """
-    a = amap_predict(age=50, male=True, platelets=200,
-                     bilirubin_umol_l=15.0, albumin_g_l=42.0)
-    b = amap_predict(age=30, male=True, platelets=250,
-                     bilirubin_umol_l=10.0, albumin_g_l=45.0)
-    c = amap_predict(age=65, male=True, platelets=150,
-                     bilirubin_umol_l=25.0, albumin_g_l=38.0)
+    a = amap_predict(
+        age=50, male=True, platelets=200, bilirubin_umol_l=15.0, albumin_g_l=42.0
+    )
+    b = amap_predict(
+        age=30, male=True, platelets=250, bilirubin_umol_l=10.0, albumin_g_l=45.0
+    )
+    c = amap_predict(
+        age=65, male=True, platelets=150, bilirubin_umol_l=25.0, albumin_g_l=38.0
+    )
     assert a["score"] == pytest.approx(53.82, abs=0.01)
     assert b["score"] == pytest.approx(41.10, abs=0.01)
     assert c["score"] == pytest.approx(64.88, abs=0.01)
@@ -117,5 +125,5 @@ def test_published_formula_values_are_pinned():
 
 def test_banding_is_on_the_raw_score_not_a_rounded_one():
     """We band the float; CUHK rounds to an integer first. Documented divergence."""
-    assert A.risk_group(59.84) == "medium"   # CUHK would round to 60 -> High
+    assert A.risk_group(59.84) == "medium"  # CUHK would round to 60 -> High
     assert A.risk_group(60.0) == "high"

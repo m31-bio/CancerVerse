@@ -1,7 +1,7 @@
 """One way in.
 
-Every model has its own module path and its own signature, which is correct —
-they take different clinical inputs — but it means a consumer had to know 27
+Every model has its own module path and its own signature, which is correct,
+they take different clinical inputs, but it means a consumer had to know 27
 import paths to use this library. This module is the dispatcher:
 
     >>> import cancerverse_baseline as mb
@@ -25,8 +25,8 @@ library is concerned.
 A deliberate omission
 ---------------------
 There is no "run every model on this patient" convenience. Each model carries a
-population it was built for — END-PAC is only meaningful in new-onset diabetes,
-the MSK nomograms only after a specific resection — and a function that
+population it was built for. END-PAC is only meaningful in new-onset diabetes,
+the MSK nomograms only after a specific resection, and a function that
 cheerfully returned 27 numbers would invite exactly the misuse the scope notes
 exist to prevent. `predict_many` takes an explicit list, and every result
 carries that model's `scope` back to the caller.
@@ -102,9 +102,7 @@ def _resolve(entry: dict) -> Callable[..., dict]:
     try:
         return getattr(module, name)
     except AttributeError as exc:
-        raise LookupError(
-            f"{entry['id']!r}: {entry['code']} has no {name!r}"
-        ) from exc
+        raise LookupError(f"{entry['id']!r}: {entry['code']} has no {name!r}") from exc
 
 
 def _split_inputs(fn: Callable) -> tuple[tuple[str, ...], tuple[str, ...]]:
@@ -124,7 +122,7 @@ def _info(model_id: str) -> ModelInfo:
         if entry.get("status") != "implemented":
             raise KeyError(
                 f"{model_id!r} is registered with status {entry.get('status')!r}, "
-                f"not 'implemented' — there is no code to call"
+                f"not 'implemented', there is no code to call"
             )
         fn = _resolve(entry)
         req, opt = _split_inputs(fn)
@@ -149,8 +147,9 @@ def _info(model_id: str) -> ModelInfo:
             code=entry["code"],
             _fn=fn,
         )
-    known = ", ".join(sorted(m["id"] for m in _registry()
-                             if m.get("status") == "implemented"))
+    known = ", ".join(
+        sorted(m["id"] for m in _registry() if m.get("status") == "implemented")
+    )
     raise KeyError(f"unknown model {model_id!r}. Implemented models: {known}")
 
 
@@ -179,7 +178,10 @@ def list_models(
         info = _info(entry["id"])
         if verified is not None and info.verified is not verified:
             continue
-        if has_public_repo is not None and bool(info.public_repo) is not has_public_repo:
+        if (
+            has_public_repo is not None
+            and bool(info.public_repo) is not has_public_repo
+        ):
             continue
         out.append(info)
     out.sort(key=lambda i: (i.disease, order.get(i.axis, 9), i.id))
@@ -211,7 +213,7 @@ def _stamp(out: dict, requested: str) -> dict:
     Two rows can share one function: LIPI is registered on both the response
     and prognosis axes, and PREDICT's benefit output on the response axis is
     the same model as its prognosis row. The module returns its own identity in
-    `model_id`, which is right — it is one model — but a caller who asked for
+    `model_id`, which is right, it is one model, but a caller who asked for
     `lipi_prognosis` and got back `lipi` cannot tie the result to the row that
     documents it. So the requested id is stamped alongside rather than over.
 
@@ -228,7 +230,7 @@ def predict_many(model_ids: list[str], /, **patient: Any) -> dict[str, dict]:
     """Run several models on one patient, passing each only what it accepts.
 
     Extra keys in `patient` are ignored per model rather than raising, which is
-    the point — one patient record feeds models with different variable sets.
+    the point, one patient record feeds models with different variable sets.
     A model missing a *required* input is reported, not silently skipped:
 
         {"albi": {...result...},
@@ -255,6 +257,6 @@ def predict_many(model_ids: list[str], /, **patient: Any) -> dict[str, dict]:
             )
             out["scope"] = info.scope
             results[model_id] = out
-        except Exception as exc:                    # out-of-scope values raise
+        except Exception as exc:  # out-of-scope values raise
             results[model_id] = {"error": f"{type(exc).__name__}: {exc}"}
     return results

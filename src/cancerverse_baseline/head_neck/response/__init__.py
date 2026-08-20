@@ -1,1 +1,1 @@
-"""Head & neck response-axis models (gap — no published closed-form model found)."""
+"""Head & neck response-axis models (gap, no published closed-form model found)."""

@@ -1,4 +1,4 @@
-"""UCSF-CAPRA score — prostate cancer recurrence risk (Cooperberg et al., 2005).
+"""UCSF-CAPRA score, prostate cancer recurrence risk (Cooperberg et al., 2005).
 
 Equation source
 ---------------
@@ -7,7 +7,7 @@ Cooperberg MR, Pasta DJ, Elkin EP, Litwin MS, Latini DM, DuChane J, Carroll PR.
 and reliable preoperative predictor of disease recurrence after radical
 prostatectomy." J Urol. 2005;173(6):1938-1942. PMC2948569, Table 1.
 
-Integer point table, total 0-10:
+Integer point table, total 0-10, this part IS Table 1:
 
     PSA (ng/mL)        2.1-6 = 0, 6.1-10 = 1, 10.1-20 = 2, 20.1-30 = 3, >30 = 4
     Gleason 1st/2nd    1-3/1-3 = 0, 1-3/4-5 = 1, 4-5/any = 3
@@ -15,7 +15,17 @@ Integer point table, total 0-10:
     % positive cores   <34% = 0, >=34% = 1
     Age (years)        <50 = 0, >=50 = 1
 
-    0-2 low, 3-5 intermediate, 6-10 high risk.
+The 0-2 / 3-5 / 6-10 banding is not from this paper
+---------------------------------------------------
+Table 1 is the point table above and carries no risk groups. The paper groups
+scores as 0-1 / 2 / 3 / 4 / 5 / 6 / >=7 (Table 4), and the 2006 validation
+(PMID 17039503) reports "CAPRA 0-1" against "CAPRA 7-10". The tercile banding
+is a downstream convention with no primary definition located; it is kept
+because callers expect it, but it is not this citation's.
+
+The paper does publish score-to-outcome tables (Tables 3 and 4), `risk` is
+None here because they were never transcribed, which is a gap in this library
+rather than a limitation of the source.
 """
 
 from __future__ import annotations
@@ -28,7 +38,8 @@ INTERMEDIATE_MAX = 5
 MAX_SCORE = 10
 
 MODEL_CITATION = (
-    "Cooperberg MR et al. J Urol. 2005;173(6):1938-1942 (UCSF-CAPRA). PMC2948569 Table 1."
+    "Cooperberg MR et al. J Urol. 2005;173(6):1938-1942 (UCSF-CAPRA). "
+    "PMC2948569 Table 1 for the point table; the risk banding is not from that paper."
 )
 
 
@@ -48,7 +59,7 @@ def psa_points(psa: float) -> int:
 
 
 def gleason_points(primary: int, secondary: int) -> int:
-    """Gleason contributes 0, 1 or 3 points — note there is no 2-point level."""
+    """Gleason contributes 0, 1 or 3 points, note there is no 2-point level."""
     for name, value in (("primary", primary), ("secondary", secondary)):
         if value not in (1, 2, 3, 4, 5):
             raise ValueError(f"Gleason {name} pattern must be 1-5, got {value}")
@@ -61,7 +72,11 @@ def gleason_points(primary: int, secondary: int) -> int:
 
 def t_stage_points(t_stage: str) -> int:
     """T1/T2 = 0, T3a = 1. CAPRA is a localized-disease score."""
-    s = t_stage.strip().upper().replace("C", "", 1) if t_stage.strip().upper().startswith("C") else t_stage.strip().upper()
+    s = (
+        t_stage.strip().upper().replace("C", "", 1)
+        if t_stage.strip().upper().startswith("C")
+        else t_stage.strip().upper()
+    )
     if s.startswith("T1") or s.startswith("T2"):
         return 0
     if s == "T3A":
@@ -145,5 +160,6 @@ def capra_predict(
             "age": 1 if age >= 50.0 else 0,
         },
         "citation": MODEL_CITATION,
-        "notes": "0-2 low / 3-5 intermediate / 6-10 high; risk ~doubles per 2 points",
+        "notes": "0-2 low / 3-5 intermediate / 6-10 high (a convention, not "
+        "Cooperberg 2005's own grouping); risk ~doubles per 2 points",
     }

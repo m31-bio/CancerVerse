@@ -1,8 +1,8 @@
-"""MSK ovarian nomogram — survival after primary surgery for bulky stage IIIC.
+"""MSK ovarian nomogram, survival after primary surgery for bulky stage IIIC.
 
 Equation source
 ---------------
-Abu-Rustum NR, Awtrey CS, Huh J, Eisenhauer EL, Barakat RR, Kattan MW.
+Chi DS, Palayekar MJ, Sonoda Y, Abu-Rustum NR, Awtrey CS, Huh J, Eisenhauer EL, Barakat RR, Kattan MW.
 Gynecol Oncol. 2008;108(1). Coefficients from the deployed calculator's
 published R source,
 
@@ -32,8 +32,7 @@ Form
 
 Residual disease, and its unusual reference
 -------------------------------------------
-The reference level is **0.5-1 cm** — the middle category, not either end — so
-two categories carry negative terms and two positive:
+The reference level is **0.5-1 cm**, the middle category, not either end, so two categories carry negative terms and two positive:
 
     no gross residual  -0.54064543
     < 0.5 cm           -0.3062644
@@ -49,10 +48,10 @@ cytoreduction.
 A labelling caveat we cannot resolve from the source
 ----------------------------------------------------
 The hosted tool labels its histology input simply "Tumor Histology" with
-choices Yes/No, and the coefficient is on "Yes". What the Yes means — the
-paper's series is serous carcinoma — is not recoverable from the code, so this
+choices Yes/No, and the coefficient is on "Yes". What the Yes means, the
+paper's series is serous carcinoma, is not recoverable from the code, so this
 module names the argument `histology_yes` rather than inventing a meaning it
-cannot verify. Read Abu-Rustum 2008 before using it clinically.
+cannot verify. Read Chi 2008 before using it clinically.
 
 Scope
 -----
@@ -85,16 +84,23 @@ AGE_RANGE = (22.0, 87.0)
 PLATELET_RANGE = (113.0, 1078.0)
 
 MODEL_CITATION = (
-    "Abu-Rustum NR, Awtrey CS, Huh J, Eisenhauer EL, Barakat RR, Kattan MW. "
+    "Chi DS, Palayekar MJ, Sonoda Y, Abu-Rustum NR, Awtrey CS, Huh J, Eisenhauer EL, Barakat RR, Kattan MW. "
     "Gynecol Oncol. 2008;108(1). Coefficients from the deployed model's "
     "published R source at riskcalc.org."
 )
 
 _RESIDUAL_ALIASES = {
-    "none": "no_gross_residual", "no": "no_gross_residual",
-    "r0": "no_gross_residual", "<0.5": "lt_0.5_cm", "<0.5_cm": "lt_0.5_cm",
-    "0.5-1": "0.5_1_cm", "0.5-1_cm": "0.5_1_cm", "1-2": "1_2_cm",
-    "1-2_cm": "1_2_cm", ">2": "gt_2_cm", ">2_cm": "gt_2_cm",
+    "none": "no_gross_residual",
+    "no": "no_gross_residual",
+    "r0": "no_gross_residual",
+    "<0.5": "lt_0.5_cm",
+    "<0.5_cm": "lt_0.5_cm",
+    "0.5-1": "0.5_1_cm",
+    "0.5-1_cm": "0.5_1_cm",
+    "1-2": "1_2_cm",
+    "1-2_cm": "1_2_cm",
+    ">2": "gt_2_cm",
+    ">2_cm": "gt_2_cm",
 }
 
 
@@ -165,8 +171,12 @@ def msk_ovarian_predict(
     pre-operative count in x10^3/uL.
     """
     lp = linear_predictor(
-        age=age, grade=grade, histology_yes=histology_yes, platelets=platelets,
-        ascites=ascites, residual_disease=residual_disease,
+        age=age,
+        grade=grade,
+        histology_yes=histology_yes,
+        platelets=platelets,
+        ascites=ascites,
+        residual_disease=residual_disease,
     )
     survival = BASELINE_SURVIVAL_5YR ** math.exp(lp)
     return {

@@ -1,7 +1,7 @@
 """Parity: cervical CIN2+/CIN3+ models vs. the paper's own supplement workbook.
 
-Xia et al., BMC Medicine 2021;19:237 publishes no worked example, no calibration
-table and no cross-tabulation of predicted vs. observed risk — checked, and it
+Wu et al., BMC Medicine 2021;19(1):197 publishes no worked example, no calibration
+table and no cross-tabulation of predicted vs. observed risk, checked, and it
 does not. So there is no output to reproduce.
 
 What it does publish is the coefficient table as a real .xlsx (Additional file 1,
@@ -109,7 +109,7 @@ def test_cytology_terms_separate_low_grade_from_high_grade_in_every_model():
     sits below every high-grade term in all four models, and SCC/ADC is always
     the largest. But ASC-US and LSIL SWAP between models (LSIL is above ASC-US
     in base and genotyping, below it in e6 and full), so they cannot be ordered
-    against each other — they are adjacent low-grade categories whose estimates
+    against each other, they are adjacent low-grade categories whose estimates
     overlap. Asserting a fixed order there would be our invention, not the
     paper's finding.
     """

@@ -25,15 +25,13 @@ def test_coerce_reads_numbers_bools_and_strings():
 
 
 def test_parse_predictors_accepts_both_flag_forms():
-    assert _parse_predictors(["--age", "50", "--male=yes"]) == {
-        "age": 50, "male": True}
+    assert _parse_predictors(["--age", "50", "--male=yes"]) == {"age": 50, "male": True}
 
 
 def test_parse_predictors_maps_dashes_to_underscores():
     """`--bilirubin-umol-l` is what a shell user types; the model takes
     `bilirubin_umol_l`."""
-    assert _parse_predictors(["--bilirubin-umol-l", "20"]) == {
-        "bilirubin_umol_l": 20}
+    assert _parse_predictors(["--bilirubin-umol-l", "20"]) == {"bilirubin_umol_l": 20}
 
 
 def test_parse_predictors_rejects_a_value_with_no_flag():
@@ -78,8 +76,20 @@ def test_info_on_an_unknown_model_fails_cleanly(capsys):
 def test_predict_returns_the_same_number_as_the_api(capsys):
     from cancerverse_baseline import predict
 
-    assert main(["predict", "albi", "--bilirubin_umol_l", "20",
-                 "--albumin_g_l", "40", "--json"]) == 0
+    assert (
+        main(
+            [
+                "predict",
+                "albi",
+                "--bilirubin_umol_l",
+                "20",
+                "--albumin_g_l",
+                "40",
+                "--json",
+            ]
+        )
+        == 0
+    )
     from_cli = json.loads(capsys.readouterr().out)
     from_api = predict("albi", bilirubin_umol_l=20.0, albumin_g_l=40.0)
     assert from_cli["score"] == pytest.approx(from_api["score"])
@@ -89,12 +99,37 @@ def test_predict_returns_the_same_number_as_the_api(capsys):
 def test_predict_prints_scope_before_the_number(capsys):
     """Running a model is not the same as being entitled to believe it. Where a
     scope is recorded, it must appear before the result, not after."""
-    assert main(["predict", "crc_pro",
-                 "--male", "yes", "--age", "60", "--ethnicity", "Japanese",
-                 "--weight_lb", "170", "--height_in", "68",
-                 "--years_education", "12", "--pack_years", "0",
-                 "--alcohol_drinks_per_day", "0", "--family_history", "no",
-                 "--multivitamin", "no", "--diabetes", "no"]) == 0
+    assert (
+        main(
+            [
+                "predict",
+                "crc_pro",
+                "--male",
+                "yes",
+                "--age",
+                "60",
+                "--ethnicity",
+                "Japanese",
+                "--weight_lb",
+                "170",
+                "--height_in",
+                "68",
+                "--years_education",
+                "12",
+                "--pack_years",
+                "0",
+                "--alcohol_drinks_per_day",
+                "0",
+                "--family_history",
+                "no",
+                "--multivitamin",
+                "no",
+                "--diabetes",
+                "no",
+            ]
+        )
+        == 0
+    )
     out = capsys.readouterr().out
     assert out.startswith("scope:")
     assert out.index("scope:") < out.index("risk")

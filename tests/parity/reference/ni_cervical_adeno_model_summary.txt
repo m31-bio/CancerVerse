@@ -1,0 +1,37 @@
+Call:
+coxph(formula = Formula, data = data)
+
+  n= 5655, number of events= 1378 
+
+                          coef exp(coef) se(coef)      z Pr(>|z|)    
+gradegrade II          0.34694   1.41473  0.08464  4.099 4.15e-05 ***
+gradegrade III and IV  0.74336   2.10299  0.08462  8.785  < 2e-16 ***
+stage_TT1b             1.31829   3.73703  0.21522  6.125 9.06e-10 ***
+stage_TT2              2.06269   7.86707  0.22387  9.214  < 2e-16 ***
+stage_TT3              2.55006  12.80782  0.23095 11.042  < 2e-16 ***
+stage_TT4              2.64642  14.10340  0.24268 10.905  < 2e-16 ***
+stage_NN1              0.58126   1.78829  0.06278  9.259  < 2e-16 ***
+stage_MM1              0.53662   1.71022  0.08710  6.161 7.22e-10 ***
+surg_primyes          -0.58515   0.55702  0.06290 -9.303  < 2e-16 ***
+tumor_size21-40mm      0.64310   1.90236  0.09561  6.726 1.74e-11 ***
+tumor_size>40mm        0.85236   2.34517  0.09815  8.685  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+                      exp(coef) exp(-coef) lower .95 upper .95
+gradegrade II             1.415    0.70685    1.1985    1.6700
+gradegrade III and IV     2.103    0.47551    1.7816    2.4824
+stage_TT1b                3.737    0.26759    2.4509    5.6980
+stage_TT2                 7.867    0.12711    5.0729   12.2003
+stage_TT3                12.808    0.07808    8.1450   20.1401
+stage_TT4                14.103    0.07090    8.7650   22.6932
+stage_NN1                 1.788    0.55919    1.5812    2.0224
+stage_MM1                 1.710    0.58472    1.4418    2.0286
+surg_primyes              0.557    1.79527    0.4924    0.6301
+tumor_size21-40mm         1.902    0.52566    1.5773    2.2945
+tumor_size>40mm           2.345    0.42641    1.9348    2.8426
+
+Concordance= 0.848  (se = 0.005 )
+Likelihood ratio test= 2266  on 11 df,   p=<2e-16
+Wald test            = 2142  on 11 df,   p=<2e-16
+Score (logrank) test = 3603  on 11 df,   p=<2e-16

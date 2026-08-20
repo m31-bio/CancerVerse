@@ -1,9 +1,9 @@
-"""ALBI grade — albumin-bilirubin liver function (Johnson et al., JCO 2015).
+"""ALBI grade, albumin-bilirubin liver function (Johnson et al., JCO 2015).
 
 Equation source
 ---------------
 Johnson PJ, Berhane S, Kagebayashi C, et al. "Assessment of Liver Function in
-Patients With Hepatocellular Carcinoma: A New Evidence-Based Approach — The ALBI
+Patients With Hepatocellular Carcinoma: A New Evidence-Based Approach. The ALBI
 Grade." J Clin Oncol. 2015;33(6):550-558. doi:10.1200/JCO.2014.57.9151
 
     ALBI = 0.66 * log10(bilirubin [umol/L]) - 0.085 * albumin [g/L]
@@ -26,7 +26,7 @@ read. The primary text (PMC4322258) prints:
 
 Three independent sources agree on -0.085: the primary paper, MDCalc's
 published formula, and the aMAP paper which embeds ALBI as a term. The error
-shifted scores by roughly +0.006 to +0.009 — small, but enough to flip a grade
+shifted scores by roughly +0.006 to +0.009, small, but enough to flip a grade
 for anyone sitting near the -2.60 or -1.39 boundary.
 """
 
@@ -82,7 +82,7 @@ def albi_predict(
 
     Notes
     -----
-    ALBI grades liver function, not tumour burden — it is a prognostic
+    ALBI grades liver function, not tumour burden, it is a prognostic
     stratifier used alongside staging (BCLC), not a survival probability.
     """
     if bilirubin_umol_l is None:

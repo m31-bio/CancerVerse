@@ -2,7 +2,11 @@
 
 import pytest
 
-from cancerverse_baseline.prostate.prognosis import capra_predict, capra_score, risk_group
+from cancerverse_baseline.prostate.prognosis import (
+    capra_predict,
+    capra_score,
+    risk_group,
+)
 from cancerverse_baseline.prostate.prognosis.capra import (
     gleason_points,
     psa_points,
@@ -45,7 +49,7 @@ def test_t_stage_points_and_localized_scope():
     for stage in ("T1", "T1c", "T2", "T2b", "cT2a"):
         assert t_stage_points(stage) == 0
     assert t_stage_points("T3a") == 1
-    # CAPRA is preoperative and localized — T3b/T4 are out of scope.
+    # CAPRA is preoperative and localized. T3b/T4 are out of scope.
     for stage in ("T3b", "T4"):
         with pytest.raises(ValueError, match="localized"):
             t_stage_points(stage)
@@ -112,3 +116,20 @@ def test_metadata():
     assert out["axis"] == "prognosis"
     assert out["disease"] == "prostate"
     assert out["risk"] is None
+
+
+def test_the_citation_does_not_attribute_the_banding_to_the_paper():
+    """The 0-2/3-5/6-10 banding is not in Cooperberg 2005 and must not be cited to it.
+
+    `MODEL_CITATION` used to end "PMC2948569 Table 1", with the banding printed
+    directly under the Table 1 transcription in the docstring, which read as one
+    sourced block. Table 1 is the point table and has no risk groups; the paper
+    groups scores as 0-1/2/3/4/5/6/>=7.
+
+    Asserted on the citation string rather than on docstring prose, so that
+    rewording the explanation does not fail the test, what must not regress is
+    the claim the citation makes.
+    """
+    from cancerverse_baseline.prostate.prognosis import capra as m
+
+    assert "not from that paper" in m.MODEL_CITATION

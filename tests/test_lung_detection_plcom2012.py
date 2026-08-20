@@ -36,7 +36,9 @@ def test_centered_profile_reduces_to_intercept_plus_intensity():
 
 
 def test_smoking_intensity_transform():
-    assert smoking_intensity_term(80) == pytest.approx(0.125 - C.SMOKING_INTENSITY_CENTER)
+    assert smoking_intensity_term(80) == pytest.approx(
+        0.125 - C.SMOKING_INTENSITY_CENTER
+    )
     # Non-linear and decreasing in cigarettes/day: the transform is (cpd/10)**-1.
     assert smoking_intensity_term(20) > smoking_intensity_term(40)
 
@@ -44,9 +46,9 @@ def test_smoking_intensity_transform():
 def test_risk_monotonic_in_established_risk_factors():
     base = plcom2012_predict(**CENTERED, cigarettes_per_day=20)["risk"]
     for factor in ("copd", "personal_cancer_history", "family_history_lung_cancer"):
-        worse = plcom2012_predict(
-            **{**CENTERED, factor: True}, cigarettes_per_day=20
-        )["risk"]
+        worse = plcom2012_predict(**{**CENTERED, factor: True}, cigarettes_per_day=20)[
+            "risk"
+        ]
         assert worse > base, factor
     older = plcom2012_predict(**{**CENTERED, "age": 70}, cigarettes_per_day=20)["risk"]
     assert older > base
@@ -79,10 +81,12 @@ def test_race_offsets_match_table2():
 
 def test_race_aliases_and_normalisation():
     canonical = plcom2012_predict(
-        **{**CENTERED, "race": "native_hawaiian_pacific_islander"}, cigarettes_per_day=20
+        **{**CENTERED, "race": "native_hawaiian_pacific_islander"},
+        cigarettes_per_day=20,
     )
     alias = plcom2012_predict(
-        **{**CENTERED, "race": "Native Hawaiian / Pacific Islander"}, cigarettes_per_day=20
+        **{**CENTERED, "race": "Native Hawaiian / Pacific Islander"},
+        cigarettes_per_day=20,
     )
     assert alias["risk"] == pytest.approx(canonical["risk"])
     assert alias["race_group"] == "native_hawaiian_pacific_islander"
@@ -103,7 +107,8 @@ def test_never_smoker_and_invalid_inputs_rejected():
         plcom2012_predict(**{**CENTERED, "quit_years": -1}, cigarettes_per_day=20)
     with pytest.raises(ValueError, match="current smokers"):
         plcom2012_predict(
-            **{**CENTERED, "current_smoker": True, "quit_years": 5}, cigarettes_per_day=20
+            **{**CENTERED, "current_smoker": True, "quit_years": 5},
+            cigarettes_per_day=20,
         )
 
 

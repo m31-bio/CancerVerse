@@ -62,8 +62,8 @@ def reference_cases():
 #
 # That stopped being theoretical on 2026-08-18. A second session was editing
 # the registry while the suite ran, and two consecutive full runs each failed a
-# DIFFERENT unrelated test -- `test_no_public_repo_is_claimed_for_a_model_
-# marked_otherwise`, then `test_no_registry_url_is_visibly_malformed` -- both
+# DIFFERENT unrelated test, `test_no_public_repo_is_claimed_for_a_model_
+# marked_otherwise`, then `test_no_registry_url_is_visibly_malformed`, both
 # passing on their own seconds later. Nothing in the output said "the file
 # changed underneath you"; diagnosing it meant stat-ing the file by hand.
 #
@@ -101,13 +101,38 @@ def pytest_configure(config):
     import cancerverse_baseline.registry as pkg
 
     # `registry/__init__.py` re-exports a FUNCTION named `load`, which shadows
-    # the submodule of the same name -- `from cancerverse_baseline.registry import
+    # the submodule of the same name, `from cancerverse_baseline.registry import
     # load` hands back the function. Go through sys.modules for the module.
     importlib.import_module("cancerverse_baseline.registry.load")
     loader = sys.modules["cancerverse_baseline.registry.load"]
 
     path = ROOT / "registry" / "models.yaml"
-    snapshot = yaml.safe_load(path.read_text(encoding="utf-8"))["models"]
+    # A YAML syntax error here takes down the ENTIRE suite, and it does it in
+    # the worst possible way: this hook runs before collection, so pytest has
+    # no test to attach the failure to and reports a bare INTERNALERROR with a
+    # thirty-line traceback through the yaml composer. Nothing in that output
+    # says "registry/models.yaml is malformed".
+    #
+    # It happened on 2026-08-18, from a concurrent edit that left an unquoted
+    # scalar whose value contained a second colon. 1,842 tests went from green
+    # to unrunnable, and the message pointed at yaml/scanner.py.
+    #
+    # `check-yaml` in .pre-commit-config.yaml already guards this, but only at
+    # commit time, so it is silent for anyone running the suite mid-edit.
+    try:
+        raw = yaml.safe_load(path.read_text(encoding="utf-8"))
+    except yaml.YAMLError as exc:
+        mark = getattr(exc, "problem_mark", None)
+        where = f" at line {mark.line + 1}, column {mark.column + 1}" if mark else ""
+        raise pytest.UsageError(
+            f"registry/models.yaml is not valid YAML{where}: "
+            f"{getattr(exc, 'problem', exc)}.\n"
+            f"Every test in this suite reads it, so nothing can run until it "
+            f"parses. The usual cause is an unquoted value containing a colon "
+            f"-- wrap it in a `>-` block scalar. Check with:\n"
+            f"    python -c \"import yaml;yaml.safe_load(open('registry/models.yaml'))\""
+        ) from exc
+    snapshot = raw["models"]
     _SNAPSHOT["digest"] = _registry_digest()
     _SNAPSHOT["original"] = loader.load_models
 
@@ -143,7 +168,7 @@ def pytest_sessionfinish(session, exitstatus):
     reporter = session.config.pluginmanager.get_plugin("terminalreporter")
     msg = (
         "registry/models.yaml CHANGED DURING THIS RUN. Results are not "
-        "trustworthy -- different tests may have been checked against "
+        "trustworthy, different tests may have been checked against "
         "different registries. Re-run on a quiet tree before believing "
         "either outcome."
     )

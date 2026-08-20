@@ -1,4 +1,4 @@
-"""MSK gastric nomogram — disease-specific survival after R0 resection.
+"""MSK gastric nomogram, disease-specific survival after R0 resection.
 
 Equation source
 ---------------
@@ -90,13 +90,13 @@ DEPTH_CODE = {name: i for i, name in enumerate(DEPTH_LEVELS, start=1)}
 
 # Reference level carries no term.
 PRIMARY_SITE_BETA = {
-    "antrum_or_pyloric": 0.0,                 # reference
+    "antrum_or_pyloric": 0.0,  # reference
     "body_or_middle_third": 0.23855249,
     "gastroesophageal_junction": 0.7131089,
     "proximal_or_upper_third": 0.14158861,
 }
 LAUREN_BETA = {
-    "diffuse": 0.0,                           # reference
+    "diffuse": 0.0,  # reference
     "intestinal": -0.19097534,
     "mixed": -0.075717935,
 }
@@ -217,9 +217,14 @@ def msk_gastric_predict(
             f"got {years}"
         )
     lp = linear_predictor(
-        age=age, male=male, primary_site=primary_site, lauren=lauren,
-        size_cm=size_cm, positive_nodes=positive_nodes,
-        negative_nodes=negative_nodes, depth=depth,
+        age=age,
+        male=male,
+        primary_site=primary_site,
+        lauren=lauren,
+        size_cm=size_cm,
+        positive_nodes=positive_nodes,
+        negative_nodes=negative_nodes,
+        depth=depth,
     )
     s0 = BASELINE_SURVIVAL[years]
     survival = s0 ** math.exp(lp)

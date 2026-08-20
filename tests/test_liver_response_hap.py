@@ -39,14 +39,30 @@ def test_thresholds_are_strict_and_directional():
     assert hap_predict(**{**CLEAN, "albumin_g_l": 36.0})["components"]["albumin"] == 0
     assert hap_predict(**{**CLEAN, "albumin_g_l": 35.9})["components"]["albumin"] == 1
 
-    assert hap_predict(**{**CLEAN, "bilirubin_umol_l": 17.0})["components"]["bilirubin"] == 0
-    assert hap_predict(**{**CLEAN, "bilirubin_umol_l": 17.1})["components"]["bilirubin"] == 1
+    assert (
+        hap_predict(**{**CLEAN, "bilirubin_umol_l": 17.0})["components"]["bilirubin"]
+        == 0
+    )
+    assert (
+        hap_predict(**{**CLEAN, "bilirubin_umol_l": 17.1})["components"]["bilirubin"]
+        == 1
+    )
 
     assert hap_predict(**{**CLEAN, "afp_ng_ml": 400.0})["components"]["afp"] == 0
     assert hap_predict(**{**CLEAN, "afp_ng_ml": 400.1})["components"]["afp"] == 1
 
-    assert hap_predict(**{**CLEAN, "dominant_tumour_size_cm": 7.0})["components"]["tumour_size"] == 0
-    assert hap_predict(**{**CLEAN, "dominant_tumour_size_cm": 7.1})["components"]["tumour_size"] == 1
+    assert (
+        hap_predict(**{**CLEAN, "dominant_tumour_size_cm": 7.0})["components"][
+            "tumour_size"
+        ]
+        == 0
+    )
+    assert (
+        hap_predict(**{**CLEAN, "dominant_tumour_size_cm": 7.1})["components"][
+            "tumour_size"
+        ]
+        == 1
+    )
 
 
 def test_grade_d_absorbs_both_3_and_4_points():
@@ -75,6 +91,22 @@ def test_median_survival_decreases_monotonically_across_grades():
     assert os_by_grade == sorted(os_by_grade, reverse=True)
 
 
+def test_matches_interventionalradio_independent_statement():
+    """interventionalradio.org/hap-score is a second, independently-authored
+    statement of the rule, not the Kadalayil 2013 paper this module was
+    built from. Checked 2026-08-05: it states the same four criteria and
+    thresholds, the same A/B/C/D mapping with D as '>2', and the same four
+    median survivals. Same pattern as ALBI/CAPRA against MDCalc
+    (tests/parity/test_r_reference_parity.py), a second published
+    statement of the rule, not a worked numeric example."""
+    assert H.ALBUMIN_CUTOFF_G_L == 36.0
+    assert H.BILIRUBIN_CUTOFF_UMOL_L == 17.0
+    assert H.AFP_CUTOFF_NG_ML == 400.0
+    assert H.TUMOUR_SIZE_CUTOFF_CM == 7.0
+    assert [hap_grade(p) for p in (0, 1, 2, 3, 4)] == ["A", "B", "C", "D", "D"]
+    assert H.MEDIAN_OS_MONTHS == {"A": 27.6, "B": 18.5, "C": 9.0, "D": 3.6}
+
+
 def test_us_units_convert_to_si():
     si = hap_predict(**CLEAN)
     us = hap_predict(
@@ -93,9 +125,7 @@ def test_rejects_ambiguous_or_invalid_units():
     with pytest.raises(ValueError, match="bilirubin in one unit only"):
         hap_predict(**CLEAN, bilirubin_mg_dl=0.7)
     with pytest.raises(ValueError, match="albumin_g_l or albumin_g_dl"):
-        hap_predict(
-            bilirubin_umol_l=12.0, afp_ng_ml=20.0, dominant_tumour_size_cm=3.0
-        )
+        hap_predict(bilirubin_umol_l=12.0, afp_ng_ml=20.0, dominant_tumour_size_cm=3.0)
     with pytest.raises(ValueError, match="afp_ng_ml must be > 0"):
         hap_predict(**{**CLEAN, "afp_ng_ml": 0.0})
 

@@ -1,9 +1,9 @@
-"""Kunzmann model — esophageal adenocarcinoma risk in primary care.
+"""Kunzmann model, esophageal adenocarcinoma risk (UK Biobank).
 
 Equation source
 ---------------
 Kunzmann AT, Thrift AP, Cardwell CR, et al. "Model for Identifying Individuals
-at Risk for Esophageal Adenocarcinoma." Clin Gastroenterol Hepatol. Table 2 —
+at Risk for Esophageal Adenocarcinoma." Clin Gastroenterol Hepatol. Table 2,
 stepwise logistic regression with an accompanying points-based model.
 
 Points table, transcribed from Table 2 (total 0-15):
@@ -17,7 +17,7 @@ Points table, transcribed from Table 2 (total 0-15):
     Screening referral threshold: **>= 8 points**
 
 The points are the fitted coefficients divided by the smallest coefficient in
-the model and rounded to the nearest 0.5 — the paper's own construction, so the
+the model and rounded to the nearest 0.5, the paper's own construction, so the
 points ARE the model, not a lossy summary of it.
 
 The divisor: the paper gives two, and only one works
@@ -35,7 +35,7 @@ Intersecting all ten rows admits only
 
 which contains the Methods' 0.40 and excludes the footnote's 0.41. With 0.41,
 "Smoking, former" comes out 1.5 against a published 2.0. Note that ln(1.50) =
-0.4055 is also outside the interval, and narrowly — which is likely where the
+0.4055 is also outside the interval, and narrowly, which is likely where the
 footnote came from: recomputing the smallest coefficient from the rounded odds
 ratio rather than reading the fitted value. It also implies the true BMI 25-<30
 odds ratio is about 1.492-1.499, printed as 1.50.
@@ -51,8 +51,18 @@ Asia and East Africa, while EAC is driven by reflux, obesity and male sex and
 dominates in Western populations. Applying this model where ESCC predominates
 would be a category error.
 
-Developed in a UK primary-care population aged 50+. Male sex alone carries 4.0
-of the 15 available points — more than any other single factor and half of the
+Developed in the UK BIOBANK, not in primary care. The abstract is explicit:
+"We collected data from 355,034 individuals (all older than 50 years) without a
+prior history of cancer enrolled in the UK Biobank prospective cohort study from
+2006 through 2010". This docstring said "UK primary-care population" until
+2026-08-18, which matters for transportability rather than being a nicety: UK
+Biobank is a volunteer cohort with a well-documented healthy-volunteer bias, so
+its absolute 5-year risks (0.16% above the threshold, 0.02% below) do not carry
+over to an unselected primary-care list. The registry's `development_cohort`
+had it right all along; the two disagreed.
+
+Aged 50+. Male sex alone carries 4.0
+of the 15 available points, more than any other single factor and half of the
 referral threshold, reflecting the roughly 5-fold male excess in EAC.
 
 Factors tested and dropped by stepwise selection: height, respiratory
@@ -149,6 +159,6 @@ def kunzmann_predict(
         "axis": AXIS,
         "disease": "esophageal",
         "citation": MODEL_CITATION,
-        "notes": "adenocarcinoma only (not squamous); UK primary care, age 50+; "
+        "notes": "adenocarcinoma only (not squamous); UK Biobank volunteers, age 50+; "
         "referral threshold >= 8 of 15 points",
     }

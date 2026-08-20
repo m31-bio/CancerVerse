@@ -1,38 +1,26 @@
-# Disease registry — single source of truth for disease metadata
+# Disease registry, single source of truth for disease metadata
 diseases:
   - id: head_neck
     name: Head and Neck Cancer
-    vault: 10_diseases/Head-and-Neck-Cancer.md
   - id: lung
     name: Lung Cancer
-    vault: 10_diseases/Lung-Cancer.md
   - id: prostate
     name: Prostate Cancer
-    vault: 10_diseases/Prostate-Cancer.md
   - id: breast
     name: Breast Cancer
-    vault: 10_diseases/Breast-Cancer.md
   - id: liver
     name: Liver Cancer
-    vault: 10_diseases/Liver-Cancer.md
   - id: colorectal
     name: Colorectal Cancer
-    vault: 10_diseases/Colorectal-Cancer.md
   - id: esophageal
     name: Esophageal Cancer
-    vault: 10_diseases/Esophageal-Cancer.md
   - id: gastric
     name: Gastric Cancer
-    vault: 10_diseases/Gastric-Cancer.md
   - id: ovarian
     name: Ovarian Cancer
-    vault: 10_diseases/Ovarian-Cancer.md
   - id: cervical
     name: Cervical Cancer
-    vault: 10_diseases/Cervical-Cancer.md
   - id: pancreatic
     name: Pancreatic Cancer
-    vault: 10_diseases/Pancreatic-Cancer.md
   - id: cvd
     name: Cardiovascular Disease
-    vault: 10_diseases/Cardiovascular-Disease.md

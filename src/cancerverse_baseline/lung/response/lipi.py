@@ -12,7 +12,12 @@ inhibitors in advanced NSCLC. Two items, one point each:
 
     dNLR = neutrophils / (leukocytes - neutrophils)
 
-Reference: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7481630/
+Development: Mezquita L, Auclin E, Ferrara R, et al. Association of the Lung
+Immune Prognostic Index With Immune Checkpoint Inhibitor Outcomes in Patients
+With Advanced Non-Small Cell Lung Cancer. JAMA Oncol. 2018;4(3):351-357.
+https://pmc.ncbi.nlm.nih.gov/articles/PMC5885829/ (PMC7481630, cited here in
+earlier revisions, is a 2020 commentary by a different, overlapping author
+list, not the development paper.)
 Validation in IMpower130/131/150 post hoc analysis:
 https://www.sciencedirect.com/science/article/pii/S0169500224005737
 
@@ -28,8 +33,10 @@ DNLR_THRESHOLD = 3.0
 GROUPS = {0: "good", 1: "intermediate", 2: "poor"}
 
 MODEL_CITATION = (
-    "Mezquita L et al., Lung Immune Prognostic Index (dNLR > 3, LDH > ULN). "
-    "PMC7481630; validated in IMpower130/131/150 post hoc analysis."
+    "Mezquita L et al. Association of the Lung Immune Prognostic Index With "
+    "Immune Checkpoint Inhibitor Outcomes in Patients With Advanced Non-Small "
+    "Cell Lung Cancer. JAMA Oncol. 2018;4(3):351-357. PMC5885829; validated in "
+    "IMpower130/131/150 post hoc analysis."
 )
 
 
@@ -37,7 +44,7 @@ def derived_nlr(*, neutrophils: float, leukocytes: float) -> float:
     """dNLR = neutrophils / (leukocytes - neutrophils).
 
     The denominator is the *non-neutrophil* white count, which is why this is
-    "derived" NLR rather than the ordinary neutrophil-to-lymphocyte ratio — it
+    "derived" NLR rather than the ordinary neutrophil-to-lymphocyte ratio, it
     does not need a lymphocyte count.
     """
     if neutrophils <= 0:
@@ -63,7 +70,7 @@ def lipi_predict(
     leukocyte count to derive it.
 
     LDH is compared against the reporting lab's own upper limit of normal, so
-    both the value and its ULN must be passed — there is no universal cutoff.
+    both the value and its ULN must be passed, there is no universal cutoff.
     """
     if dnlr is None:
         if neutrophils is None or leukocytes is None:

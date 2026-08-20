@@ -1,4 +1,4 @@
-"""MSK rectal cancer calculator — RFS and OS after chemoradiotherapy + surgery.
+"""MSK rectal cancer calculator. RFS and OS after chemoradiotherapy + surgery.
 
 Equation source
 ---------------
@@ -7,7 +7,7 @@ Team of Memorial Sloan Kettering Cancer Center. "Development and Assessment of
 a Clinical Calculator for Estimating the Likelihood of Recurrence and Survival
 Among Patients With Locally Advanced Rectal Cancer Treated With Chemotherapy,
 Radiotherapy, and Surgery." JAMA Netw Open. 2021;4(11):e2133457.
-doi:10.1001/jamanetworkopen.2021.33457 — Supplement 1, eFigure ("Predictive
+doi:10.1001/jamanetworkopen.2021.33457. Supplement 1, eFigure ("Predictive
 Equations for Incomplete Responders for RFS (top) and OS (bottom)").
 
 The eFigure is a rendered image, not text; the coefficients below were read
@@ -22,7 +22,7 @@ tests/parity/test_msk_rectal_parity.py.
 A published inconsistency you will trip over if you check our work
 ------------------------------------------------------------------
 exp(beta) from the eFigure does NOT reproduce the hazard ratios printed in the
-eTable of the same supplement — but only for OS:
+eTable of the same supplement, but only for OS:
 
     RFS   6/6 terms agree to 3 significant figures
     OS    0/5 agree (T3 1.31 vs 1.48, T4 4.00 vs 3.80, DTAV 0.64 vs 0.69,
@@ -44,13 +44,13 @@ Cox form, with time in MONTHS:
 
 Population
 ----------
-**Incomplete pathological responders** only — patients with locally advanced
+**Incomplete pathological responders** only, patients with locally advanced
 rectal cancer (stage II/III) who underwent neoadjuvant chemoradiotherapy and
 surgery and did NOT achieve a complete pathological response. Complete
 responders are handled by a Kaplan-Meier estimate in the source tool, not by
 this equation, and this module does not cover them.
 
-A trap worth stating plainly: the two endpoints use DIFFERENT ypT reference
+A trap: the two endpoints use DIFFERENT ypT reference
 groups. RFS is coded against ypT0/T1 (so T2, T3, T4 each get an indicator);
 OS is coded against ypT0/T1/T2 (so only T3 and T4 do). Applying the RFS
 coding to the OS model silently misprices every ypT2 patient.
@@ -61,7 +61,7 @@ Two more things that look like bugs and are not
    also an RFS event. But the two endpoints are separate marginal Cox fits and
    only the OS model carries age, so for an older patient the OS model predicts
    heavy mortality while the age-blind RFS model does not follow, and the
-   ordering inverts. MSK's own deployed tool does this too — an 80-year-old
+   ordering inverts. MSK's own deployed tool does this too, an 80-year-old
    ypT2 with 5 positive nodes, venous and perineural invasion returns RFS 42%
    with OS 15% there and here. Reproduced, not corrected.
 2. **ypT0.** MSK's web form rejects ypT0 for an incomplete responder ("T0 is an
@@ -156,7 +156,7 @@ def linear_predictor(
         lp += -0.3811237 * dtav_ge5 + 0.136099 * vi + 0.6336823 * pni
         return lp
 
-    # OS. Reference group: ypT0/T1/T2 — deliberately different from RFS.
+    # OS. Reference group: ypT0/T1/T2, deliberately different from RFS.
     if age is None:
         raise ValueError("age is required for the OS endpoint")
     if age <= 0:
@@ -197,7 +197,7 @@ def msk_rectal_predict(
     Probability of remaining recurrence-free (`rfs`) or alive (`os`) at
     `months` after surgery, for an incomplete pathological responder.
 
-    `months` must be one of 0 / 60 / 120 / 180 — the only follow-up times for
+    `months` must be one of 0 / 60 / 120 / 180, the only follow-up times for
     which the paper publishes a baseline survival value. Interpolating between
     them would be our invention, so it is refused rather than guessed.
     """

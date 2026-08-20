@@ -1,4 +1,4 @@
-"""ABC method — serological stratification of gastric cancer risk.
+"""ABC method, serological stratification of gastric cancer risk.
 
 Not a regression: a 2x2 rule over two serum tests. H. pylori antibody and
 serum-pepsinogen "atrophic" status are each dichotomised; the four
@@ -16,7 +16,7 @@ incidence rate.
 Group ordering is NOT monotone in either test alone: group D (seronegative
 WITH atrophy) is the highest-risk group, because extensive atrophy destroys
 the niche H. pylori lives in, so the antibody titre falls as damage
-progresses. That interaction — not either test alone — is the point of the
+progresses. That interaction, not either test alone, is the point of the
 method.
 
 Equation source
@@ -24,7 +24,7 @@ Equation source
 Watabe H, Mitsushima T, Yamaji Y, et al. Predicting the development of
 gastric cancer from combining Helicobacter pylori antibodies and serum
 pepsinogen status: a prospective endoscopic cohort study. Gut.
-2005;54(6):764-768. doi:10.1136/gut.2004.055400 — group definitions from
+2005;54(6):764-768. doi:10.1136/gut.2004.055400, group definitions from
 Table 1/Methods, incidence rates from Table 2, hazard ratios from Table 3.
 PMC1774550, retrieved 2026-08-05. Rates cross-checked by re-deriving
 cases/(subjects x mean follow-up) from Tables 1-2: 7/(3324*4.8y)=0.044%/y,
@@ -37,7 +37,7 @@ here are Watabe's prospective-cohort numbers.
 Caveats
 -------
 Group A is low-risk, not zero-risk (7/3324 group-A subjects still developed
-gastric cancer). The rule is invalid after H. pylori eradication therapy —
+gastric cancer). The rule is invalid after H. pylori eradication therapy,
 seroreversion moves people into A/B while atrophy, and risk, persists. Both
 tests are assay-specific (Biomerica GAP-IgG; PG I/II cutoff pair) and do not
 transfer across assays without a bridging study. The absolute rates are
@@ -50,8 +50,8 @@ from __future__ import annotations
 AXIS = "detection"
 MODEL_ID = "abc_method"
 
-PG1_ATROPHIC_CUTOFF = 70.0       # ng/mL, inclusive
-PG_RATIO_ATROPHIC_CUTOFF = 3.0   # PG I / PG II, inclusive
+PG1_ATROPHIC_CUTOFF = 70.0  # ng/mL, inclusive
+PG_RATIO_ATROPHIC_CUTOFF = 3.0  # PG I / PG II, inclusive
 
 GROUP_BY_SEROLOGY = {
     (False, False): "A",
@@ -90,15 +90,21 @@ MODEL_CITATION = (
 )
 
 
-def is_pepsinogen_atrophic(*, pepsinogen_i: float, pepsinogen_i_ii_ratio: float) -> bool:
+def is_pepsinogen_atrophic(
+    *, pepsinogen_i: float, pepsinogen_i_ii_ratio: float
+) -> bool:
     return (
         pepsinogen_i <= PG1_ATROPHIC_CUTOFF
         and pepsinogen_i_ii_ratio <= PG_RATIO_ATROPHIC_CUTOFF
     )
 
 
-def abc_group(*, h_pylori_antibody_positive: bool, pepsinogen_i: float,
-              pepsinogen_i_ii_ratio: float) -> str:
+def abc_group(
+    *,
+    h_pylori_antibody_positive: bool,
+    pepsinogen_i: float,
+    pepsinogen_i_ii_ratio: float,
+) -> str:
     atrophic = is_pepsinogen_atrophic(
         pepsinogen_i=pepsinogen_i, pepsinogen_i_ii_ratio=pepsinogen_i_ii_ratio
     )
@@ -120,7 +126,7 @@ def abc_method_predict(
     -----
     Population: asymptomatic Japanese health-checkup endoscopy attendees
     (Watabe cohort: mean age 48.9, 68% male). Set ``prior_eradication=True``
-    to flag that the classification is not valid — seroreversion after
+    to flag that the classification is not valid, seroreversion after
     eradication misclassifies persistently high-atrophy patients as A/B.
     """
     group = abc_group(
@@ -136,11 +142,13 @@ def abc_method_predict(
     if prior_eradication:
         notes.append(
             "history of H. pylori eradication: this classification is NOT "
-            "valid — use pre-eradication serology or endoscopic OLGA/OLGIM "
+            "valid, use pre-eradication serology or endoscopic OLGA/OLGIM "
             "atrophy staging instead"
         )
     if group == "A":
-        notes.append("group A is low-risk, not zero-risk (7/3324 developed gastric cancer)")
+        notes.append(
+            "group A is low-risk, not zero-risk (7/3324 developed gastric cancer)"
+        )
 
     return {
         "risk": rate,
@@ -155,7 +163,7 @@ def abc_method_predict(
         "derivation_subjects_in_group": counts["subjects"],
         "derivation_cancers_in_group": counts["cancers"],
         "citation": MODEL_CITATION,
-        "notes": "; ".join(notes) if notes else (
-            "annual gastric-cancer incidence rate for the assigned ABC group"
-        ),
+        "notes": "; ".join(notes)
+        if notes
+        else ("annual gastric-cancer incidence rate for the assigned ABC group"),
     }

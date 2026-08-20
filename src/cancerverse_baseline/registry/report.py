@@ -7,8 +7,8 @@ from .load import AXES, coverage_matrix, load_diseases, progress_report
 _BLOCKER_LABEL = {
     "needs_r_runtime": "run the open reference implementation (needs R)",
     "needs_web_calculator": "enter our inputs into the canonical web tool",
-    "no_published_example": "nothing to reproduce — no worked example exists",
-    "unclassified": "UNCLASSIFIED — blocker not recorded",
+    "no_published_example": "nothing to reproduce, no worked example exists",
+    "unclassified": "UNCLASSIFIED, blocker not recorded",
 }
 
 
@@ -19,19 +19,27 @@ def render() -> str:
     out: list[str] = []
     w = out.append
 
-    w("CancerVerse — coverage")
+    w("CancerVerse, coverage")
     w("=" * 62)
     w("")
-    w(f"  Cells implemented   {r['n_cells_implemented']:>3} / {r['n_cells_reachable']:<3} reachable"
-      f"   ({r['pct_of_reachable']:.0f}%)")
-    w(f"  ...of the nominal   {r['n_cells_implemented']:>3} / {r['n_cells_nominal']:<3} grid"
-      f"        ({r['pct_of_nominal']:.0f}%)")
-    w(f"  Not yet reachable   {r['n_cells_unreachable']:>3}"
-      "      cells where we have not found a published equation yet")
+    w(
+        f"  Cells implemented   {r['n_cells_implemented']:>3} / {r['n_cells_reachable']:<3} reachable"
+        f"   ({r['pct_of_reachable']:.0f}%)"
+    )
+    w(
+        f"  ...of the nominal   {r['n_cells_implemented']:>3} / {r['n_cells_nominal']:<3} grid"
+        f"        ({r['pct_of_nominal']:.0f}%)"
+    )
+    w(
+        f"  Not yet reachable   {r['n_cells_unreachable']:>3}"
+        "      cells where we have not found a published equation yet"
+    )
     w("")
     w(f"  Models implemented  {r['n_models_implemented']:>3}")
-    w(f"  Parity matched      {r['n_models_matched']:>3}"
-      f"        ({r['pct_models_matched']:.0f}% of implemented)")
+    w(
+        f"  Parity matched      {r['n_models_matched']:>3}"
+        f"        ({r['pct_models_matched']:.0f}% of implemented)"
+    )
     w("")
 
     w("Per axis (implemented / reachable, unreachable excluded)")
@@ -40,17 +48,24 @@ def render() -> str:
         a = r["by_axis"][axis]
         pct = 100.0 * a["implemented"] / a["reachable"] if a["reachable"] else 0.0
         bar = "#" * int(pct / 5)
-        w(f"  {axis:10} {a['implemented']:>2}/{a['reachable']:<2} {pct:>3.0f}%  {bar:<20}"
-          f" ({a['unreachable']} unreachable)")
+        w(
+            f"  {axis:10} {a['implemented']:>2}/{a['reachable']:<2} {pct:>3.0f}%  {bar:<20}"
+            f" ({a['unreachable']} unreachable)"
+        )
     w("")
 
     w("Coverage matrix")
     w("-" * 62)
     header = f"  {'disease':12}" + "".join(f"{a:<12}" for a in AXES)
     w(header)
-    tiers = {(d, a): t for (d, a), t in __import__(
-        "cancerverse_baseline.registry.load", fromlist=["cell_tiers"]
-    ).cell_tiers().items()}
+    tiers = {
+        (d, a): t
+        for (d, a), t in __import__(
+            "cancerverse_baseline.registry.load", fromlist=["cell_tiers"]
+        )
+        .cell_tiers()
+        .items()
+    }
     for d in diseases:
         row = [f"  {d['id']:12}"]
         for axis in AXES:
@@ -66,7 +81,7 @@ def render() -> str:
             row.append(f"{mark:<12}")
         w("".join(row))
     w("")
-    w("  DONE* = implemented and parity-matched;  -- = no published equation found yet")
+    w("  DONE* = implemented and parity-matched;  -- = not implemented here yet")
     w("")
 
     w(f"Remaining reachable cells ({r['n_cells_remaining']})")

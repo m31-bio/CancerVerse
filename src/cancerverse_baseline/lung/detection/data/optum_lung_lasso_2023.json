@@ -1,0 +1,2256 @@
+{
+ "model_id": "optum_lung_lasso",
+ "source": {
+  "repo": "https://github.com/ohdsi-studies/lungCancerPrognostic",
+  "commit": "61c526eaba3f3130b2ba3a45c5f46759fcf4994c",
+  "path": "inst/models/full_model",
+  "license": "Apache-2.0 (DESCRIPTION line 43; no root LICENSE file)",
+  "extracted_by": "tests/parity/reference/optum_lung_lasso_extract.py",
+  "sha256": {
+   "model.json": "7661a67ac77d8b1aa49b0ece0d027a3548c3b67e2e55a688329d1f7237f6a282",
+   "covariateImportance.csv": "f33c3adb48bedbd7f20c7c72ae3a28c6299f0bfd01a63eb02f8c4b464c4e5e5c",
+   "preprocessing.json": "be457311b8087a00be7382ee73e4aa5e131f80127060f74cd8fc16025e1b28a6",
+   "trainDetails.json": "c8aeb8485f68816bc57fd246ee98c41143884e9a62c64c6c73692e538c3d26f8"
+  }
+ },
+ "development_database": "cdm_optum_ehr_v1705",
+ "training_date": "2022-02-23",
+ "n_patients": 4777606,
+ "n_outcomes": 3661,
+ "prior_variance": 0.0206,
+ "log_likelihood": -20811.097,
+ "n_candidate_covariates": 16633,
+ "n_removed_infrequent": 22660,
+ "n_removed_redundant": 2,
+ "removed_redundant": [
+  10003,
+  8532001
+ ],
+ "intercept": -8.8024,
+ "coefficients": [
+  {
+   "covariate_id": 3639,
+   "beta": 1.5915,
+   "beta_unrounded": 1.59147996498892,
+   "analysis_id": 639,
+   "concept_id": 0,
+   "name": "Smoker"
+  },
+  {
+   "covariate_id": 13003,
+   "beta": 1.3068,
+   "beta_unrounded": 1.30681266231828,
+   "analysis_id": 3,
+   "concept_id": 0,
+   "name": "age group:  65 -  69"
+  },
+  {
+   "covariate_id": 12003,
+   "beta": 1.0075,
+   "beta_unrounded": 1.00749267206117,
+   "analysis_id": 3,
+   "concept_id": 0,
+   "name": "age group:  60 -  64"
+  },
+  {
+   "covariate_id": 3020891702,
+   "beta": -0.8444,
+   "beta_unrounded": -0.844359083883552,
+   "analysis_id": 702,
+   "concept_id": 3020891,
+   "name": "measurement during day -365 through 0 days relative to index: Body temperature"
+  },
+  {
+   "covariate_id": 45771331802,
+   "beta": 0.8025,
+   "beta_unrounded": 0.802473298712671,
+   "analysis_id": 802,
+   "concept_id": 45771331,
+   "name": "observation during day -365 through 0 days relative to index: Temperature"
+  },
+  {
+   "covariate_id": 2639,
+   "beta": 0.7172,
+   "beta_unrounded": 0.717188566207355,
+   "analysis_id": 639,
+   "concept_id": 0,
+   "name": "previous_smoker"
+  },
+  {
+   "covariate_id": 40766362802,
+   "beta": -0.7069,
+   "beta_unrounded": -0.70686567374739,
+   "analysis_id": 802,
+   "concept_id": 40766362,
+   "name": "observation during day -365 through 0 days relative to index: Smoking status [FTND]"
+  },
+  {
+   "covariate_id": 38003564005,
+   "beta": 0.6495,
+   "beta_unrounded": 0.649538107504659,
+   "analysis_id": 5,
+   "concept_id": 38003564,
+   "name": "ethnicity = Not Hispanic or Latino"
+  },
+  {
+   "covariate_id": 8527004,
+   "beta": 0.6352,
+   "beta_unrounded": 0.635158430527503,
+   "analysis_id": 4,
+   "concept_id": 8527,
+   "name": "race = White"
+  },
+  {
+   "covariate_id": 9003,
+   "beta": -0.6263,
+   "beta_unrounded": -0.626347624438347,
+   "analysis_id": 3,
+   "concept_id": 0,
+   "name": "age group:  45 -  49"
+  },
+  {
+   "covariate_id": 11003,
+   "beta": 0.612,
+   "beta_unrounded": 0.612020426232297,
+   "analysis_id": 3,
+   "concept_id": 0,
+   "name": "age group:  55 -  59"
+  },
+  {
+   "covariate_id": 255573210,
+   "beta": 0.5853,
+   "beta_unrounded": 0.585256741886478,
+   "analysis_id": 210,
+   "concept_id": 255573,
+   "name": "condition_era group during day -365 through 0 days relative to index: Chronic obstructive lung disease"
+  },
+  {
+   "covariate_id": 8516004,
+   "beta": 0.5006,
+   "beta_unrounded": 0.500648920818518,
+   "analysis_id": 4,
+   "concept_id": 8516,
+   "name": "race = Black or African American"
+  },
+  {
+   "covariate_id": 40760098702,
+   "beta": 0.4914,
+   "beta_unrounded": 0.491423684650773,
+   "analysis_id": 702,
+   "concept_id": 40760098,
+   "name": "measurement during day -365 through 0 days relative to index: Sodium [Moles/volume] in Saliva (oral fluid)"
+  },
+  {
+   "covariate_id": 4151768702,
+   "beta": 0.434,
+   "beta_unrounded": 0.434009683810143,
+   "analysis_id": 702,
+   "concept_id": 4151768,
+   "name": "measurement during day -365 through 0 days relative to index: Pack years"
+  },
+  {
+   "covariate_id": 3045980702,
+   "beta": 0.4166,
+   "beta_unrounded": 0.416571108879947,
+   "analysis_id": 702,
+   "concept_id": 3045980,
+   "name": "measurement during day -365 through 0 days relative to index: Pulse intensity of Unspecified artery palpation"
+  },
+  {
+   "covariate_id": 321052210,
+   "beta": 0.4057,
+   "beta_unrounded": 0.405660682747605,
+   "analysis_id": 210,
+   "concept_id": 321052,
+   "name": "condition_era group during day -365 through 0 days relative to index: Peripheral vascular disease"
+  },
+  {
+   "covariate_id": 437264210,
+   "beta": 0.3599,
+   "beta_unrounded": 0.359914103417991,
+   "analysis_id": 210,
+   "concept_id": 437264,
+   "name": "condition_era group during day -365 through 0 days relative to index: Tobacco dependence syndrome"
+  },
+  {
+   "covariate_id": 3001123702,
+   "beta": -0.3484,
+   "beta_unrounded": -0.348392019032305,
+   "analysis_id": 702,
+   "concept_id": 3001123,
+   "name": "measurement during day -365 through 0 days relative to index: Platelet mean volume [Entitic volume] in Blood"
+  },
+  {
+   "covariate_id": 3008500702,
+   "beta": -0.3078,
+   "beta_unrounded": -0.307829485402824,
+   "analysis_id": 702,
+   "concept_id": 3008500,
+   "name": "measurement during day -365 through 0 days relative to index: Chloride [Moles/volume] in Saliva (oral fluid)"
+  },
+  {
+   "covariate_id": 38003178802,
+   "beta": 0.2921,
+   "beta_unrounded": 0.292086434930274,
+   "analysis_id": 802,
+   "concept_id": 38003178,
+   "name": "observation during day -365 through 0 days relative to index: Laboratory - Bacteriology and Microbiology"
+  },
+  {
+   "covariate_id": 45773385502,
+   "beta": -0.2906,
+   "beta_unrounded": -0.290622731260668,
+   "analysis_id": 502,
+   "concept_id": 45773385,
+   "name": "procedure_occurrence during day -365 through 0 days relative to index: Routine gynecologic examination"
+  },
+  {
+   "covariate_id": 21604104410,
+   "beta": 0.2871,
+   "beta_unrounded": 0.287124222224492,
+   "analysis_id": 410,
+   "concept_id": 21604104,
+   "name": "drug_era group during day -365 through 0 days relative to index: Oxazol, thiazine, and triazine derivatives"
+  },
+  {
+   "covariate_id": 46235195702,
+   "beta": 0.2804,
+   "beta_unrounded": 0.280419535131837,
+   "analysis_id": 702,
+   "concept_id": 46235195,
+   "name": "measurement during day -365 through 0 days relative to index: Phosphate [Mass/mass] in Hair"
+  },
+  {
+   "covariate_id": 3004249702,
+   "beta": -0.2621,
+   "beta_unrounded": -0.262079998026464,
+   "analysis_id": 702,
+   "concept_id": 3004249,
+   "name": "measurement during day -365 through 0 days relative to index: Systolic blood pressure"
+  },
+  {
+   "covariate_id": 21603292410,
+   "beta": 0.2608,
+   "beta_unrounded": 0.260831836198395,
+   "analysis_id": 410,
+   "concept_id": 21603292,
+   "name": "drug_era group during day -365 through 0 days relative to index: Anticholinergics"
+  },
+  {
+   "covariate_id": 3034426702,
+   "beta": 0.2543,
+   "beta_unrounded": 0.254304328248348,
+   "analysis_id": 702,
+   "concept_id": 3034426,
+   "name": "measurement during day -365 through 0 days relative to index: Prothrombin time (PT)"
+  },
+  {
+   "covariate_id": 2212359702,
+   "beta": 0.2351,
+   "beta_unrounded": 0.235132737193869,
+   "analysis_id": 702,
+   "concept_id": 2212359,
+   "name": "measurement during day -365 through 0 days relative to index: Glucose; quantitative, blood (except reagent strip)"
+  },
+  {
+   "covariate_id": 38003173802,
+   "beta": 0.2282,
+   "beta_unrounded": 0.228151770413295,
+   "analysis_id": 802,
+   "concept_id": 38003173,
+   "name": "observation during day -365 through 0 days relative to index: Laboratory - Chemistry"
+  },
+  {
+   "covariate_id": 19049105410,
+   "beta": -0.2273,
+   "beta_unrounded": -0.227292239505435,
+   "analysis_id": 410,
+   "concept_id": 19049105,
+   "name": "drug_era group during day -365 through 0 days relative to index: potassium chloride"
+  },
+  {
+   "covariate_id": 4077697702,
+   "beta": -0.2266,
+   "beta_unrounded": -0.226595860297287,
+   "analysis_id": 702,
+   "concept_id": 4077697,
+   "name": "measurement during day -365 through 0 days relative to index: Screening mammography"
+  },
+  {
+   "covariate_id": 252662210,
+   "beta": 0.2254,
+   "beta_unrounded": 0.225443486981864,
+   "analysis_id": 210,
+   "concept_id": 252662,
+   "name": "condition_era group during day -365 through 0 days relative to index: Tracheobronchial disorder"
+  },
+  {
+   "covariate_id": 443410210,
+   "beta": 0.2195,
+   "beta_unrounded": 0.219544857889818,
+   "analysis_id": 210,
+   "concept_id": 443410,
+   "name": "condition_era group during day -365 through 0 days relative to index: Infective pneumonia"
+  },
+  {
+   "covariate_id": 2212542702,
+   "beta": -0.2154,
+   "beta_unrounded": -0.215418668312814,
+   "analysis_id": 702,
+   "concept_id": 2212542,
+   "name": "measurement during day -365 through 0 days relative to index: Prostate specific antigen (PSA); total"
+  },
+  {
+   "covariate_id": 37018677210,
+   "beta": 0.2145,
+   "beta_unrounded": 0.214501460422359,
+   "analysis_id": 210,
+   "concept_id": 37018677,
+   "name": "condition_era group during day -365 through 0 days relative to index: Anomaly of eye"
+  },
+  {
+   "covariate_id": 1639,
+   "beta": -0.2132,
+   "beta_unrounded": -0.213152691616689,
+   "analysis_id": 639,
+   "concept_id": 0,
+   "name": "never-smoker"
+  },
+  {
+   "covariate_id": 2212090702,
+   "beta": -0.2106,
+   "beta_unrounded": -0.210564345704938,
+   "analysis_id": 702,
+   "concept_id": 2212090,
+   "name": "measurement during day -365 through 0 days relative to index: Basic metabolic panel (Calcium, total) This panel must include the following: Calcium, total (82310) Carbon dioxide (bicarbonate) (82374) Chloride (82435) Creatinine (82565) Glucose (82947) Potassium (84132) Sodium (84295) Urea nitrogen (BUN) (84520)"
+  },
+  {
+   "covariate_id": 43534842410,
+   "beta": -0.2081,
+   "beta_unrounded": -0.208123220391488,
+   "analysis_id": 410,
+   "concept_id": 43534842,
+   "name": "drug_era group during day -365 through 0 days relative to index: Adrenergics in combination with anticholinergics incl. triple combinations with corticosteroids"
+  },
+  {
+   "covariate_id": 2212337702,
+   "beta": 0.2074,
+   "beta_unrounded": 0.207391965553021,
+   "analysis_id": 702,
+   "concept_id": 2212337,
+   "name": "measurement during day -365 through 0 days relative to index: Folic acid; serum"
+  },
+  {
+   "covariate_id": 4032789702,
+   "beta": 0.2072,
+   "beta_unrounded": 0.207224118790154,
+   "analysis_id": 702,
+   "concept_id": 4032789,
+   "name": "measurement during day -365 through 0 days relative to index: Triglycerides measurement"
+  },
+  {
+   "covariate_id": 3006576702,
+   "beta": 0.2053,
+   "beta_unrounded": 0.205266342705521,
+   "analysis_id": 702,
+   "concept_id": 3006576,
+   "name": "measurement during day -365 through 0 days relative to index: Bicarbonate [Moles/volume] in Blood"
+  },
+  {
+   "covariate_id": 3045820702,
+   "beta": 0.2046,
+   "beta_unrounded": 0.204642179788838,
+   "analysis_id": 702,
+   "concept_id": 3045820,
+   "name": "measurement during day -365 through 0 days relative to index: Cotinine/Creatinine [Mass Ratio] in Urine"
+  },
+  {
+   "covariate_id": 3001307702,
+   "beta": 0.2006,
+   "beta_unrounded": 0.200569171486394,
+   "analysis_id": 702,
+   "concept_id": 3001307,
+   "name": "measurement during day -365 through 0 days relative to index: Neutrophil Ab [Presence] in Serum"
+  },
+  {
+   "covariate_id": 21603282410,
+   "beta": 0.1959,
+   "beta_unrounded": 0.195948386258424,
+   "analysis_id": 410,
+   "concept_id": 21603282,
+   "name": "drug_era group during day -365 through 0 days relative to index: OTHER DRUGS FOR OBSTRUCTIVE AIRWAY DISEASES, INHALANTS"
+  },
+  {
+   "covariate_id": 3013290702,
+   "beta": -0.1926,
+   "beta_unrounded": -0.192575543788412,
+   "analysis_id": 702,
+   "concept_id": 3013290,
+   "name": "measurement during day -365 through 0 days relative to index: Carbon dioxide [Partial pressure] in Blood"
+  },
+  {
+   "covariate_id": 21604114410,
+   "beta": 0.1878,
+   "beta_unrounded": 0.187832600006751,
+   "analysis_id": 410,
+   "concept_id": 21604114,
+   "name": "drug_era group during day -365 through 0 days relative to index: Other centrally acting agents"
+  },
+  {
+   "covariate_id": 3024171702,
+   "beta": -0.1876,
+   "beta_unrounded": -0.187609862941628,
+   "analysis_id": 702,
+   "concept_id": 3024171,
+   "name": "measurement during day -365 through 0 days relative to index: Respiratory rate"
+  },
+  {
+   "covariate_id": 4036803502,
+   "beta": -0.1849,
+   "beta_unrounded": -0.184855844572714,
+   "analysis_id": 502,
+   "concept_id": 4036803,
+   "name": "procedure_occurrence during day -365 through 0 days relative to index: General examination of patient"
+  },
+  {
+   "covariate_id": 437312210,
+   "beta": 0.1847,
+   "beta_unrounded": 0.184744030199982,
+   "analysis_id": 210,
+   "concept_id": 437312,
+   "name": "condition_era group during day -365 through 0 days relative to index: Bleeding"
+  },
+  {
+   "covariate_id": 2617206702,
+   "beta": -0.1828,
+   "beta_unrounded": -0.182828185477271,
+   "analysis_id": 702,
+   "concept_id": 2617206,
+   "name": "measurement during day -365 through 0 days relative to index: Prostate cancer screening; prostate specific antigen test (psa)"
+  },
+  {
+   "covariate_id": 40481841210,
+   "beta": -0.1787,
+   "beta_unrounded": -0.178708377955326,
+   "analysis_id": 210,
+   "concept_id": 40481841,
+   "name": "condition_era group during day -365 through 0 days relative to index: Measurement finding outside reference range"
+  },
+  {
+   "covariate_id": 744740410,
+   "beta": -0.1773,
+   "beta_unrounded": -0.177286624889119,
+   "analysis_id": 410,
+   "concept_id": 744740,
+   "name": "drug_era group during day -365 through 0 days relative to index: zolpidem"
+  },
+  {
+   "covariate_id": 432867210,
+   "beta": 0.1759,
+   "beta_unrounded": 0.175911604288071,
+   "analysis_id": 210,
+   "concept_id": 432867,
+   "name": "condition_era group during day -365 through 0 days relative to index: Hyperlipidemia"
+  },
+  {
+   "covariate_id": 40761538702,
+   "beta": 0.1759,
+   "beta_unrounded": 0.175919082145561,
+   "analysis_id": 702,
+   "concept_id": 40761538,
+   "name": "measurement during day -365 through 0 days relative to index: Microorganisms seen [Type] in Urine sediment by Light microscopy"
+  },
+  {
+   "covariate_id": 43055141702,
+   "beta": -0.1744,
+   "beta_unrounded": -0.174401581206778,
+   "analysis_id": 702,
+   "concept_id": 43055141,
+   "name": "measurement during day -365 through 0 days relative to index: Pain severity - 0-10 verbal numeric rating [Score] - Reported"
+  },
+  {
+   "covariate_id": 75344210,
+   "beta": 0.174,
+   "beta_unrounded": 0.174046256859636,
+   "analysis_id": 210,
+   "concept_id": 75344,
+   "name": "condition_era group during day -365 through 0 days relative to index: Intervertebral disc disorder"
+  },
+  {
+   "covariate_id": 433736210,
+   "beta": -0.1731,
+   "beta_unrounded": -0.173109028683367,
+   "analysis_id": 210,
+   "concept_id": 433736,
+   "name": "condition_era group during day -365 through 0 days relative to index: Obesity"
+  },
+  {
+   "covariate_id": 2212742702,
+   "beta": -0.1729,
+   "beta_unrounded": -0.172919322828455,
+   "analysis_id": 702,
+   "concept_id": 2212742,
+   "name": "measurement during day -365 through 0 days relative to index: Thromboplastin time, partial (PTT); plasma or whole blood"
+  },
+  {
+   "covariate_id": 3021886702,
+   "beta": 0.1713,
+   "beta_unrounded": 0.171252381412423,
+   "analysis_id": 702,
+   "concept_id": 3021886,
+   "name": "measurement during day -365 through 0 days relative to index: Globulin [Mass/volume] in Serum"
+  },
+  {
+   "covariate_id": 1501700410,
+   "beta": -0.1712,
+   "beta_unrounded": -0.171222278102047,
+   "analysis_id": 410,
+   "concept_id": 1501700,
+   "name": "drug_era group during day -365 through 0 days relative to index: levothyroxine"
+  },
+  {
+   "covariate_id": 321588210,
+   "beta": 0.1704,
+   "beta_unrounded": 0.170407396293916,
+   "analysis_id": 210,
+   "concept_id": 321588,
+   "name": "condition_era group during day -365 through 0 days relative to index: Heart disease"
+  },
+  {
+   "covariate_id": 3039000702,
+   "beta": 0.1652,
+   "beta_unrounded": 0.165184598045103,
+   "analysis_id": 702,
+   "concept_id": 3039000,
+   "name": "measurement during day -365 through 0 days relative to index: Anion gap in Blood"
+  },
+  {
+   "covariate_id": 318443210,
+   "beta": 0.1651,
+   "beta_unrounded": 0.165137600172606,
+   "analysis_id": 210,
+   "concept_id": 318443,
+   "name": "condition_era group during day -365 through 0 days relative to index: Arteriosclerotic vascular disease"
+  },
+  {
+   "covariate_id": 21603255410,
+   "beta": 0.1639,
+   "beta_unrounded": 0.163892447121852,
+   "analysis_id": 410,
+   "concept_id": 21603255,
+   "name": "drug_era group during day -365 through 0 days relative to index: Selective beta-2-adrenoreceptor agonists"
+  },
+  {
+   "covariate_id": 4017497702,
+   "beta": 0.1613,
+   "beta_unrounded": 0.16129982914616,
+   "analysis_id": 702,
+   "concept_id": 4017497,
+   "name": "measurement during day -365 through 0 days relative to index: Albumin measurement, serum"
+  },
+  {
+   "covariate_id": 723013410,
+   "beta": 0.1581,
+   "beta_unrounded": 0.158105319974938,
+   "analysis_id": 410,
+   "concept_id": 723013,
+   "name": "drug_era group during day -365 through 0 days relative to index: diazepam"
+  },
+  {
+   "covariate_id": 3024629702,
+   "beta": -0.1569,
+   "beta_unrounded": -0.156921005569139,
+   "analysis_id": 702,
+   "concept_id": 3024629,
+   "name": "measurement during day -365 through 0 days relative to index: Glucose [Mass/volume] in Urine by Test strip"
+  },
+  {
+   "covariate_id": 4209423210,
+   "beta": 0.1554,
+   "beta_unrounded": 0.155351940923055,
+   "analysis_id": 210,
+   "concept_id": 4209423,
+   "name": "condition_era group during day -365 through 0 days relative to index: Nicotine dependence"
+  },
+  {
+   "covariate_id": 21604564410,
+   "beta": 0.1543,
+   "beta_unrounded": 0.154284547521432,
+   "analysis_id": 410,
+   "concept_id": 21604564,
+   "name": "drug_era group during day -365 through 0 days relative to index: ANXIOLYTICS"
+  },
+  {
+   "covariate_id": 1545958410,
+   "beta": -0.1497,
+   "beta_unrounded": -0.149714235545048,
+   "analysis_id": 410,
+   "concept_id": 1545958,
+   "name": "drug_era group during day -365 through 0 days relative to index: atorvastatin"
+  },
+  {
+   "covariate_id": 73553210,
+   "beta": 0.1486,
+   "beta_unrounded": 0.148590483536982,
+   "analysis_id": 210,
+   "concept_id": 73553,
+   "name": "condition_era group during day -365 through 0 days relative to index: Arthropathy"
+  },
+  {
+   "covariate_id": 3012888702,
+   "beta": -0.1477,
+   "beta_unrounded": -0.147666593473309,
+   "analysis_id": 702,
+   "concept_id": 3012888,
+   "name": "measurement during day -365 through 0 days relative to index: Diastolic blood pressure"
+  },
+  {
+   "covariate_id": 436230210,
+   "beta": -0.1456,
+   "beta_unrounded": -0.145561908801292,
+   "analysis_id": 210,
+   "concept_id": 436230,
+   "name": "condition_era group during day -365 through 0 days relative to index: Blood chemistry abnormal"
+  },
+  {
+   "covariate_id": 4028244210,
+   "beta": -0.1454,
+   "beta_unrounded": -0.1454117703874,
+   "analysis_id": 210,
+   "concept_id": 4028244,
+   "name": "condition_era group during day -365 through 0 days relative to index: Chronic disease of cardiovascular system"
+  },
+  {
+   "covariate_id": 2212648702,
+   "beta": -0.1433,
+   "beta_unrounded": -0.14327666111539,
+   "analysis_id": 702,
+   "concept_id": 2212648,
+   "name": "measurement during day -365 through 0 days relative to index: Blood count; complete (CBC), automated (Hgb, Hct, RBC, WBC and platelet count) and automated differential WBC count"
+  },
+  {
+   "covariate_id": 4178680210,
+   "beta": -0.1417,
+   "beta_unrounded": -0.141733443785633,
+   "analysis_id": 210,
+   "concept_id": 4178680,
+   "name": "condition_era group during day -365 through 0 days relative to index: Degenerative disorder of musculoskeletal system"
+  },
+  {
+   "covariate_id": 4282096210,
+   "beta": -0.1384,
+   "beta_unrounded": -0.138439432280667,
+   "analysis_id": 210,
+   "concept_id": 4282096,
+   "name": "condition_era group during day -365 through 0 days relative to index: Major depression, single episode"
+  },
+  {
+   "covariate_id": 21600875410,
+   "beta": -0.1383,
+   "beta_unrounded": -0.138298856907212,
+   "analysis_id": 410,
+   "concept_id": 21600875,
+   "name": "drug_era group during day -365 through 0 days relative to index: POTASSIUM"
+  },
+  {
+   "covariate_id": 4134455210,
+   "beta": -0.1379,
+   "beta_unrounded": -0.137872686944384,
+   "analysis_id": 210,
+   "concept_id": 4134455,
+   "name": "condition_era group during day -365 through 0 days relative to index: Mononeuropathy"
+  },
+  {
+   "covariate_id": 3024731702,
+   "beta": 0.1337,
+   "beta_unrounded": 0.133691122820701,
+   "analysis_id": 702,
+   "concept_id": 3024731,
+   "name": "measurement during day -365 through 0 days relative to index: MCV [Entitic volume]"
+  },
+  {
+   "covariate_id": 378253210,
+   "beta": -0.1317,
+   "beta_unrounded": -0.13165129549402,
+   "analysis_id": 210,
+   "concept_id": 378253,
+   "name": "condition_era group during day -365 through 0 days relative to index: Headache"
+  },
+  {
+   "covariate_id": 43534062702,
+   "beta": -0.131,
+   "beta_unrounded": -0.131001960985248,
+   "analysis_id": 702,
+   "concept_id": 43534062,
+   "name": "measurement during day -365 through 0 days relative to index: 3-epi-25-Hydroxyvitamin D3/25-hydroxyvitamin D.total in Serum or Plasma"
+  },
+  {
+   "covariate_id": 3021222702,
+   "beta": -0.1304,
+   "beta_unrounded": -0.130439108379437,
+   "analysis_id": 702,
+   "concept_id": 3021222,
+   "name": "measurement during day -365 through 0 days relative to index: Alkaline phosphatase.renal/Alkaline phosphatase.total in Serum or Plasma"
+  },
+  {
+   "covariate_id": 2313815502,
+   "beta": -0.1299,
+   "beta_unrounded": -0.12988559002037,
+   "analysis_id": 502,
+   "concept_id": 2313815,
+   "name": "procedure_occurrence during day -365 through 0 days relative to index: Electrocardiogram, routine ECG with at least 12 leads; tracing only, without interpretation and report"
+  },
+  {
+   "covariate_id": 21603249410,
+   "beta": 0.128,
+   "beta_unrounded": 0.127995438854037,
+   "analysis_id": 410,
+   "concept_id": 21603249,
+   "name": "drug_era group during day -365 through 0 days relative to index: ADRENERGICS, INHALANTS"
+  },
+  {
+   "covariate_id": 44784217210,
+   "beta": -0.1278,
+   "beta_unrounded": -0.127838966973957,
+   "analysis_id": 210,
+   "concept_id": 44784217,
+   "name": "condition_era group during day -365 through 0 days relative to index: Cardiac arrhythmia"
+  },
+  {
+   "covariate_id": 4298431702,
+   "beta": 0.1257,
+   "beta_unrounded": 0.12573068543307,
+   "analysis_id": 702,
+   "concept_id": 4298431,
+   "name": "measurement during day -365 through 0 days relative to index: White blood cell count"
+  },
+  {
+   "covariate_id": 134736210,
+   "beta": 0.1243,
+   "beta_unrounded": 0.124309089578296,
+   "analysis_id": 210,
+   "concept_id": 134736,
+   "name": "condition_era group during day -365 through 0 days relative to index: Backache"
+  },
+  {
+   "covariate_id": 4042056210,
+   "beta": -0.1231,
+   "beta_unrounded": -0.123111248056361,
+   "analysis_id": 210,
+   "concept_id": 4042056,
+   "name": "condition_era group during day -365 through 0 days relative to index: Lipids abnormal"
+  },
+  {
+   "covariate_id": 1314002410,
+   "beta": 0.1229,
+   "beta_unrounded": 0.122861913174541,
+   "analysis_id": 410,
+   "concept_id": 1314002,
+   "name": "drug_era group during day -365 through 0 days relative to index: atenolol"
+  },
+  {
+   "covariate_id": 3037182702,
+   "beta": 0.1188,
+   "beta_unrounded": 0.118754794747961,
+   "analysis_id": 702,
+   "concept_id": 3037182,
+   "name": "measurement during day -365 through 0 days relative to index: Magnesium [Presence] in Stone"
+  },
+  {
+   "covariate_id": 21600001410,
+   "beta": -0.1181,
+   "beta_unrounded": -0.118057570362492,
+   "analysis_id": 410,
+   "concept_id": 21600001,
+   "name": "drug_era group during day -365 through 0 days relative to index: ALIMENTARY TRACT AND METABOLISM"
+  },
+  {
+   "covariate_id": 1126658410,
+   "beta": -0.1155,
+   "beta_unrounded": -0.115482549115164,
+   "analysis_id": 410,
+   "concept_id": 1126658,
+   "name": "drug_era group during day -365 through 0 days relative to index: hydromorphone"
+  },
+  {
+   "covariate_id": 21604180410,
+   "beta": 0.1154,
+   "beta_unrounded": 0.115378955134079,
+   "analysis_id": 410,
+   "concept_id": 21604180,
+   "name": "drug_era group during day -365 through 0 days relative to index: NERVOUS SYSTEM"
+  },
+  {
+   "covariate_id": 21603126410,
+   "beta": -0.1097,
+   "beta_unrounded": -0.109745702311487,
+   "analysis_id": 410,
+   "concept_id": 21603126,
+   "name": "drug_era group during day -365 through 0 days relative to index: ANTIVIRALS FOR SYSTEMIC USE"
+  },
+  {
+   "covariate_id": 2514435502,
+   "beta": 0.1091,
+   "beta_unrounded": 0.109139595123368,
+   "analysis_id": 502,
+   "concept_id": 2514435,
+   "name": "procedure_occurrence during day -365 through 0 days relative to index: Emergency department visit for the evaluation and management of a patient, which requires these 3 key components: An expanded problem focused history; An expanded problem focused examination; and Medical decision making of moderate complexity. Counseling"
+  },
+  {
+   "covariate_id": 1125315410,
+   "beta": -0.1074,
+   "beta_unrounded": -0.107380191891736,
+   "analysis_id": 410,
+   "concept_id": 1125315,
+   "name": "drug_era group during day -365 through 0 days relative to index: acetaminophen"
+  },
+  {
+   "covariate_id": 3036588702,
+   "beta": 0.1053,
+   "beta_unrounded": 0.105320550257463,
+   "analysis_id": 702,
+   "concept_id": 3036588,
+   "name": "measurement during day -365 through 0 days relative to index: Neutrophil cytoplasmic Ab.perinuclear [Presence] in Serum"
+  },
+  {
+   "covariate_id": 2212168702,
+   "beta": -0.1006,
+   "beta_unrounded": -0.100560501197851,
+   "analysis_id": 702,
+   "concept_id": 2212168,
+   "name": "measurement during day -365 through 0 days relative to index: Urinalysis, by dip stick or tablet reagent for bilirubin, glucose, hemoglobin, ketones, leukocytes, nitrite, pH, protein, specific gravity, urobilinogen, any number of these constituents; automated, without microscopy"
+  },
+  {
+   "covariate_id": 3021716702,
+   "beta": -0.0999,
+   "beta_unrounded": -0.0999392310108995,
+   "analysis_id": 702,
+   "concept_id": 3021716,
+   "name": "measurement during day -365 through 0 days relative to index: Penicillin G potassium [Mass] of Dose"
+  },
+  {
+   "covariate_id": 21602384410,
+   "beta": 0.0962,
+   "beta_unrounded": 0.0962130545421754,
+   "analysis_id": 410,
+   "concept_id": 21602384,
+   "name": "drug_era group during day -365 through 0 days relative to index: Organic acids"
+  },
+  {
+   "covariate_id": 21600712410,
+   "beta": -0.093,
+   "beta_unrounded": -0.0929749397803565,
+   "analysis_id": 410,
+   "concept_id": 21600712,
+   "name": "drug_era group during day -365 through 0 days relative to index: DRUGS USED IN DIABETES"
+  },
+  {
+   "covariate_id": 21603041410,
+   "beta": -0.0925,
+   "beta_unrounded": -0.0924513964978141,
+   "analysis_id": 410,
+   "concept_id": 21603041,
+   "name": "drug_era group during day -365 through 0 days relative to index: OTHER ANTIBACTERIALS"
+  },
+  {
+   "covariate_id": 2313975502,
+   "beta": 0.0922,
+   "beta_unrounded": 0.0921841758963524,
+   "analysis_id": 502,
+   "concept_id": 2313975,
+   "name": "procedure_occurrence during day -365 through 0 days relative to index: Duplex scan of extracranial arteries; complete bilateral study"
+  },
+  {
+   "covariate_id": 31967210,
+   "beta": 0.092,
+   "beta_unrounded": 0.0920243269991853,
+   "analysis_id": 210,
+   "concept_id": 31967,
+   "name": "condition_era group during day -365 through 0 days relative to index: Nausea"
+  },
+  {
+   "covariate_id": 1123896410,
+   "beta": -0.0915,
+   "beta_unrounded": -0.0915293628661507,
+   "analysis_id": 410,
+   "concept_id": 1123896,
+   "name": "drug_era group during day -365 through 0 days relative to index: Opioids in combination with non-opioid analgesics"
+  },
+  {
+   "covariate_id": 2213244502,
+   "beta": -0.0906,
+   "beta_unrounded": -0.0905518449014924,
+   "analysis_id": 502,
+   "concept_id": 2213244,
+   "name": "procedure_occurrence during day -365 through 0 days relative to index: Cytopathology, cervical or vaginal (any reporting system), collected in preservative fluid, automated thin layer preparation; with screening by automated system and manual rescreening or review, under physician supervision"
+  },
+  {
+   "covariate_id": 21604709410,
+   "beta": -0.0894,
+   "beta_unrounded": -0.0893836819597666,
+   "analysis_id": 410,
+   "concept_id": 21604709,
+   "name": "drug_era group during day -365 through 0 days relative to index: Selective serotonin reuptake inhibitors"
+  },
+  {
+   "covariate_id": 4028367210,
+   "beta": -0.0885,
+   "beta_unrounded": -0.0884759974457729,
+   "analysis_id": 210,
+   "concept_id": 4028367,
+   "name": "condition_era group during day -365 through 0 days relative to index: Acute disease of cardiovascular system"
+  },
+  {
+   "covariate_id": 4150129210,
+   "beta": -0.0866,
+   "beta_unrounded": -0.0865956215551488,
+   "analysis_id": 210,
+   "concept_id": 4150129,
+   "name": "condition_era group during day -365 through 0 days relative to index: Musculoskeletal pain"
+  },
+  {
+   "covariate_id": 40661253802,
+   "beta": 0.0859,
+   "beta_unrounded": 0.0858950225742678,
+   "analysis_id": 802,
+   "concept_id": 40661253,
+   "name": "observation during day -365 through 0 days relative to index: Prescription(s) generated and transmitted via a qualified erx system"
+  },
+  {
+   "covariate_id": 3009542702,
+   "beta": -0.0856,
+   "beta_unrounded": -0.0855833322219465,
+   "analysis_id": 702,
+   "concept_id": 3009542,
+   "name": "measurement during day -365 through 0 days relative to index: Hematocrit [Volume Fraction] of Blood"
+  },
+  {
+   "covariate_id": 1163944410,
+   "beta": -0.0836,
+   "beta_unrounded": -0.083554394966051,
+   "analysis_id": 410,
+   "concept_id": 1163944,
+   "name": "drug_era group during day -365 through 0 days relative to index: guaifenesin"
+  },
+  {
+   "covariate_id": 4162282210,
+   "beta": -0.0835,
+   "beta_unrounded": -0.0834681048648754,
+   "analysis_id": 210,
+   "concept_id": 4162282,
+   "name": "condition_era group during day -365 through 0 days relative to index: Inflammatory disorder of the respiratory system"
+  },
+  {
+   "covariate_id": 21602968410,
+   "beta": 0.0831,
+   "beta_unrounded": 0.0831254500312674,
+   "analysis_id": 410,
+   "concept_id": 21602968,
+   "name": "drug_era group during day -365 through 0 days relative to index: MACROLIDES, LINCOSAMIDES AND STREPTOGRAMINS"
+  },
+  {
+   "covariate_id": 21601119410,
+   "beta": -0.0825,
+   "beta_unrounded": -0.0824670793844541,
+   "analysis_id": 410,
+   "concept_id": 21601119,
+   "name": "drug_era group during day -365 through 0 days relative to index: VITAMIN B12 AND FOLIC ACID"
+  },
+  {
+   "covariate_id": 21600202410,
+   "beta": -0.0822,
+   "beta_unrounded": -0.0821575190810827,
+   "analysis_id": 410,
+   "concept_id": 21600202,
+   "name": "drug_era group during day -365 through 0 days relative to index: Synthetic anticholinergic agents in combination with psycholeptics"
+  },
+  {
+   "covariate_id": 3034485702,
+   "beta": -0.0792,
+   "beta_unrounded": -0.0792176702565544,
+   "analysis_id": 702,
+   "concept_id": 3034485,
+   "name": "measurement during day -365 through 0 days relative to index: Albumin/Creatinine [Mass Ratio] in Urine"
+  },
+  {
+   "covariate_id": 3027726702,
+   "beta": -0.0783,
+   "beta_unrounded": -0.0782882586702626,
+   "analysis_id": 702,
+   "concept_id": 3027726,
+   "name": "measurement during day -365 through 0 days relative to index: Hepatitis B virus surface Ab [Titer] in Serum"
+  },
+  {
+   "covariate_id": 3014600702,
+   "beta": -0.0772,
+   "beta_unrounded": -0.0772415600086697,
+   "analysis_id": 702,
+   "concept_id": 3014600,
+   "name": "measurement during day -365 through 0 days relative to index: Triglyceride [Percentile]"
+  },
+  {
+   "covariate_id": 4052351802,
+   "beta": -0.0771,
+   "beta_unrounded": -0.0771068773032524,
+   "analysis_id": 802,
+   "concept_id": 4052351,
+   "name": "observation during day -365 through 0 days relative to index: Alcohol intake"
+  },
+  {
+   "covariate_id": 21603396410,
+   "beta": 0.077,
+   "beta_unrounded": 0.0769566070210879,
+   "analysis_id": 410,
+   "concept_id": 21603396,
+   "name": "drug_era group during day -365 through 0 days relative to index: Opium alkaloids and derivatives"
+  },
+  {
+   "covariate_id": 3046412702,
+   "beta": 0.0768,
+   "beta_unrounded": 0.0767824927366077,
+   "analysis_id": 702,
+   "concept_id": 3046412,
+   "name": "measurement during day -365 through 0 days relative to index: Aspartate aminotransferase [Presence] in Body fluid"
+  },
+  {
+   "covariate_id": 442077210,
+   "beta": -0.0767,
+   "beta_unrounded": -0.0766671446249614,
+   "analysis_id": 210,
+   "concept_id": 442077,
+   "name": "condition_era group during day -365 through 0 days relative to index: Anxiety disorder"
+  },
+  {
+   "covariate_id": 21602666410,
+   "beta": -0.0764,
+   "beta_unrounded": -0.0763844901559081,
+   "analysis_id": 410,
+   "concept_id": 21602666,
+   "name": "drug_era group during day -365 through 0 days relative to index: DRUGS USED IN BENIGN PROSTATIC HYPERTROPHY"
+  },
+  {
+   "covariate_id": 4203722802,
+   "beta": -0.0758,
+   "beta_unrounded": -0.0758268743400647,
+   "analysis_id": 802,
+   "concept_id": 4203722,
+   "name": "observation during day -365 through 0 days relative to index: Patient encounter procedure"
+  },
+  {
+   "covariate_id": 36878782410,
+   "beta": -0.0757,
+   "beta_unrounded": -0.0757295760786305,
+   "analysis_id": 410,
+   "concept_id": 36878782,
+   "name": "drug_era group during day -365 through 0 days relative to index: Multivitamin preparation"
+  },
+  {
+   "covariate_id": 318800210,
+   "beta": 0.0742,
+   "beta_unrounded": 0.074247958775939,
+   "analysis_id": 210,
+   "concept_id": 318800,
+   "name": "condition_era group during day -365 through 0 days relative to index: Gastroesophageal reflux disease"
+  },
+  {
+   "covariate_id": 260139210,
+   "beta": 0.0733,
+   "beta_unrounded": 0.0733134548264427,
+   "analysis_id": 210,
+   "concept_id": 260139,
+   "name": "condition_era group during day -365 through 0 days relative to index: Acute bronchitis"
+  },
+  {
+   "covariate_id": 21603638410,
+   "beta": 0.0727,
+   "beta_unrounded": 0.0726506694362541,
+   "analysis_id": 410,
+   "concept_id": 21603638,
+   "name": "drug_era group during day -365 through 0 days relative to index: Antiinflammatory agents, non-steroids"
+  },
+  {
+   "covariate_id": 21601898410,
+   "beta": -0.0724,
+   "beta_unrounded": -0.0723631409874309,
+   "analysis_id": 410,
+   "concept_id": 21601898,
+   "name": "drug_era group during day -365 through 0 days relative to index: LIPID MODIFYING AGENTS, COMBINATIONS"
+  },
+  {
+   "covariate_id": 4189050702,
+   "beta": 0.072,
+   "beta_unrounded": 0.072037836575632,
+   "analysis_id": 702,
+   "concept_id": 4189050,
+   "name": "measurement during day -365 through 0 days relative to index: Malt RAST"
+  },
+  {
+   "covariate_id": 2212593702,
+   "beta": -0.0707,
+   "beta_unrounded": -0.0707382292368859,
+   "analysis_id": 702,
+   "concept_id": 2212593,
+   "name": "measurement during day -365 through 0 days relative to index: Thyroid stimulating hormone (TSH)"
+  },
+  {
+   "covariate_id": 21601333410,
+   "beta": 0.0705,
+   "beta_unrounded": 0.0705272679080752,
+   "analysis_id": 410,
+   "concept_id": 21601333,
+   "name": "drug_era group during day -365 through 0 days relative to index: Influenza vaccines"
+  },
+  {
+   "covariate_id": 4087640210,
+   "beta": -0.0703,
+   "beta_unrounded": -0.070284297257687,
+   "analysis_id": 210,
+   "concept_id": 4087640,
+   "name": "condition_era group during day -365 through 0 days relative to index: Distention of blood vessel"
+  },
+  {
+   "covariate_id": 2514399502,
+   "beta": -0.0699,
+   "beta_unrounded": -0.0698682870349989,
+   "analysis_id": 502,
+   "concept_id": 2514399,
+   "name": "procedure_occurrence during day -365 through 0 days relative to index: Office or other outpatient visit for the evaluation and management of an established patient, which requires at least 2 of these 3 key components: A comprehensive history; A comprehensive examination; Medical decision making of high complexity. Counseling"
+  },
+  {
+   "covariate_id": 4190185210,
+   "beta": 0.0699,
+   "beta_unrounded": 0.0699345254485365,
+   "analysis_id": 210,
+   "concept_id": 4190185,
+   "name": "condition_era group during day -365 through 0 days relative to index: Inflammatory disorder of digestive system"
+  },
+  {
+   "covariate_id": 21600490410,
+   "beta": -0.0693,
+   "beta_unrounded": -0.069298056752498,
+   "analysis_id": 410,
+   "concept_id": 21600490,
+   "name": "drug_era group during day -365 through 0 days relative to index: ANTIEMETICS AND ANTINAUSEANTS"
+  },
+  {
+   "covariate_id": 21600531410,
+   "beta": -0.0692,
+   "beta_unrounded": -0.0691933846771245,
+   "analysis_id": 410,
+   "concept_id": 21600531,
+   "name": "drug_era group during day -365 through 0 days relative to index: DRUGS FOR CONSTIPATION"
+  },
+  {
+   "covariate_id": 2414392502,
+   "beta": -0.0687,
+   "beta_unrounded": -0.06874385520832,
+   "analysis_id": 502,
+   "concept_id": 2414392,
+   "name": "procedure_occurrence during day -365 through 0 days relative to index: Office or other outpatient visit for the evaluation and management of a new patient, which requires these 3 key components: A detailed history; A detailed examination; Medical decision making of low complexity. Counseling and/or coordination of care with"
+  },
+  {
+   "covariate_id": 21600038410,
+   "beta": -0.0679,
+   "beta_unrounded": -0.0678796401289327,
+   "analysis_id": 410,
+   "concept_id": 21600038,
+   "name": "drug_era group during day -365 through 0 days relative to index: Other agents for local oral treatment"
+  },
+  {
+   "covariate_id": 4339468210,
+   "beta": 0.0653,
+   "beta_unrounded": 0.0652858945141754,
+   "analysis_id": 210,
+   "concept_id": 4339468,
+   "name": "condition_era group during day -365 through 0 days relative to index: Ear, nose and throat disorder"
+  },
+  {
+   "covariate_id": 38003259802,
+   "beta": 0.0651,
+   "beta_unrounded": 0.0651470723092958,
+   "analysis_id": 802,
+   "concept_id": 38003259,
+   "name": "observation during day -365 through 0 days relative to index: Emergency Room - General Classification"
+  },
+  {
+   "covariate_id": 21604729410,
+   "beta": 0.0642,
+   "beta_unrounded": 0.0641736207889392,
+   "analysis_id": 410,
+   "concept_id": 21604729,
+   "name": "drug_era group during day -365 through 0 days relative to index: Other antidepressants"
+  },
+  {
+   "covariate_id": 21600810410,
+   "beta": 0.0632,
+   "beta_unrounded": 0.0631873653716512,
+   "analysis_id": 410,
+   "concept_id": 21600810,
+   "name": "drug_era group during day -365 through 0 days relative to index: VITAMIN A AND D, INCL. COMBINATIONS OF THE TWO"
+  },
+  {
+   "covariate_id": 21603444410,
+   "beta": -0.0626,
+   "beta_unrounded": -0.0625679343793537,
+   "analysis_id": 410,
+   "concept_id": 21603444,
+   "name": "drug_era group during day -365 through 0 days relative to index: ANTIHISTAMINES FOR SYSTEMIC USE"
+  },
+  {
+   "covariate_id": 21604291410,
+   "beta": -0.0616,
+   "beta_unrounded": -0.0616153083467677,
+   "analysis_id": 410,
+   "concept_id": 21604291,
+   "name": "drug_era group during day -365 through 0 days relative to index: Opioids in combination with antispasmodics"
+  },
+  {
+   "covariate_id": 21603966410,
+   "beta": 0.0612,
+   "beta_unrounded": 0.0611896412578328,
+   "analysis_id": 410,
+   "concept_id": 21603966,
+   "name": "drug_era group during day -365 through 0 days relative to index: Propionic acid derivatives"
+  },
+  {
+   "covariate_id": 2414397502,
+   "beta": -0.0611,
+   "beta_unrounded": -0.0610527396319923,
+   "analysis_id": 502,
+   "concept_id": 2414397,
+   "name": "procedure_occurrence during day -365 through 0 days relative to index: Office or other outpatient visit for the evaluation and management of an established patient, which requires at least 2 of these 3 key components: An expanded problem focused history; An expanded problem focused examination; Medical decision making of low"
+  },
+  {
+   "covariate_id": 4301699210,
+   "beta": -0.06,
+   "beta_unrounded": -0.0599943628621564,
+   "analysis_id": 210,
+   "concept_id": 4301699,
+   "name": "condition_era group during day -365 through 0 days relative to index: Neuropathy"
+  },
+  {
+   "covariate_id": 3018481702,
+   "beta": 0.0598,
+   "beta_unrounded": 0.0598330150526053,
+   "analysis_id": 702,
+   "concept_id": 3018481,
+   "name": "measurement during day -365 through 0 days relative to index: Phospholipase IgE Ab [Units/volume] in Serum"
+  },
+  {
+   "covariate_id": 21600363410,
+   "beta": -0.0588,
+   "beta_unrounded": -0.0588395881190495,
+   "analysis_id": 410,
+   "concept_id": 21600363,
+   "name": "drug_era group during day -365 through 0 days relative to index: Other cardiac preparations"
+  },
+  {
+   "covariate_id": 4043671210,
+   "beta": -0.0583,
+   "beta_unrounded": -0.0582797526513595,
+   "analysis_id": 210,
+   "concept_id": 4043671,
+   "name": "condition_era group during day -365 through 0 days relative to index: Inflammatory disorder of upper respiratory tract"
+  },
+  {
+   "covariate_id": 21601815410,
+   "beta": 0.0582,
+   "beta_unrounded": 0.0582260584301913,
+   "analysis_id": 410,
+   "concept_id": 21601815,
+   "name": "drug_era group during day -365 through 0 days relative to index: ACE inhibitors and calcium channel blockers"
+  },
+  {
+   "covariate_id": 2414396502,
+   "beta": -0.0571,
+   "beta_unrounded": -0.0571376121536353,
+   "analysis_id": 502,
+   "concept_id": 2414396,
+   "name": "procedure_occurrence during day -365 through 0 days relative to index: Office or other outpatient visit for the evaluation and management of an established patient, which requires at least 2 of these 3 key components: A problem focused history; A problem focused examination; Straightforward medical decision making. Counselin"
+  },
+  {
+   "covariate_id": 21600972410,
+   "beta": -0.056,
+   "beta_unrounded": -0.0559504853270842,
+   "analysis_id": 410,
+   "concept_id": 21600972,
+   "name": "drug_era group during day -365 through 0 days relative to index: Heparin group"
+  },
+  {
+   "covariate_id": 3035941702,
+   "beta": 0.052,
+   "beta_unrounded": 0.0519789927081508,
+   "analysis_id": 702,
+   "concept_id": 3035941,
+   "name": "measurement during day -365 through 0 days relative to index: MCH [Entitic mass]"
+  },
+  {
+   "covariate_id": 40481517210,
+   "beta": 0.0501,
+   "beta_unrounded": 0.0500519107509239,
+   "analysis_id": 210,
+   "concept_id": 40481517,
+   "name": "condition_era group during day -365 through 0 days relative to index: Mass of soft tissue"
+  },
+  {
+   "covariate_id": 21604254410,
+   "beta": -0.0495,
+   "beta_unrounded": -0.0495472280751705,
+   "analysis_id": 410,
+   "concept_id": 21604254,
+   "name": "drug_era group during day -365 through 0 days relative to index: OPIOIDS"
+  },
+  {
+   "covariate_id": 19058572410,
+   "beta": -0.0491,
+   "beta_unrounded": -0.0491190731784913,
+   "analysis_id": 410,
+   "concept_id": 19058572,
+   "name": "drug_era group during day -365 through 0 days relative to index: calcium citrate"
+  },
+  {
+   "covariate_id": 21600201410,
+   "beta": -0.0491,
+   "beta_unrounded": -0.0490665459046708,
+   "analysis_id": 410,
+   "concept_id": 21600201,
+   "name": "drug_era group during day -365 through 0 days relative to index: ANTISPASMODICS IN COMBINATION WITH PSYCHOLEPTICS"
+  },
+  {
+   "covariate_id": 4175226702,
+   "beta": 0.049,
+   "beta_unrounded": 0.0490418603655182,
+   "analysis_id": 702,
+   "concept_id": 4175226,
+   "name": "measurement during day -365 through 0 days relative to index: Screening for malignant neoplasm of colon"
+  },
+  {
+   "covariate_id": 21604148410,
+   "beta": 0.0476,
+   "beta_unrounded": 0.0475615763832236,
+   "analysis_id": 410,
+   "concept_id": 21604148,
+   "name": "drug_era group during day -365 through 0 days relative to index: Bisphosphonates"
+  },
+  {
+   "covariate_id": 21605007410,
+   "beta": 0.0473,
+   "beta_unrounded": 0.0473002555405473,
+   "analysis_id": 410,
+   "concept_id": 21605007,
+   "name": "drug_era group during day -365 through 0 days relative to index: RESPIRATORY SYSTEM"
+  },
+  {
+   "covariate_id": 37017182210,
+   "beta": 0.0471,
+   "beta_unrounded": 0.0470501624052279,
+   "analysis_id": 210,
+   "concept_id": 37017182,
+   "name": "condition_era group during day -365 through 0 days relative to index: Joint pain of pelvic region"
+  },
+  {
+   "covariate_id": 21601741410,
+   "beta": 0.0458,
+   "beta_unrounded": 0.045827182180043,
+   "analysis_id": 410,
+   "concept_id": 21601741,
+   "name": "drug_era group during day -365 through 0 days relative to index: Beta blocking agents and calcium channel blockers"
+  },
+  {
+   "covariate_id": 38003172802,
+   "beta": 0.0458,
+   "beta_unrounded": 0.045760393544009,
+   "analysis_id": 802,
+   "concept_id": 38003172,
+   "name": "observation during day -365 through 0 days relative to index: Laboratory - General Classification"
+  },
+  {
+   "covariate_id": 4042074210,
+   "beta": -0.0455,
+   "beta_unrounded": -0.0454693772679763,
+   "analysis_id": 210,
+   "concept_id": 4042074,
+   "name": "condition_era group during day -365 through 0 days relative to index: Blood drug level high"
+  },
+  {
+   "covariate_id": 21600220410,
+   "beta": -0.0448,
+   "beta_unrounded": -0.0448447858974786,
+   "analysis_id": 410,
+   "concept_id": 21600220,
+   "name": "drug_era group during day -365 through 0 days relative to index: ANTISPASMODICS IN COMBINATION WITH ANALGESICS"
+  },
+  {
+   "covariate_id": 21603940410,
+   "beta": 0.0447,
+   "beta_unrounded": 0.0447314340404613,
+   "analysis_id": 410,
+   "concept_id": 21603940,
+   "name": "drug_era group during day -365 through 0 days relative to index: Acetic acid derivatives and related substances"
+  },
+  {
+   "covariate_id": 43534771410,
+   "beta": -0.0428,
+   "beta_unrounded": -0.0428328221962343,
+   "analysis_id": 410,
+   "concept_id": 43534771,
+   "name": "drug_era group during day -365 through 0 days relative to index: ACE inhibitors, other combinations"
+  },
+  {
+   "covariate_id": 2414398502,
+   "beta": -0.0425,
+   "beta_unrounded": -0.0424532408228923,
+   "analysis_id": 502,
+   "concept_id": 2414398,
+   "name": "procedure_occurrence during day -365 through 0 days relative to index: Office or other outpatient visit for the evaluation and management of an established patient, which requires at least 2 of these 3 key components: A detailed history; A detailed examination; Medical decision making of moderate complexity. Counseling and/o"
+  },
+  {
+   "covariate_id": 4208786210,
+   "beta": -0.0419,
+   "beta_unrounded": -0.0418895268322929,
+   "analysis_id": 210,
+   "concept_id": 4208786,
+   "name": "condition_era group during day -365 through 0 days relative to index: Musculoskeletal and connective tissue disorder"
+  },
+  {
+   "covariate_id": 77234210,
+   "beta": 0.0411,
+   "beta_unrounded": 0.0411201540195101,
+   "analysis_id": 210,
+   "concept_id": 77234,
+   "name": "condition_era group during day -365 through 0 days relative to index: Benign neoplasm of colon"
+  },
+  {
+   "covariate_id": 2212095702,
+   "beta": 0.0404,
+   "beta_unrounded": 0.0404377040366199,
+   "analysis_id": 702,
+   "concept_id": 2212095,
+   "name": "measurement during day -365 through 0 days relative to index: Lipid panel This panel must include the following: Cholesterol, serum, total (82465) Lipoprotein, direct measurement, high density cholesterol (HDL cholesterol) (83718) Triglycerides (84478)"
+  },
+  {
+   "covariate_id": 21601779410,
+   "beta": 0.0398,
+   "beta_unrounded": 0.0398439411484132,
+   "analysis_id": 410,
+   "concept_id": 21601779,
+   "name": "drug_era group during day -365 through 0 days relative to index: CALCIUM CHANNEL BLOCKERS AND DIURETICS"
+  },
+  {
+   "covariate_id": 40763949702,
+   "beta": 0.0394,
+   "beta_unrounded": 0.0393931151875055,
+   "analysis_id": 702,
+   "concept_id": 40763949,
+   "name": "measurement during day -365 through 0 days relative to index: Clindamycin.induced [Susceptibility]"
+  },
+  {
+   "covariate_id": 4212540210,
+   "beta": -0.0391,
+   "beta_unrounded": -0.0390553294624199,
+   "analysis_id": 210,
+   "concept_id": 4212540,
+   "name": "condition_era group during day -365 through 0 days relative to index: Chronic liver disease"
+  },
+  {
+   "covariate_id": 21604303410,
+   "beta": 0.0381,
+   "beta_unrounded": 0.0381045664138543,
+   "analysis_id": 410,
+   "concept_id": 21604303,
+   "name": "drug_era group during day -365 through 0 days relative to index: OTHER ANALGESICS AND ANTIPYRETICS"
+  },
+  {
+   "covariate_id": 4009890210,
+   "beta": -0.038,
+   "beta_unrounded": -0.0379887261145871,
+   "analysis_id": 210,
+   "concept_id": 4009890,
+   "name": "condition_era group during day -365 through 0 days relative to index: Pain in upper limb"
+  },
+  {
+   "covariate_id": 433595210,
+   "beta": -0.0376,
+   "beta_unrounded": -0.0375776397173216,
+   "analysis_id": 210,
+   "concept_id": 433595,
+   "name": "condition_era group during day -365 through 0 days relative to index: Edema"
+  },
+  {
+   "covariate_id": 2314342802,
+   "beta": -0.0375,
+   "beta_unrounded": -0.0374604343033579,
+   "analysis_id": 802,
+   "concept_id": 2314342,
+   "name": "observation during day -365 through 0 days relative to index: Handling and/or conveyance of specimen for transfer from the office to a laboratory"
+  },
+  {
+   "covariate_id": 75053210,
+   "beta": 0.0373,
+   "beta_unrounded": 0.0372524839408089,
+   "analysis_id": 210,
+   "concept_id": 75053,
+   "name": "condition_era group during day -365 through 0 days relative to index: Fracture of bone"
+  },
+  {
+   "covariate_id": 4113821210,
+   "beta": -0.0361,
+   "beta_unrounded": -0.0360801141663934,
+   "analysis_id": 210,
+   "concept_id": 4113821,
+   "name": "condition_era group during day -365 through 0 days relative to index: Anxiety state"
+  },
+  {
+   "covariate_id": 1503297410,
+   "beta": -0.0356,
+   "beta_unrounded": -0.0356026240619195,
+   "analysis_id": 410,
+   "concept_id": 1503297,
+   "name": "drug_era group during day -365 through 0 days relative to index: metformin"
+  },
+  {
+   "covariate_id": 3046435702,
+   "beta": -0.0349,
+   "beta_unrounded": -0.0348568733416951,
+   "analysis_id": 702,
+   "concept_id": 3046435,
+   "name": "measurement during day -365 through 0 days relative to index: Iron [Presence] in Hair"
+  },
+  {
+   "covariate_id": 38003138802,
+   "beta": 0.0348,
+   "beta_unrounded": 0.0348324205633634,
+   "analysis_id": 802,
+   "concept_id": 38003138,
+   "name": "observation during day -365 through 0 days relative to index: Pharmacy - General Classification"
+  },
+  {
+   "covariate_id": 4180170210,
+   "beta": -0.0328,
+   "beta_unrounded": -0.0328131087723063,
+   "analysis_id": 210,
+   "concept_id": 4180170,
+   "name": "condition_era group during day -365 through 0 days relative to index: Inflammatory disorder of the respiratory tract"
+  },
+  {
+   "covariate_id": 21603311410,
+   "beta": 0.0319,
+   "beta_unrounded": 0.0319009959197195,
+   "analysis_id": 410,
+   "concept_id": 21603311,
+   "name": "drug_era group during day -365 through 0 days relative to index: Selective beta-2-adrenoreceptor agonists"
+  },
+  {
+   "covariate_id": 21600109410,
+   "beta": -0.0316,
+   "beta_unrounded": -0.0316068786504683,
+   "analysis_id": 410,
+   "concept_id": 21600109,
+   "name": "drug_era group during day -365 through 0 days relative to index: Other drugs for peptic ulcer and gastro-oesophageal reflux disease (GORD)"
+  },
+  {
+   "covariate_id": 21601822410,
+   "beta": -0.0315,
+   "beta_unrounded": -0.0315268812621883,
+   "analysis_id": 410,
+   "concept_id": 21601822,
+   "name": "drug_era group during day -365 through 0 days relative to index: ANGIOTENSIN II RECEPTOR BLOCKERS (ARBs), PLAIN"
+  },
+  {
+   "covariate_id": 4170143210,
+   "beta": 0.0305,
+   "beta_unrounded": 0.0304698497992612,
+   "analysis_id": 210,
+   "concept_id": 4170143,
+   "name": "condition_era group during day -365 through 0 days relative to index: Respiratory tract infection"
+  },
+  {
+   "covariate_id": 316866210,
+   "beta": 0.0303,
+   "beta_unrounded": 0.0303107504360042,
+   "analysis_id": 210,
+   "concept_id": 316866,
+   "name": "condition_era group during day -365 through 0 days relative to index: Hypertensive disorder"
+  },
+  {
+   "covariate_id": 1361711410,
+   "beta": -0.0303,
+   "beta_unrounded": -0.0302575727795492,
+   "analysis_id": 410,
+   "concept_id": 1361711,
+   "name": "drug_era group during day -365 through 0 days relative to index: nitroglycerin"
+  },
+  {
+   "covariate_id": 1797513410,
+   "beta": -0.0303,
+   "beta_unrounded": -0.030260614950776,
+   "analysis_id": 410,
+   "concept_id": 1797513,
+   "name": "drug_era group during day -365 through 0 days relative to index: ciprofloxacin"
+  },
+  {
+   "covariate_id": 21605008410,
+   "beta": -0.0295,
+   "beta_unrounded": -0.0294673519106103,
+   "analysis_id": 410,
+   "concept_id": 21605008,
+   "name": "drug_era group during day -365 through 0 days relative to index: NASAL PREPARATIONS"
+  },
+  {
+   "covariate_id": 21600474410,
+   "beta": -0.0293,
+   "beta_unrounded": -0.029285339979685,
+   "analysis_id": 410,
+   "concept_id": 21600474,
+   "name": "drug_era group during day -365 through 0 days relative to index: Hydrazinophthalazine derivatives and diuretics"
+  },
+  {
+   "covariate_id": 3032710702,
+   "beta": -0.0287,
+   "beta_unrounded": -0.0286978921322872,
+   "analysis_id": 702,
+   "concept_id": 3032710,
+   "name": "measurement during day -365 through 0 days relative to index: Calcium.ionized/Calcium.total corrected for albumin in Blood"
+  },
+  {
+   "covariate_id": 1308216410,
+   "beta": -0.0283,
+   "beta_unrounded": -0.0283206252526421,
+   "analysis_id": 410,
+   "concept_id": 1308216,
+   "name": "drug_era group during day -365 through 0 days relative to index: lisinopril"
+  },
+  {
+   "covariate_id": 21601237410,
+   "beta": -0.028,
+   "beta_unrounded": -0.0279956294215038,
+   "analysis_id": 410,
+   "concept_id": 21601237,
+   "name": "drug_era group during day -365 through 0 days relative to index: CARDIOVASCULAR SYSTEM"
+  },
+  {
+   "covariate_id": 21602100410,
+   "beta": -0.0278,
+   "beta_unrounded": -0.0278336115752114,
+   "analysis_id": 410,
+   "concept_id": 21602100,
+   "name": "drug_era group during day -365 through 0 days relative to index: Corticosteroids, weak (group I)"
+  },
+  {
+   "covariate_id": 21602796410,
+   "beta": 0.0278,
+   "beta_unrounded": 0.0277944958439531,
+   "analysis_id": 410,
+   "concept_id": 21602796,
+   "name": "drug_era group during day -365 through 0 days relative to index: ANTIBACTERIALS FOR SYSTEMIC USE"
+  },
+  {
+   "covariate_id": 21602019410,
+   "beta": 0.027,
+   "beta_unrounded": 0.0269739499207917,
+   "analysis_id": 410,
+   "concept_id": 21602019,
+   "name": "drug_era group during day -365 through 0 days relative to index: Anesthetics for topical use"
+  },
+  {
+   "covariate_id": 21601553410,
+   "beta": -0.0264,
+   "beta_unrounded": -0.0263901293479412,
+   "analysis_id": 410,
+   "concept_id": 21601553,
+   "name": "drug_era group during day -365 through 0 days relative to index: High-ceiling diuretics and potassium-sparing agents"
+  },
+  {
+   "covariate_id": 21602002410,
+   "beta": 0.0247,
+   "beta_unrounded": 0.0246551715492645,
+   "analysis_id": 410,
+   "concept_id": 21602002,
+   "name": "drug_era group during day -365 through 0 days relative to index: ANTIPRURITICS, INCL. ANTIHISTAMINES, ANESTHETICS, ETC."
+  },
+  {
+   "covariate_id": 21601782410,
+   "beta": -0.0245,
+   "beta_unrounded": -0.0245379031349332,
+   "analysis_id": 410,
+   "concept_id": 21601782,
+   "name": "drug_era group during day -365 through 0 days relative to index: AGENTS ACTING ON THE RENIN-ANGIOTENSIN SYSTEM"
+  },
+  {
+   "covariate_id": 43534855410,
+   "beta": -0.0241,
+   "beta_unrounded": -0.0241314553630032,
+   "analysis_id": 410,
+   "concept_id": 43534855,
+   "name": "drug_era group during day -365 through 0 days relative to index: Fluoroquinolones"
+  },
+  {
+   "covariate_id": 3029187702,
+   "beta": 0.024,
+   "beta_unrounded": 0.0240154715969314,
+   "analysis_id": 702,
+   "concept_id": 3029187,
+   "name": "measurement during day -365 through 0 days relative to index: Natriuretic peptide.B prohormone N-Terminal [Mass/volume] in Serum or Plasma"
+  },
+  {
+   "covariate_id": 21602797410,
+   "beta": 0.0233,
+   "beta_unrounded": 0.0232571995398415,
+   "analysis_id": 410,
+   "concept_id": 21602797,
+   "name": "drug_era group during day -365 through 0 days relative to index: TETRACYCLINES"
+  },
+  {
+   "covariate_id": 21604181410,
+   "beta": 0.0225,
+   "beta_unrounded": 0.0225317259503792,
+   "analysis_id": 410,
+   "concept_id": 21604181,
+   "name": "drug_era group during day -365 through 0 days relative to index: ANESTHETICS"
+  },
+  {
+   "covariate_id": 440059210,
+   "beta": 0.0222,
+   "beta_unrounded": 0.0222220734449174,
+   "analysis_id": 210,
+   "concept_id": 440059,
+   "name": "condition_era group during day -365 through 0 days relative to index: Recurrent disease"
+  },
+  {
+   "covariate_id": 21600452410,
+   "beta": -0.022,
+   "beta_unrounded": -0.0219539198954468,
+   "analysis_id": 410,
+   "concept_id": 21600452,
+   "name": "drug_era group during day -365 through 0 days relative to index: Rauwolfia alkaloids and diuretics in combination"
+  },
+  {
+   "covariate_id": 440069210,
+   "beta": 0.0218,
+   "beta_unrounded": 0.0217645725195533,
+   "analysis_id": 210,
+   "concept_id": 440069,
+   "name": "condition_era group during day -365 through 0 days relative to index: Drug dependence"
+  },
+  {
+   "covariate_id": 1551099410,
+   "beta": 0.0215,
+   "beta_unrounded": 0.0214790220796338,
+   "analysis_id": 410,
+   "concept_id": 1551099,
+   "name": "drug_era group during day -365 through 0 days relative to index: prednisone"
+  },
+  {
+   "covariate_id": 38003181802,
+   "beta": 0.0212,
+   "beta_unrounded": 0.0211964710113662,
+   "analysis_id": 802,
+   "concept_id": 38003181,
+   "name": "observation during day -365 through 0 days relative to index: Laboratory Pathological - General Classification"
+  },
+  {
+   "covariate_id": 3039417702,
+   "beta": 0.021,
+   "beta_unrounded": 0.0209750208505605,
+   "analysis_id": 702,
+   "concept_id": 3039417,
+   "name": "measurement during day -365 through 0 days relative to index: Platelet distribution width [Ratio] in Blood"
+  },
+  {
+   "covariate_id": 21601730410,
+   "beta": 0.0206,
+   "beta_unrounded": 0.0205697676636329,
+   "analysis_id": 410,
+   "concept_id": 21601730,
+   "name": "drug_era group during day -365 through 0 days relative to index: BETA BLOCKING AGENTS, THIAZIDES AND OTHER DIURETICS"
+  },
+  {
+   "covariate_id": 3026782702,
+   "beta": 0.02,
+   "beta_unrounded": 0.0200487210962004,
+   "analysis_id": 702,
+   "concept_id": 3026782,
+   "name": "measurement during day -365 through 0 days relative to index: Osmolality of Urine"
+  },
+  {
+   "covariate_id": 21601709410,
+   "beta": 0.0197,
+   "beta_unrounded": 0.0197040880269029,
+   "analysis_id": 410,
+   "concept_id": 21601709,
+   "name": "drug_era group during day -365 through 0 days relative to index: Beta blocking agents, selective, and thiazides"
+  },
+  {
+   "covariate_id": 317576210,
+   "beta": 0.0193,
+   "beta_unrounded": 0.0192692500268953,
+   "analysis_id": 210,
+   "concept_id": 317576,
+   "name": "condition_era group during day -365 through 0 days relative to index: Coronary arteriosclerosis"
+  },
+  {
+   "covariate_id": 21605125410,
+   "beta": 0.0191,
+   "beta_unrounded": 0.0191020425161695,
+   "analysis_id": 410,
+   "concept_id": 21605125,
+   "name": "drug_era group during day -365 through 0 days relative to index: OTHER OPHTHALMOLOGICALS"
+  },
+  {
+   "covariate_id": 1367571410,
+   "beta": -0.0189,
+   "beta_unrounded": -0.0189399699910829,
+   "analysis_id": 410,
+   "concept_id": 1367571,
+   "name": "drug_era group during day -365 through 0 days relative to index: heparin"
+  },
+  {
+   "covariate_id": 4214956802,
+   "beta": 0.0188,
+   "beta_unrounded": 0.0187815609435188,
+   "analysis_id": 802,
+   "concept_id": 4214956,
+   "name": "observation during day -365 through 0 days relative to index: History of clinical finding in subject"
+  },
+  {
+   "covariate_id": 21600583410,
+   "beta": -0.0187,
+   "beta_unrounded": -0.0187411588020621,
+   "analysis_id": 410,
+   "concept_id": 21600583,
+   "name": "drug_era group during day -365 through 0 days relative to index: Enemas"
+  },
+  {
+   "covariate_id": 320128210,
+   "beta": 0.0162,
+   "beta_unrounded": 0.0161657098519365,
+   "analysis_id": 210,
+   "concept_id": 320128,
+   "name": "condition_era group during day -365 through 0 days relative to index: Essential hypertension"
+  },
+  {
+   "covariate_id": 3008558702,
+   "beta": -0.0159,
+   "beta_unrounded": -0.0158708963196649,
+   "analysis_id": 702,
+   "concept_id": 3008558,
+   "name": "measurement during day -365 through 0 days relative to index: Creatine kinase.MM/Creatine kinase.total in Serum or Plasma"
+  },
+  {
+   "covariate_id": 438112210,
+   "beta": 0.0157,
+   "beta_unrounded": 0.0156637374896961,
+   "analysis_id": 210,
+   "concept_id": 438112,
+   "name": "condition_era group during day -365 through 0 days relative to index: Neoplastic disease"
+  },
+  {
+   "covariate_id": 21600360410,
+   "beta": -0.0155,
+   "beta_unrounded": -0.0154841408177956,
+   "analysis_id": 410,
+   "concept_id": 21600360,
+   "name": "drug_era group during day -365 through 0 days relative to index: OTHER CARDIAC PREPARATIONS"
+  },
+  {
+   "covariate_id": 3000963702,
+   "beta": 0.0154,
+   "beta_unrounded": 0.0154487683035018,
+   "analysis_id": 702,
+   "concept_id": 3000963,
+   "name": "measurement during day -365 through 0 days relative to index: Hemoglobin [Mass/volume] in Blood"
+  },
+  {
+   "covariate_id": 40757504702,
+   "beta": 0.0154,
+   "beta_unrounded": 0.0154461954545845,
+   "analysis_id": 702,
+   "concept_id": 40757504,
+   "name": "measurement during day -365 through 0 days relative to index: Cholesterol.non-esterified [Moles/volume] in Serum or Plasma"
+  },
+  {
+   "covariate_id": 4215685802,
+   "beta": -0.0153,
+   "beta_unrounded": -0.01526985789178,
+   "analysis_id": 802,
+   "concept_id": 4215685,
+   "name": "observation during day -365 through 0 days relative to index: Past history of procedure"
+  },
+  {
+   "covariate_id": 21602143410,
+   "beta": -0.0152,
+   "beta_unrounded": -0.0151760085710133,
+   "analysis_id": 410,
+   "concept_id": 21602143,
+   "name": "drug_era group during day -365 through 0 days relative to index: CORTICOSTEROIDS, COMBINATIONS WITH ANTISEPTICS"
+  },
+  {
+   "covariate_id": 21600533410,
+   "beta": -0.015,
+   "beta_unrounded": -0.015,
+   "analysis_id": 410,
+   "concept_id": 21600533,
+   "name": "drug_era group during day -365 through 0 days relative to index: Softeners, emollients"
+  },
+  {
+   "covariate_id": 38003563005,
+   "beta": 0.015,
+   "beta_unrounded": 0.015,
+   "analysis_id": 5,
+   "concept_id": 38003563,
+   "name": "ethnicity = Hispanic or Latino"
+  },
+  {
+   "covariate_id": 21601607410,
+   "beta": -0.0147,
+   "beta_unrounded": -0.0147061189557829,
+   "analysis_id": 410,
+   "concept_id": 21601607,
+   "name": "drug_era group during day -365 through 0 days relative to index: Corticosteroids"
+  },
+  {
+   "covariate_id": 4298393702,
+   "beta": 0.0146,
+   "beta_unrounded": 0.0146183791359192,
+   "analysis_id": 702,
+   "concept_id": 4298393,
+   "name": "measurement during day -365 through 0 days relative to index: Systemic blood pressure"
+  },
+  {
+   "covariate_id": 21602391410,
+   "beta": 0.0139,
+   "beta_unrounded": 0.0138775055582427,
+   "analysis_id": 410,
+   "concept_id": 21602391,
+   "name": "drug_era group during day -365 through 0 days relative to index: Imidazole derivatives"
+  },
+  {
+   "covariate_id": 3037598702,
+   "beta": 0.013,
+   "beta_unrounded": 0.0130153697511512,
+   "analysis_id": 702,
+   "concept_id": 3037598,
+   "name": "measurement during day -365 through 0 days relative to index: Cholesterol esters/Cholesterol.total in Serum or Plasma"
+  },
+  {
+   "covariate_id": 21604678410,
+   "beta": 0.0127,
+   "beta_unrounded": 0.0126876229184223,
+   "analysis_id": 410,
+   "concept_id": 21604678,
+   "name": "drug_era group during day -365 through 0 days relative to index: Hypnotics and sedatives in combination, excl. barbiturates"
+  },
+  {
+   "covariate_id": 21602645410,
+   "beta": -0.0122,
+   "beta_unrounded": -0.0122228019803664,
+   "analysis_id": 410,
+   "concept_id": 21602645,
+   "name": "drug_era group during day -365 through 0 days relative to index: Drugs used in erectile dysfunction"
+  },
+  {
+   "covariate_id": 923645410,
+   "beta": 0.0119,
+   "beta_unrounded": 0.0118516905101875,
+   "analysis_id": 410,
+   "concept_id": 923645,
+   "name": "drug_era group during day -365 through 0 days relative to index: omeprazole"
+  },
+  {
+   "covariate_id": 19095164410,
+   "beta": -0.0113,
+   "beta_unrounded": -0.0113343661756805,
+   "analysis_id": 410,
+   "concept_id": 19095164,
+   "name": "drug_era group during day -365 through 0 days relative to index: cholecalciferol"
+  },
+  {
+   "covariate_id": 3006923702,
+   "beta": 0.0099,
+   "beta_unrounded": 0.00994359648470738,
+   "analysis_id": 702,
+   "concept_id": 3006923,
+   "name": "measurement during day -365 through 0 days relative to index: Alanine aminotransferase [Enzymatic activity/volume] in Serum or Plasma"
+  },
+  {
+   "covariate_id": 3027315702,
+   "beta": 0.0092,
+   "beta_unrounded": 0.00922712478654865,
+   "analysis_id": 702,
+   "concept_id": 3027315,
+   "name": "measurement during day -365 through 0 days relative to index: Oxygen [Partial pressure] in Blood"
+  },
+  {
+   "covariate_id": 21600876410,
+   "beta": -0.0078,
+   "beta_unrounded": -0.00776717442054676,
+   "analysis_id": 410,
+   "concept_id": 21600876,
+   "name": "drug_era group during day -365 through 0 days relative to index: Potassium"
+  },
+  {
+   "covariate_id": 4320030210,
+   "beta": -0.0077,
+   "beta_unrounded": -0.00766153634503025,
+   "analysis_id": 210,
+   "concept_id": 4320030,
+   "name": "condition_era group during day -365 through 0 days relative to index: Soft tissue infection"
+  },
+  {
+   "covariate_id": 2211809502,
+   "beta": -0.0067,
+   "beta_unrounded": -0.00674880318197165,
+   "analysis_id": 502,
+   "concept_id": 2211809,
+   "name": "procedure_occurrence during day -365 through 0 days relative to index: Computer-aided detection (computer algorithm analysis of digital image data for lesion detection) with further review for interpretation, with or without digitization of film radiographic images; screening mammography (List separately in addition to code"
+  },
+  {
+   "covariate_id": 21601724410,
+   "beta": 0.0065,
+   "beta_unrounded": 0.00645729320644246,
+   "analysis_id": 410,
+   "concept_id": 21601724,
+   "name": "drug_era group during day -365 through 0 days relative to index: Beta blocking agents, selective, and other diuretics"
+  },
+  {
+   "covariate_id": 36203504702,
+   "beta": 0.0064,
+   "beta_unrounded": 0.00642899860323608,
+   "analysis_id": 702,
+   "concept_id": 36203504,
+   "name": "measurement during day -365 through 0 days relative to index: Bordetella pertussis.pertussis toxin IgG Ab [Presence] in Serum by Immunoassay"
+  },
+  {
+   "covariate_id": 4177213802,
+   "beta": 0.0061,
+   "beta_unrounded": 0.00606284196942815,
+   "analysis_id": 802,
+   "concept_id": 4177213,
+   "name": "observation during day -365 through 0 days relative to index: History of polyp of colon"
+  },
+  {
+   "covariate_id": 8507001,
+   "beta": 0.006,
+   "beta_unrounded": 0.00604122580212335,
+   "analysis_id": 1,
+   "concept_id": 8507,
+   "name": "gender = MALE"
+  },
+  {
+   "covariate_id": 21601903410,
+   "beta": -0.0059,
+   "beta_unrounded": -0.00594410975111853,
+   "analysis_id": 410,
+   "concept_id": 21601903,
+   "name": "drug_era group during day -365 through 0 days relative to index: HMG CoA reductase inhibitors, other combinations"
+  },
+  {
+   "covariate_id": 21600046410,
+   "beta": -0.0057,
+   "beta_unrounded": -0.00568217675618173,
+   "analysis_id": 410,
+   "concept_id": 21600046,
+   "name": "drug_era group during day -365 through 0 days relative to index: DRUGS FOR ACID RELATED DISORDERS"
+  },
+  {
+   "covariate_id": 4051221210,
+   "beta": -0.0056,
+   "beta_unrounded": -0.00558861589224703,
+   "analysis_id": 210,
+   "concept_id": 4051221,
+   "name": "condition_era group during day -365 through 0 days relative to index: Increased lipid"
+  },
+  {
+   "covariate_id": 3004501702,
+   "beta": 0.0051,
+   "beta_unrounded": 0.00507151828446167,
+   "analysis_id": 702,
+   "concept_id": 3004501,
+   "name": "measurement during day -365 through 0 days relative to index: Glucose [Mass/volume] in Serum or Plasma"
+  },
+  {
+   "covariate_id": 21600315410,
+   "beta": -0.0045,
+   "beta_unrounded": -0.00449653947541784,
+   "analysis_id": 410,
+   "concept_id": 21600315,
+   "name": "drug_era group during day -365 through 0 days relative to index: VASODILATORS USED IN CARDIAC DISEASES"
+  },
+  {
+   "covariate_id": 21600221410,
+   "beta": -0.0037,
+   "beta_unrounded": -0.00370635964364731,
+   "analysis_id": 410,
+   "concept_id": 21600221,
+   "name": "drug_era group during day -365 through 0 days relative to index: Synthetic anticholinergic agents in combination with analgesics"
+  },
+  {
+   "covariate_id": 21602798410,
+   "beta": 0.0032,
+   "beta_unrounded": 0.0031706379830428,
+   "analysis_id": 410,
+   "concept_id": 21602798,
+   "name": "drug_era group during day -365 through 0 days relative to index: Tetracyclines"
+  },
+  {
+   "covariate_id": 21603445410,
+   "beta": -0.0028,
+   "beta_unrounded": -0.00279144638785516,
+   "analysis_id": 410,
+   "concept_id": 21603445,
+   "name": "drug_era group during day -365 through 0 days relative to index: ANTIHISTAMINES FOR SYSTEMIC USE"
+  },
+  {
+   "covariate_id": 2313816502,
+   "beta": -0.0027,
+   "beta_unrounded": -0.00267561876977958,
+   "analysis_id": 502,
+   "concept_id": 2313816,
+   "name": "procedure_occurrence during day -365 through 0 days relative to index: Electrocardiogram, routine ECG with at least 12 leads; interpretation and report only"
+  },
+  {
+   "covariate_id": 21600532410,
+   "beta": -0.0025,
+   "beta_unrounded": -0.00248005370006033,
+   "analysis_id": 410,
+   "concept_id": 21600532,
+   "name": "drug_era group during day -365 through 0 days relative to index: DRUGS FOR CONSTIPATION"
+  },
+  {
+   "covariate_id": 21602003410,
+   "beta": 0.0025,
+   "beta_unrounded": 0.00250872044589876,
+   "analysis_id": 410,
+   "concept_id": 21602003,
+   "name": "drug_era group during day -365 through 0 days relative to index: ANTIPRURITICS, INCL. ANTIHISTAMINES, ANESTHETICS, ETC."
+  },
+  {
+   "covariate_id": 21603127410,
+   "beta": -0.0023,
+   "beta_unrounded": -0.00232111462833621,
+   "analysis_id": 410,
+   "concept_id": 21603127,
+   "name": "drug_era group during day -365 through 0 days relative to index: DIRECT ACTING ANTIVIRALS"
+  },
+  {
+   "covariate_id": 42538830210,
+   "beta": -0.0023,
+   "beta_unrounded": -0.00228170868019457,
+   "analysis_id": 210,
+   "concept_id": 42538830,
+   "name": "condition_era group during day -365 through 0 days relative to index: Abnormal blood cell count"
+  },
+  {
+   "covariate_id": 3003338702,
+   "beta": 0.0022,
+   "beta_unrounded": 0.00224637617201133,
+   "analysis_id": 702,
+   "concept_id": 3003338,
+   "name": "measurement during day -365 through 0 days relative to index: MCHC [Mass/volume]"
+  },
+  {
+   "covariate_id": 21600491410,
+   "beta": -0.0021,
+   "beta_unrounded": -0.00212503603110445,
+   "analysis_id": 410,
+   "concept_id": 21600491,
+   "name": "drug_era group during day -365 through 0 days relative to index: ANTIEMETICS AND ANTINAUSEANTS"
+  },
+  {
+   "covariate_id": 21601780410,
+   "beta": 0.0015,
+   "beta_unrounded": 0.0015360759580621,
+   "analysis_id": 410,
+   "concept_id": 21601780,
+   "name": "drug_era group during day -365 through 0 days relative to index: Calcium channel blockers and diuretics"
+  },
+  {
+   "covariate_id": 21605096410,
+   "beta": 0.0014,
+   "beta_unrounded": 0.00143178385343163,
+   "analysis_id": 410,
+   "concept_id": 21605096,
+   "name": "drug_era group during day -365 through 0 days relative to index: LOCAL ANESTHETICS"
+  },
+  {
+   "covariate_id": 4178818210,
+   "beta": -0.001,
+   "beta_unrounded": -0.000981034335296448,
+   "analysis_id": 210,
+   "concept_id": 4178818,
+   "name": "condition_era group during day -365 through 0 days relative to index: Inflammation of specific body systems"
+  },
+  {
+   "covariate_id": 21604157410,
+   "beta": 0.001,
+   "beta_unrounded": 0.000953374917455887,
+   "analysis_id": 410,
+   "concept_id": 21604157,
+   "name": "drug_era group during day -365 through 0 days relative to index: Bisphosphonates, combinations"
+  },
+  {
+   "covariate_id": 439215210,
+   "beta": 0.0009,
+   "beta_unrounded": 0.000900588681375214,
+   "analysis_id": 210,
+   "concept_id": 439215,
+   "name": "condition_era group during day -365 through 0 days relative to index: Traumatic injury due to event"
+  },
+  {
+   "covariate_id": 21604304410,
+   "beta": 0.0006,
+   "beta_unrounded": 0.000612671949700125,
+   "analysis_id": 410,
+   "concept_id": 21604304,
+   "name": "drug_era group during day -365 through 0 days relative to index: Salicylic acid and derivatives"
+  },
+  {
+   "covariate_id": 941258410,
+   "beta": -0.0005,
+   "beta_unrounded": -0.000490940233524906,
+   "analysis_id": 410,
+   "concept_id": 941258,
+   "name": "drug_era group during day -365 through 0 days relative to index: docusate"
+  },
+  {
+   "covariate_id": 21600229410,
+   "beta": -0.0005,
+   "beta_unrounded": -0.000535006686499948,
+   "analysis_id": 410,
+   "concept_id": 21600229,
+   "name": "drug_era group during day -365 through 0 days relative to index: Belladonna and derivatives in combination with analgesics"
+  },
+  {
+   "covariate_id": 21600815410,
+   "beta": 0.0002,
+   "beta_unrounded": 0.000232681441051125,
+   "analysis_id": 410,
+   "concept_id": 21600815,
+   "name": "drug_era group during day -365 through 0 days relative to index: Vitamin D and analogues"
+  },
+  {
+   "covariate_id": 21605126410,
+   "beta": 0.0002,
+   "beta_unrounded": 0.000189387985195832,
+   "analysis_id": 410,
+   "concept_id": 21605126,
+   "name": "drug_era group during day -365 through 0 days relative to index: Other ophthalmologicals"
+  },
+  {
+   "covariate_id": 21600316410,
+   "beta": -0.0001,
+   "beta_unrounded": -0.00014287025830263,
+   "analysis_id": 410,
+   "concept_id": 21600316,
+   "name": "drug_era group during day -365 through 0 days relative to index: Organic nitrates"
+  },
+  {
+   "covariate_id": 21601823410,
+   "beta": -0.0001,
+   "beta_unrounded": -6.73551274811117e-05,
+   "analysis_id": 410,
+   "concept_id": 21601823,
+   "name": "drug_era group during day -365 through 0 days relative to index: Angiotensin II receptor blockers (ARBs), plain"
+  }
+ ]
+}

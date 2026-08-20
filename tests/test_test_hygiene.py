@@ -17,7 +17,7 @@ def test_no_test_can_never_pass():
 
     They could not pass however the library behaved, so they reported nothing,
     and `strict=False` meant that even filling one in correctly would raise no
-    signal. They also carried prose that drifted -- one gave its reason as
+    signal. They also carried prose that drifted, one gave its reason as
     `parity_status=not_checked` thirteen days after the registry said
     `checked`. Both were removed; this stops the shape coming back.
 

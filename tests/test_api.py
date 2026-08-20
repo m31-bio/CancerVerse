@@ -22,24 +22,49 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 # category or a survival curve rather than one number to sweep. They still have
 # to be callable through the dispatcher, so their reference patients live here.
 EXTRA_PATIENTS = {
-    "ang2010_rpa": dict(hpv_positive=True, pack_years=5, n_stage="N2b",
-                        t_stage="T2"),
+    "ang2010_rpa": dict(hpv_positive=True, pack_years=5, n_stage="N2b", t_stage="T2"),
     "lipi_prognosis": dict(ldh=300.0, ldh_upper_limit_normal=250.0, dnlr=4.0),
-    "predict_breast": dict(age=55, size_mm=20, nodes=1, grade=2,
-                           er_positive=True),
-    "predict_breast_response": dict(age=55, size_mm=20, nodes=1, grade=2,
-                                    er_positive=True),
+    "predict_breast": dict(age=55, size_mm=20, nodes=1, grade=2, er_positive=True),
+    "predict_breast_response": dict(
+        age=55, size_mm=20, nodes=1, grade=2, er_positive=True
+    ),
     # takes a baseline risk rather than patient variables, so there is nothing
-    # to sweep — it is a transformation of another model's output
+    # to sweep, it is a transformation of another model's output
     "cvd_statin_benefit": dict(baseline_risk=0.20, ldl_reduction_mmol_l=1.0),
+    # takes an OMOP covariate vector rather than clinical variables, so there
+    # is no clinical range to sweep, see CATEGORICAL_NOTE in the sweep script
+    "optum_lung_lasso": dict(covariates=[2639, 12003, 8527004, 255573210, 321052210]),
     # nine outcomes rather than one number, so nothing to sweep
-    "dutasteride": dict(age=63, psa=5.7, dre_abnormal=False, sexually_active=True,
-                        history_of_impotence=False,
-                        history_of_libido_problems=False,
-                        family_history_prostate_cancer=False,
-                        percent_free_psa=16.0, bmi=26.8, ipss_score=12,
-                        max_urinary_flow_ml_s=12.0, biopsy_cores=9,
-                        prostate_volume_ml=43.5, residual_urine_ml=40.0),
+    "dutasteride": dict(
+        age=63,
+        psa=5.7,
+        dre_abnormal=False,
+        sexually_active=True,
+        history_of_impotence=False,
+        history_of_libido_problems=False,
+        family_history_prostate_cancer=False,
+        percent_free_psa=16.0,
+        bmi=26.8,
+        ipss_score=12,
+        max_urinary_flow_ml_s=12.0,
+        biopsy_cores=9,
+        prostate_volume_ml=43.5,
+        residual_urine_ml=40.0,
+    ),
+    "moore_criteria": dict(
+        black_race=False,
+        performance_status=0,
+        disease_site="distant",
+        prior_radiosensitizer=False,
+        months_diagnosis_to_first_recurrence=24,
+    ),
+    "chau_eg": dict(
+        performance_status=1,
+        liver_metastases=False,
+        peritoneal_metastases=False,
+        alkaline_phosphatase_u_l=80.0,
+    ),
+    "shapiro_ncrt": dict(cn_category="cN0", ypt_category="ypT0", ypn_category="ypN0"),
 }
 
 
@@ -81,7 +106,7 @@ def test_every_model_runs_through_predict(model_id):
     assert isinstance(out, dict)
     assert out["registry_id"] == model_id, (
         f"asked for {model_id} but the result is stamped "
-        f"{out.get('registry_id')!r} — the dispatcher lost track of the row"
+        f"{out.get('registry_id')!r}, the dispatcher lost track of the row"
     )
 
 
@@ -107,8 +132,9 @@ def test_a_registered_but_unimplemented_model_says_so():
     """Catalog and gap rows are in the registry but have no code."""
     from cancerverse_baseline.api import _registry
 
-    catalog = next(m["id"] for m in _registry()
-                   if m.get("status") in {"catalog", "gap"})
+    catalog = next(
+        m["id"] for m in _registry() if m.get("status") in {"catalog", "gap"}
+    )
     with pytest.raises(KeyError, match="not 'implemented'"):
         mb.model_info(catalog)
 
@@ -132,12 +158,16 @@ def test_filters():
 
 def test_predict_many_passes_each_model_only_what_it_accepts():
     """One patient record, several models with different variable sets. Extra
-    keys must not raise — that is the whole reason this function exists."""
+    keys must not raise, that is the whole reason this function exists."""
     out = mb.predict_many(
         ["albi", "amap"],
-        age=55, male=True, platelets=200,
-        bilirubin_umol_l=15.0, albumin_g_l=42.0,
-        irrelevant_field="ignored", another=123,
+        age=55,
+        male=True,
+        platelets=200,
+        bilirubin_umol_l=15.0,
+        albumin_g_l=42.0,
+        irrelevant_field="ignored",
+        another=123,
     )
     assert out["albi"]["grade"] in (1, 2, 3)
     assert 0 <= out["amap"]["score"] <= 100
@@ -156,8 +186,11 @@ def test_predict_many_reports_out_of_scope_values_rather_than_raising():
     the whole batch."""
     out = mb.predict_many(
         ["albi", "amap"],
-        age=55, male=True, platelets=-5,          # amap rejects this
-        bilirubin_umol_l=15.0, albumin_g_l=42.0,
+        age=55,
+        male=True,
+        platelets=-5,  # amap rejects this
+        bilirubin_umol_l=15.0,
+        albumin_g_l=42.0,
     )
     assert "grade" in out["albi"], "one model's bad input must not lose the others"
     assert "error" in out["amap"] and "platelets" in out["amap"]["error"]
@@ -165,9 +198,13 @@ def test_predict_many_reports_out_of_scope_values_rather_than_raising():
 
 def test_every_result_carries_its_scope():
     """Running a model is not the same as being entitled to believe it."""
-    out = mb.predict_many(["endpac"], glucose_at_diabetes_mg_dl=130,
-                          glucose_one_year_before_mg_dl=105,
-                          weight_change_kg=-5.0, age_at_diabetes_onset=65)
+    out = mb.predict_many(
+        ["endpac"],
+        glucose_at_diabetes_mg_dl=130,
+        glucose_one_year_before_mg_dl=105,
+        weight_change_kg=-5.0,
+        age_at_diabetes_onset=65,
+    )
     assert "new-onset diabetes" in out["endpac"]["scope"]
 
 
@@ -175,8 +212,9 @@ def test_dual_axis_rows_are_traceable_to_the_row_that_was_asked_for():
     """LIPI is registered on two axes and PREDICT's benefit arm shares its
     prognosis model, so one function serves two rows. The result must say both
     which row was invoked and which model actually ran."""
-    out = mb.predict("lipi_prognosis", dnlr=4.0, ldh=300.0,
-                     ldh_upper_limit_normal=250.0)
+    out = mb.predict(
+        "lipi_prognosis", dnlr=4.0, ldh=300.0, ldh_upper_limit_normal=250.0
+    )
     assert out["registry_id"] == "lipi_prognosis"
     assert out["model_id"] == "lipi"
     assert out["shares_model_with"] == "lipi"
@@ -194,5 +232,9 @@ def test_there_is_no_run_everything_convenience():
     the scope notes exist to prevent."""
     assert not hasattr(mb, "predict_all")
     assert set(mb.__all__) == {
-        "predict", "predict_many", "list_models", "model_info", "ModelInfo"
+        "predict",
+        "predict_many",
+        "list_models",
+        "model_info",
+        "ModelInfo",
     }

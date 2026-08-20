@@ -17,7 +17,7 @@ def test_worked_example_1_component_by_component():
     no arrest, ST deviation, elevated enzymes.
 
     The paper lists components 20 + 53 + 15 + 58 + 7 + 0 + 28 + 14 and states
-    the total is 196. Those components actually sum to 195 — the published
+    the total is 196. Those components actually sum to 195, the published
     total carries an arithmetic slip. We assert against the COMPONENTS, which
     are the model, not against the misprinted total.
     """
@@ -60,13 +60,13 @@ def test_worked_example_2_matches_exactly():
 def test_band_boundaries_follow_the_worked_examples_not_the_printed_labels():
     """The printed bands read '80-99' then '100-119', but the paper's own
     examples put SBP 100 in the lower band. Boundary values go DOWN."""
-    assert sbp_points(80) == 58     # "<=80"
-    assert sbp_points(100) == 53    # printed "80-99" — the disambiguating case
+    assert sbp_points(80) == 58  # "<=80"
+    assert sbp_points(100) == 53  # printed "80-99", the disambiguating case
     assert sbp_points(101) == 43
     assert sbp_points(120) == 43
     assert sbp_points(121) == 34
 
-    assert creatinine_points(0.40) == 1   # printed "0-0.39"
+    assert creatinine_points(0.40) == 1  # printed "0-0.39"
     assert creatinine_points(0.41) == 4
     assert creatinine_points(1.0) == 7
 
@@ -77,24 +77,24 @@ def test_band_boundaries_follow_the_worked_examples_not_the_printed_labels():
 
 
 def test_end_bands_honour_their_printed_signs():
-    assert sbp_points(200) == 0          # ">=200"
+    assert sbp_points(200) == 0  # ">=200"
     assert sbp_points(250) == 0
     assert heart_rate_points(200) == 46  # ">=200"
-    assert age_points(90) == 100         # ">=90"
+    assert age_points(90) == 100  # ">=90"
     assert creatinine_points(4.0) == 21
     assert creatinine_points(4.1) == 28  # ">4.0"
 
 
 def test_sbp_scale_runs_backward():
-    """Low blood pressure scores highest — it encodes shock, not hypertension."""
+    """Low blood pressure scores highest, it encodes shock, not hypertension."""
     assert sbp_points(70) > sbp_points(130) > sbp_points(210)
 
 
 def test_risk_increases_monotonically_with_points():
     risks = [risk_from_points(p) for p in range(60, 260, 10)]
     assert risks == sorted(risks)
-    assert risk_from_points(50) == pytest.approx(0.002)   # clamped low
-    assert risk_from_points(300) == pytest.approx(0.52)   # clamped high
+    assert risk_from_points(50) == pytest.approx(0.002)  # clamped low
+    assert risk_from_points(300) == pytest.approx(0.52)  # clamped high
 
 
 def test_killip_class_and_binary_factors():

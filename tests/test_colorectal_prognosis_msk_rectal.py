@@ -35,13 +35,13 @@ def test_ypt_reference_groups_differ_between_endpoints():
     rfs_t0 = linear_predictor(endpoint="rfs", **{**REF, "ypt": "ypT0"})
     rfs_t1 = linear_predictor(endpoint="rfs", **{**REF, "ypt": "ypT1"})
     rfs_t2 = linear_predictor(endpoint="rfs", **{**REF, "ypt": "ypT2"})
-    assert rfs_t0 == rfs_t1                      # both in the reference group
+    assert rfs_t0 == rfs_t1  # both in the reference group
     assert rfs_t2 - rfs_t0 == pytest.approx(0.3143759)
 
     os_t0 = linear_predictor(endpoint="os", age=60, **{**REF, "ypt": "ypT0"})
     os_t2 = linear_predictor(endpoint="os", age=60, **{**REF, "ypt": "ypT2"})
     os_t3 = linear_predictor(endpoint="os", age=60, **{**REF, "ypt": "ypT3"})
-    assert os_t2 == os_t0                        # ypT2 IS the reference for OS
+    assert os_t2 == os_t0  # ypT2 IS the reference for OS
     assert os_t3 - os_t0 == pytest.approx(0.2726462)
 
 
@@ -74,7 +74,9 @@ def test_positive_node_spline_terms():
 
 def test_more_positive_nodes_raise_risk_over_the_clinical_range():
     risks = [
-        msk_rectal_predict(endpoint="rfs", months=60, **{**REF, "positive_nodes": n})["risk"]
+        msk_rectal_predict(endpoint="rfs", months=60, **{**REF, "positive_nodes": n})[
+            "risk"
+        ]
         for n in range(0, 5)
     ]
     assert risks == sorted(risks)
@@ -83,7 +85,9 @@ def test_more_positive_nodes_raise_risk_over_the_clinical_range():
 def test_high_tumour_and_invasion_raise_risk():
     base = msk_rectal_predict(endpoint="rfs", months=60, **REF)["risk"]
     for field in ("venous_invasion", "perineural_invasion"):
-        worse = msk_rectal_predict(endpoint="rfs", months=60, **{**REF, field: True})["risk"]
+        worse = msk_rectal_predict(endpoint="rfs", months=60, **{**REF, field: True})[
+            "risk"
+        ]
         assert worse > base, field
     t4 = msk_rectal_predict(endpoint="rfs", months=60, **{**REF, "ypt": "ypT4"})["risk"]
     assert t4 > base

@@ -46,27 +46,27 @@ UA = (
     "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
 )
 
-# Incomplete responders only — the equation's scope. Spans both ypT reference
+# Incomplete responders only, the equation's scope. Spans both ypT reference
 # groups (T0/T1/T2 collapse differently for RFS and OS), the posLN spline knots
 # at 0/1/3, and both binary covariates.
 CASES = [
-    dict(age=60, t_stage="T3", nodes=2, dtav_gt5=True,  vi=False, pni=False),
-    dict(age=40, t_stage="T1", nodes=0, dtav_gt5=True,  vi=False, pni=False),
-    dict(age=75, t_stage="T4", nodes=7, dtav_gt5=False, vi=True,  pni=True),
-    dict(age=55, t_stage="T2", nodes=1, dtav_gt5=False, vi=True,  pni=False),
-    dict(age=68, t_stage="T3", nodes=3, dtav_gt5=True,  vi=False, pni=True),
+    dict(age=60, t_stage="T3", nodes=2, dtav_gt5=True, vi=False, pni=False),
+    dict(age=40, t_stage="T1", nodes=0, dtav_gt5=True, vi=False, pni=False),
+    dict(age=75, t_stage="T4", nodes=7, dtav_gt5=False, vi=True, pni=True),
+    dict(age=55, t_stage="T2", nodes=1, dtav_gt5=False, vi=True, pni=False),
+    dict(age=68, t_stage="T3", nodes=3, dtav_gt5=True, vi=False, pni=True),
     dict(age=45, t_stage="T1", nodes=0, dtav_gt5=False, vi=False, pni=False),
-    dict(age=80, t_stage="T2", nodes=5, dtav_gt5=True,  vi=True,  pni=True),
-    dict(age=36, t_stage="T4", nodes=1, dtav_gt5=True,  vi=False, pni=False),
-    dict(age=52, t_stage="T3", nodes=0, dtav_gt5=False, vi=True,  pni=True),
-    dict(age=64, t_stage="T1", nodes=4, dtav_gt5=True,  vi=True,  pni=False),
+    dict(age=80, t_stage="T2", nodes=5, dtav_gt5=True, vi=True, pni=True),
+    dict(age=36, t_stage="T4", nodes=1, dtav_gt5=True, vi=False, pni=False),
+    dict(age=52, t_stage="T3", nodes=0, dtav_gt5=False, vi=True, pni=True),
+    dict(age=64, t_stage="T1", nodes=4, dtav_gt5=True, vi=True, pni=False),
     dict(age=71, t_stage="T2", nodes=2, dtav_gt5=False, vi=False, pni=True),
-    dict(age=58, t_stage="T4", nodes=9, dtav_gt5=True,  vi=True,  pni=True),
+    dict(age=58, t_stage="T4", nodes=9, dtav_gt5=True, vi=True, pni=True),
 ]
 
 # The hosted tool REJECTS ypT0 for an incomplete responder ("T0 is an invalid
 # value for T-stage"), even though the RFS equation's reference group is
-# labelled ypT0/T1 — in the UI, ypT0 means the primary responded completely and
+# labelled ypT0/T1, in the UI, ypT0 means the primary responded completely and
 # the patient belongs on the complete-responder branch. Our module accepts ypT0
 # because the equation does; the two are not in conflict, but no ypT0 case can
 # be captured here, so that corner is covered by the equation only.
@@ -86,7 +86,7 @@ def _form_build_id(op, html_holder: list) -> str:
     html_holder.append(html)
     m = re.search(r'name="form_build_id"\s+value="([^"]+)"', html)
     if not m:
-        raise RuntimeError("form_build_id not found — the page layout changed")
+        raise RuntimeError("form_build_id not found, the page layout changed")
     return m.group(1)
 
 
@@ -97,8 +97,10 @@ def _percentages(html: str) -> dict:
         raise RuntimeError("no result block returned (validation error?)")
     seg = html[i : i + 60000]
     out = {}
-    for key, label in (("rfs", "Recurrence-Free Probability"),
-                       ("os", "Overall Survival Probability")):
+    for key, label in (
+        ("rfs", "Recurrence-Free Probability"),
+        ("os", "Overall Survival Probability"),
+    ):
         j = seg.find(label)
         if j < 0:
             raise RuntimeError(f"{label!r} missing from result page")
@@ -114,7 +116,7 @@ def _key(c: dict) -> tuple:
 
 
 def _get(op, req_or_url, tries: int = 5):
-    """Open with exponential backoff — the host rate-limits at 429."""
+    """Open with exponential backoff, the host rate-limits at 429."""
     import urllib.error
 
     for attempt in range(tries):
@@ -124,7 +126,7 @@ def _get(op, req_or_url, tries: int = 5):
             if exc.code != 429 or attempt == tries - 1:
                 raise
             wait = 15 * (attempt + 1)
-            print(f"    429 — backing off {wait}s")
+            print(f"    429, backing off {wait}s")
             time.sleep(wait)
     raise AssertionError("unreachable")
 
@@ -147,7 +149,7 @@ def main() -> None:
         # Drupal rotates form_build_id on every submission, so re-fetch it.
         build_id = _form_build_id(op, holder)
         fields = {
-            "complete_path_response": "False",   # incomplete responders only
+            "complete_path_response": "False",  # incomplete responders only
             "age": str(c["age"]),
             "t_stage": c["t_stage"],
             "number_of_positive_nodes": str(c["nodes"]),
@@ -161,15 +163,17 @@ def main() -> None:
         req = urllib.request.Request(
             ENDPOINT,
             data=urllib.parse.urlencode(fields).encode(),
-            headers={"Referer": PAGE,
-                     "Content-Type": "application/x-www-form-urlencoded"},
+            headers={
+                "Referer": PAGE,
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
         )
         html = _get(op, req)
         pct = _percentages(html)
         rows.append({**c, "months": 60, **pct})
         print(f"[{k + 1:2d}/{len(CASES)}] {c} -> RFS {pct['rfs']}%  OS {pct['os']}%")
-        _save(rows)          # incremental, so a 429 never loses captured work
-        time.sleep(3.0)      # be a polite client
+        _save(rows)  # incremental, so a 429 never loses captured work
+        time.sleep(3.0)  # be a polite client
 
     _save(rows)
     print(f"\nwrote {OUT} ({len(rows)} cases)")
@@ -183,7 +187,7 @@ def _save(rows: list) -> None:
                 "tool": "MSK rectal post-treatment calculator",
                 "supporting_publication": (
                     "Weiser MR et al. JAMA Netw Open. 2021;4(11):e2133457, "
-                    "PMCID PMC8576585 — cited by the tool itself"
+                    "PMCID PMC8576585, cited by the tool itself"
                 ),
                 "resolution": "whole percent, as displayed by the tool",
                 "cases": rows,

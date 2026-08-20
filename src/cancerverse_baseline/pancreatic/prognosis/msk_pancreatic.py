@@ -1,4 +1,4 @@
-"""MSK pancreatic nomogram — disease-specific survival after resection.
+"""MSK pancreatic nomogram, disease-specific survival after resection.
 
 Equation source
 ---------------
@@ -40,7 +40,7 @@ Form
 Three things that will look like errors and are not
 ---------------------------------------------------
 1. **T stage is not monotone.** Against a T1 reference, T2 is -0.537 and T3 is
-   -0.387 — both *better* than T1 — while T4 is +0.387. Reproduced as
+   -0.387, both *better* than T1, while T4 is +0.387. Reproduced as
    published; do not "fix" the ordering.
 2. **Splenectomy is the largest single term** (+0.907), larger than any nodal
    or margin effect. It is a marker of extended resection for locally advanced
@@ -52,7 +52,7 @@ A labelling defect in the hosted tool
 -------------------------------------
 Its size input is labelled "Maximum Path Axis (**mm**)", but the validated
 range is 0.1-16 and the spline knots sit at 2, 3.2 and 5.5. Those are
-**centimetres** — a 16 mm ceiling on resected pancreatic adenocarcinoma is not
+**centimetres**, a 16 mm ceiling on resected pancreatic adenocarcinoma is not
 credible. This module takes centimetres and says so. The range check partly
 masks the problem in practice, since most millimetre entries fall outside
 0.1-16 and are rejected, but a user entering "8" meaning 8 mm would silently
@@ -185,7 +185,7 @@ def msk_pancreatic_predict(
     Disease-specific survival at 12, 24 or 36 months after resection.
 
     `size_cm` is the maximum pathological axis in **centimetres**, despite the
-    hosted tool labelling the same field "mm" — see the module docstring.
+    hosted tool labelling the same field "mm", see the module docstring.
     """
     if months not in BASELINE_SURVIVAL:
         raise ValueError(
@@ -193,13 +193,19 @@ def msk_pancreatic_predict(
             f"horizons), got {months}"
         )
     lp = linear_predictor(
-        age=age, male=male, portal_vein_resected=portal_vein_resected,
+        age=age,
+        male=male,
+        portal_vein_resected=portal_vein_resected,
         splenectomy=splenectomy,
-        resection_margin_positive=resection_margin_positive, location=location,
+        resection_margin_positive=resection_margin_positive,
+        location=location,
         differentiation=differentiation,
         posterior_margin_positive=posterior_margin_positive,
-        positive_nodes=positive_nodes, negative_nodes=negative_nodes,
-        back_pain=back_pain, t_stage=t_stage, weight_loss=weight_loss,
+        positive_nodes=positive_nodes,
+        negative_nodes=negative_nodes,
+        back_pain=back_pain,
+        t_stage=t_stage,
+        weight_loss=weight_loss,
         size_cm=size_cm,
     )
     s0 = BASELINE_SURVIVAL[months]

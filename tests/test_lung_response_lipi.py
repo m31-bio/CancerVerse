@@ -20,7 +20,7 @@ def test_three_groups_at_the_published_thresholds():
 
 
 def test_thresholds_are_strict_inequalities():
-    # dNLR > 3 and LDH > ULN — exactly at the cutoff scores 0.
+    # dNLR > 3 and LDH > ULN, exactly at the cutoff scores 0.
     at_cutoff = lipi_predict(dnlr=3.0, ldh=250, ldh_upper_limit_normal=250)
     assert at_cutoff["score"] == 0
     just_over = lipi_predict(dnlr=3.01, ldh=250.01, ldh_upper_limit_normal=250)

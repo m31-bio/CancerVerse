@@ -10,8 +10,8 @@ usual parity check is unavailable. That does NOT mean they are unverifiable: an
 coefficient-by-coefficient, which covers the whole input space rather than one
 point.
 
-MDCalc is a Next.js app that ships each calculator's input schema — including
-every option's point value — in the page's `__NEXT_DATA__` blob, and its prose
+MDCalc is a Next.js app that ships each calculator's input schema, including
+every option's point value, in the page's `__NEXT_DATA__` blob, and its prose
 "formula" field for continuous models. Both are extractable without running the
 calculator.
 
@@ -20,7 +20,7 @@ This route already paid for itself: it exposed that our ALBI module carried
 
 Caveat on what this proves
 --------------------------
-Agreement with MDCalc is *corroboration*, not proof — MDCalc is a secondary
+Agreement with MDCalc is *corroboration*, not proof. MDCalc is a secondary
 source. It is strong evidence when MDCalc's value is independently traceable to
 the same primary paper, and it is decisive when the two disagree, because then
 at least one of us is wrong and the primary must be consulted.

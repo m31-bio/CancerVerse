@@ -21,7 +21,7 @@ High risk of malignancy, at 75% specificity in the validation cohort:
 
 TWO SETS OF CUTOFFS EXIST AND THEY DISAGREE
 -------------------------------------------
-The coefficients above are not in doubt — the paper, the Abbott/Fujirebio assay
+The coefficients above are not in doubt, the paper, the Abbott/Fujirebio assay
 insert and ARUP's test directory all print the same six numbers. The
 *thresholds* do not agree:
 
@@ -38,7 +38,7 @@ project's rule of reproducing what was published; `"assay_insert"` is what a
 clinical laboratory reporting a ROMA result will actually have used.
 
 Two things worth noticing in the coefficients themselves. The premenopausal
-model is driven almost entirely by HE4 — its CA125 coefficient (0.0626) is
+model is driven almost entirely by HE4, its CA125 coefficient (0.0626) is
 nearly negligible, while postmenopausally CA125 carries real weight (0.732).
 That is the model encoding a clinical fact: CA125 is elevated by benign
 gynaecological disease common in premenopausal women, so it discriminates
@@ -92,7 +92,9 @@ MODEL_CITATION = (
 )
 
 
-def predictive_index(*, he4_pmol_l: float, ca125_u_ml: float, postmenopausal: bool) -> float:
+def predictive_index(
+    *, he4_pmol_l: float, ca125_u_ml: float, postmenopausal: bool
+) -> float:
     """ROMA predictive index (the logit)."""
     if he4_pmol_l <= 0:
         raise ValueError(f"he4_pmol_l must be > 0, got {he4_pmol_l}")
@@ -116,7 +118,7 @@ def roma_predict(
     """
     ROMA predicted probability of epithelial ovarian cancer, and risk group.
 
-    HE4 in pmol/L, CA125 in U/mL. Menopausal status selects the algorithm — the
+    HE4 in pmol/L, CA125 in U/mL. Menopausal status selects the algorithm, the
     two are different models, not one model with an indicator.
 
     `cutoff_source` is "paper" (Moore 2009, the default) or "assay_insert"

@@ -1,10 +1,11 @@
-"""Cervical CIN2+/CIN3+ risk from hrHPV, cytology and age (Xia et al., BMC Med 2021).
+"""Cervical CIN2+/CIN3+ risk from hrHPV, cytology and age (Wu et al., BMC Med 2021).
 
 Equation source
 ---------------
-"Development of models for cervical cancer screening: construction in a
-cross-sectional population and validation in two screening cohorts in China."
-BMC Medicine. 2021;19:237. doi:10.1186/s12916-021-02078-2 (open access).
+Wu Z, Li T, Han Y, et al. "Development of models for cervical cancer
+screening: construction in a cross-sectional population and validation in
+two screening cohorts in China." BMC Medicine. 2021;19(1):197.
+doi:10.1186/s12916-021-02078-2 (open access).
 Coefficients from Additional file 1, **Table S1** ("Logistic Regression
 Parameters"), retrieved from the PMC-mirrored supplement (PMC8414700).
 
@@ -16,7 +17,7 @@ ones add HPV16/18 E6 oncoprotein and/or extended genotyping:
 
 Cytology is a 7-level categorical with **NILM as the reference** (contributing
 0). The remaining six levels each carry their own beta, and they are strongly
-ordered: SCC/ADC at 7.199 is by far the largest single term in the model —
+ordered: SCC/ADC at 7.199 is by far the largest single term in the model,
 about 3.5x the hrHPV coefficient.
 
 Age carries a small NEGATIVE coefficient (-0.019 in the base model). That is
@@ -28,7 +29,7 @@ as positive. Do not "correct" the sign.
 Why this model and not ASCCP
 ----------------------------
 ASCCP risk-based management is a lookup of CIN3+ risk over combinations of
-current and prior results — a consensus data table, not an equation, and so
+current and prior results, a consensus data table, not an equation, and so
 not reproducible in this project's sense. This model is a published logistic
 regression with printed coefficients, which is.
 
@@ -49,55 +50,110 @@ MODEL_ID = "cervical_cin_risk"
 
 CYTOLOGY_LEVELS = ("NILM", "ASC-US", "ASC-H", "AGC", "LSIL", "HSIL/AIS", "SCC/ADC")
 GENOTYPE_GROUPS = (
-    "HPV16", "HPV18", "HPV45", "HPV33/58", "HPV31",
-    "HPV59/56/66", "HPV51", "HPV52", "HPV39/68/35",
+    "HPV16",
+    "HPV18",
+    "HPV45",
+    "HPV33/58",
+    "HPV31",
+    "HPV59/56/66",
+    "HPV51",
+    "HPV52",
+    "HPV39/68/35",
 )
 
 # Table S1. NILM is the cytology reference level and carries no term.
 MODELS: dict[str, dict[str, float]] = {
     "base": {
-        "intercept": -3.19059, "hrHPV": 2.06771, "age": -0.01935,
-        "ASC-US": 1.36354, "ASC-H": 3.55612, "AGC": 4.28591,
-        "LSIL": 1.51085, "HSIL/AIS": 4.90115, "SCC/ADC": 7.19866,
+        "intercept": -3.19059,
+        "hrHPV": 2.06771,
+        "age": -0.01935,
+        "ASC-US": 1.36354,
+        "ASC-H": 3.55612,
+        "AGC": 4.28591,
+        "LSIL": 1.51085,
+        "HSIL/AIS": 4.90115,
+        "SCC/ADC": 7.19866,
     },
     "e6": {
-        "intercept": -1.63734, "hrHPV": 1.92905, "age": -0.04903, "E6": 1.9361,
-        "ASC-US": 1.47615, "ASC-H": 2.97602, "AGC": 4.89681,
-        "LSIL": 1.38943, "HSIL/AIS": 4.23318, "SCC/ADC": 6.37628,
+        "intercept": -1.63734,
+        "hrHPV": 1.92905,
+        "age": -0.04903,
+        "E6": 1.9361,
+        "ASC-US": 1.47615,
+        "ASC-H": 2.97602,
+        "AGC": 4.89681,
+        "LSIL": 1.38943,
+        "HSIL/AIS": 4.23318,
+        "SCC/ADC": 6.37628,
     },
     "genotyping": {
-        "intercept": -3.24223, "hrHPV": 1.51746, "age": -0.01872,
-        "ASC-US": 1.43124, "ASC-H": 3.34987, "AGC": 4.16086,
-        "LSIL": 1.45479, "HSIL/AIS": 4.49912, "SCC/ADC": 6.80578,
-        "HPV16": 1.44896, "HPV18": 0.95014, "HPV45": 0.12346,
-        "HPV33/58": 0.79158, "HPV31": 0.35975, "HPV59/56/66": -1.14307,
-        "HPV51": -1.08557, "HPV52": 0.89489, "HPV39/68/35": 0.6052,
+        "intercept": -3.24223,
+        "hrHPV": 1.51746,
+        "age": -0.01872,
+        "ASC-US": 1.43124,
+        "ASC-H": 3.34987,
+        "AGC": 4.16086,
+        "LSIL": 1.45479,
+        "HSIL/AIS": 4.49912,
+        "SCC/ADC": 6.80578,
+        "HPV16": 1.44896,
+        "HPV18": 0.95014,
+        "HPV45": 0.12346,
+        "HPV33/58": 0.79158,
+        "HPV31": 0.35975,
+        "HPV59/56/66": -1.14307,
+        "HPV51": -1.08557,
+        "HPV52": 0.89489,
+        "HPV39/68/35": 0.6052,
     },
     "full": {
-        "intercept": -1.93218, "hrHPV": 1.51297, "age": -0.044, "E6": 1.98602,
-        "ASC-US": 1.58716, "ASC-H": 2.93224, "AGC": 4.85179,
-        "LSIL": 1.37952, "HSIL/AIS": 4.21336, "SCC/ADC": 6.33502,
-        "HPV16": 0.88724, "HPV18": -0.40204, "HPV45": 0.06988,
-        "HPV33/58": 0.79169, "HPV31": 0.44194, "HPV59/56/66": -0.99504,
-        "HPV51": -0.98537, "HPV52": 1.09372, "HPV39/68/35": 0.78841,
+        "intercept": -1.93218,
+        "hrHPV": 1.51297,
+        "age": -0.044,
+        "E6": 1.98602,
+        "ASC-US": 1.58716,
+        "ASC-H": 2.93224,
+        "AGC": 4.85179,
+        "LSIL": 1.37952,
+        "HSIL/AIS": 4.21336,
+        "SCC/ADC": 6.33502,
+        "HPV16": 0.88724,
+        "HPV18": -0.40204,
+        "HPV45": 0.06988,
+        "HPV33/58": 0.79169,
+        "HPV31": 0.44194,
+        "HPV59/56/66": -0.99504,
+        "HPV51": -0.98537,
+        "HPV52": 1.09372,
+        "HPV39/68/35": 0.78841,
     },
 }
 
 MODEL_CITATION = (
-    "Development of models for cervical cancer screening. BMC Medicine. "
-    "2021;19:237. doi:10.1186/s12916-021-02078-2, Additional file 1 Table S1."
+    "Wu Z, Li T, Han Y, et al. Development of models for cervical cancer "
+    "screening. BMC Medicine. 2021;19(1):197. "
+    "doi:10.1186/s12916-021-02078-2, Additional file 1 Table S1."
 )
 
 
 def _normalize_cytology(cytology: str) -> str:
     c = cytology.strip().upper().replace(" ", "")
     aliases = {
-        "NILM": "NILM", "NORMAL": "NILM", "NEGATIVE": "NILM",
-        "ASCUS": "ASC-US", "ASC-US": "ASC-US",
-        "ASCH": "ASC-H", "ASC-H": "ASC-H",
-        "AGC": "AGC", "LSIL": "LSIL",
-        "HSIL": "HSIL/AIS", "AIS": "HSIL/AIS", "HSIL/AIS": "HSIL/AIS",
-        "SCC": "SCC/ADC", "ADC": "SCC/ADC", "SCC/ADC": "SCC/ADC",
+        "NILM": "NILM",
+        "NORMAL": "NILM",
+        "NEGATIVE": "NILM",
+        "ASCUS": "ASC-US",
+        "ASC-US": "ASC-US",
+        "ASCH": "ASC-H",
+        "ASC-H": "ASC-H",
+        "AGC": "AGC",
+        "LSIL": "LSIL",
+        "HSIL": "HSIL/AIS",
+        "AIS": "HSIL/AIS",
+        "HSIL/AIS": "HSIL/AIS",
+        "SCC": "SCC/ADC",
+        "ADC": "SCC/ADC",
+        "SCC/ADC": "SCC/ADC",
     }
     if c not in aliases:
         raise ValueError(f"cytology must be one of {CYTOLOGY_LEVELS}, got {cytology!r}")
@@ -129,7 +185,7 @@ def cervical_cin_risk_predict(
     cyt = _normalize_cytology(cytology)
 
     lp = b["intercept"] + b["hrHPV"] * (1.0 if hrhpv_positive else 0.0) + b["age"] * age
-    if cyt != "NILM":                      # NILM is the reference level
+    if cyt != "NILM":  # NILM is the reference level
         lp += b[cyt]
 
     if "E6" in b:

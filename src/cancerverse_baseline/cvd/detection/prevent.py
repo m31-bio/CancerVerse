@@ -2,7 +2,7 @@
 
 Covers all 5 published variants (base / uacr / hba1c / sdi / full) at both
 horizons (10 and 30 years), for all 5 outcomes (total CVD / ASCVD / heart
-failure / CHD / stroke) and both sexes — 100 coefficient sets total, see
+failure / CHD / stroke) and both sexes, 100 coefficient sets total, see
 `prevent_coefficients.py`.
 """
 
@@ -15,7 +15,7 @@ from . import prevent_coefficients as C
 
 # BMI is accepted for every outcome but only *used* by heart_failure. In the
 # published equations the bmi_min / bmi_max / age_bmi_max coefficients are
-# exactly 0.0 for total_cvd, ascvd, chd and stroke — 40 of the 50 coefficient
+# exactly 0.0 for total_cvd, ascvd, chd and stroke, 40 of the 50 coefficient
 # sets per sex. So a caller who supplies BMI expecting it to move their
 # 10-year CVD risk gets no change, and that is correct, not a bug. Pinned by
 # test_bmi_only_affects_the_heart_failure_outcome.
@@ -26,7 +26,7 @@ MODEL_ID = "prevent"
 
 
 class CoefficientsNotAvailable(NotImplementedError):
-    """Retained for API compatibility. No PREVENT variant currently raises this —
+    """Retained for API compatibility. No PREVENT variant currently raises this,
     all 100 published coefficient sets are shipped in prevent_coefficients.py.
     """
 
@@ -40,7 +40,9 @@ def _sex_key(sex: str) -> str:
     raise ValueError(f"sex must be male/female, got {sex!r}")
 
 
-def select_variant(*, uacr: float | None, hba1c: float | None, sdi_decile: int | None) -> str:
+def select_variant(
+    *, uacr: float | None, hba1c: float | None, sdi_decile: int | None
+) -> str:
     """Auto-select the model variant from which optional labs were supplied.
 
     Mirrors the reference implementation's rule (preventr::estimate_risk):
@@ -92,7 +94,7 @@ def _features(
     stat = 1.0 if statin else 0.0
 
     # Extended-model terms: an absent lab contributes 0 to its slope term and
-    # 1 to its own "missing" indicator — that is the published design (the
+    # 1 to its own "missing" indicator, that is the published design (the
     # reference implementation encodes exactly this), not an imputation choice
     # of ours. Note ln(UACR) is NOT centered in the source equations.
     ln_acr = 0.0 if uacr is None else math.log(uacr)
@@ -159,7 +161,9 @@ def linear_predictor(
     if variant not in C.VARIANTS:
         raise ValueError(f"variant must be one of {C.VARIANTS}, got {variant!r}")
     if horizon_years not in C.HORIZONS:
-        raise ValueError(f"horizon_years must be one of {C.HORIZONS}, got {horizon_years}")
+        raise ValueError(
+            f"horizon_years must be one of {C.HORIZONS}, got {horizon_years}"
+        )
     if sdi_decile is not None and not 1 <= sdi_decile <= 10:
         raise ValueError(f"sdi_decile must be 1-10, got {sdi_decile}")
     if uacr is not None and uacr <= 0:
@@ -211,7 +215,9 @@ def prevent_predict(
     if variant is None:
         variant = select_variant(uacr=uacr, hba1c=hba1c, sdi_decile=sdi_decile)
     if horizon_years not in C.HORIZONS:
-        raise ValueError(f"horizon_years must be one of {C.HORIZONS}, got {horizon_years}")
+        raise ValueError(
+            f"horizon_years must be one of {C.HORIZONS}, got {horizon_years}"
+        )
 
     lo, hi = C.AGE_RANGE[horizon_years]
     if not lo <= age <= hi:

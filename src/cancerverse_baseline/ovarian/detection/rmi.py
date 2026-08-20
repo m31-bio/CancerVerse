@@ -1,4 +1,4 @@
-"""Risk of Malignancy Index (RMI 1-4) — adnexal mass triage.
+"""Risk of Malignancy Index (RMI 1-4), adnexal mass triage.
 
 Not a regression: a hand-computable multiplicative index.
 
@@ -16,7 +16,7 @@ disagree on the U/M/S mappings and the cut-off:
     RMI 4     0-1->1, 2-5->4         1 / 4           <7cm 1,     450
                                                        >=7cm 2
 
-Output is an INDEX, not a probability — there is no link function. The only
+Output is an INDEX, not a probability, there is no link function. The only
 published interpretation is "above cut-off, refer to gynae-oncology".
 
 Equation source
@@ -24,18 +24,18 @@ Equation source
 Jacobs I, Oram D, Fairbanks J, Turner J, Frost C, Grudzinskas JG. A risk of
 malignancy index incorporating CA 125, ultrasound and menopausal status for
 the accurate preoperative diagnosis of ovarian cancer. Br J Obstet Gynaecol.
-1990;97:922-929. doi:10.1111/j.1471-0528.1990.tb02448.x — RMI 1 U/M scores
+1990;97:922-929. doi:10.1111/j.1471-0528.1990.tb02448.x. RMI 1 U/M scores
 reproduced verbatim in Moore RG et al., Gynecol Oncol 2012 (PMC3351260).
 RMI 2: Tingulstad S et al. Br J Obstet Gynaecol. 1996;103:826-31. RMI 3:
 Tingulstad S et al. Obstet Gynecol. 1999;93:448-52. RMI 4: Yamamoto Y et al.
 Eur J Obstet Gynecol Reprod Biol. 2009;144:163-7. All retrieved 2026-08-05.
-No coefficient is estimated — every number is a published integer score or
+No coefficient is estimated, every number is a published integer score or
 cut-off.
 
 Caveats
 -------
 RMI 1 sets U=0 when the ultrasound score is 0, forcing the whole index to 0
-regardless of CA-125 — the published definition, reproduced faithfully, and
+regardless of CA-125, the published definition, reproduced faithfully, and
 the reason RMI 2/3 exist. CA-125 enters linearly and untransformed, so false
 positives cluster wherever CA-125 is raised for reasons unrelated to
 malignancy (endometriosis, PID, menstruation, ascites of any cause). RMI is
@@ -65,21 +65,40 @@ def _u_two_level(score: int, high: int) -> int:
 
 
 VARIANTS = {
-    "rmi1": {"u": _u_rmi1, "m_post": 3, "size_score": False, "cutoff": 200.0,
-             "source": "Jacobs 1990 (U: 0/1/3; M: 1/3; cutoff 200)"},
-    "rmi2": {"u": lambda s: _u_two_level(s, 4), "m_post": 4, "size_score": False,
-             "cutoff": 200.0, "source": "Tingulstad 1996 (U: 1/4; M: 1/4; cutoff 200)"},
-    "rmi3": {"u": lambda s: _u_two_level(s, 3), "m_post": 3, "size_score": False,
-             "cutoff": 200.0, "source": "Tingulstad 1999 (U: 1/3; M: 1/3; cutoff 200)"},
-    "rmi4": {"u": lambda s: _u_two_level(s, 4), "m_post": 4, "size_score": True,
-             "cutoff": 450.0,
-             "source": "Yamamoto 2009 (U: 1/4; M: 1/4; S: 1 if <7cm else 2; cutoff 450)"},
+    "rmi1": {
+        "u": _u_rmi1,
+        "m_post": 3,
+        "size_score": False,
+        "cutoff": 200.0,
+        "source": "Jacobs 1990 (U: 0/1/3; M: 1/3; cutoff 200)",
+    },
+    "rmi2": {
+        "u": lambda s: _u_two_level(s, 4),
+        "m_post": 4,
+        "size_score": False,
+        "cutoff": 200.0,
+        "source": "Tingulstad 1996 (U: 1/4; M: 1/4; cutoff 200)",
+    },
+    "rmi3": {
+        "u": lambda s: _u_two_level(s, 3),
+        "m_post": 3,
+        "size_score": False,
+        "cutoff": 200.0,
+        "source": "Tingulstad 1999 (U: 1/3; M: 1/3; cutoff 200)",
+    },
+    "rmi4": {
+        "u": lambda s: _u_two_level(s, 4),
+        "m_post": 4,
+        "size_score": True,
+        "cutoff": 450.0,
+        "source": "Yamamoto 2009 (U: 1/4; M: 1/4; S: 1 if <7cm else 2; cutoff 450)",
+    },
 }
 
 MODEL_CITATION = (
     "Jacobs I et al. Br J Obstet Gynaecol. 1990;97:922-929. "
     "doi:10.1111/j.1471-0528.1990.tb02448.x (RMI 1); RMI 2 Tingulstad 1996, "
-    "RMI 3 Tingulstad 1999, RMI 4 Yamamoto 2009 — see module docstring."
+    "RMI 3 Tingulstad 1999, RMI 4 Yamamoto 2009, see module docstring."
 )
 
 
@@ -122,7 +141,9 @@ def rmi_predict(
             raise ValueError("variant 'rmi4' requires max_diameter_cm")
         s = 2 if max_diameter_cm >= SIZE_THRESHOLD_CM else 1
     elif max_diameter_cm is not None:
-        notes.append(f"max_diameter_cm supplied but {variant} has no size term; ignored")
+        notes.append(
+            f"max_diameter_cm supplied but {variant} has no size term; ignored"
+        )
 
     index = float(u) * float(m) * float(s) * float(ca125)
     cutoff = float(rules["cutoff"])
@@ -138,7 +159,9 @@ def rmi_predict(
         "disease": "ovarian",
         "variant": variant,
         "components": {"U": u, "M": m, "S": s, "ca125": ca125},
-        "interpretation": "likely malignant, refer to gynae-oncology" if above else "likely benign",
+        "interpretation": "likely malignant, refer to gynae-oncology"
+        if above
+        else "likely benign",
         "citation": MODEL_CITATION,
         "notes": "; ".join(notes) if notes else rules["source"],
     }

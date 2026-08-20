@@ -1,10 +1,11 @@
 """Extract Table S1 (logistic regression parameters) from the cervical paper's supplement.
 
-Xia et al. "Development of models for cervical cancer screening: construction in
-a cross-sectional population and validation in two screening cohorts in China."
-BMC Medicine. 2021;19:237. doi:10.1186/s12916-021-02078-2 (open access).
+Wu Z, Li T, Han Y, et al. "Development of models for cervical cancer screening:
+construction in a cross-sectional population and validation in two screening
+cohorts in China." BMC Medicine. 2021;19(1):197.
+doi:10.1186/s12916-021-02078-2 (open access).
 
-The supplement is a real .xlsx, not a figure — which makes this the strongest
+The supplement is a real .xlsx, not a figure, which makes this the strongest
 kind of coefficient check available: an independently downloaded, machine-
 readable copy of the source table, compared term by term at zero tolerance.
 
@@ -49,7 +50,7 @@ def main() -> None:
     req = urllib.request.Request(URL, headers={"User-Agent": UA})
     blob = urllib.request.urlopen(req, timeout=120).read()
     if not blob.startswith(b"PK"):
-        raise SystemExit("got HTML, not a workbook — the download path changed")
+        raise SystemExit("got HTML, not a workbook, the download path changed")
 
     ws = openpyxl.load_workbook(io.BytesIO(blob), data_only=True)["Table S1"]
 

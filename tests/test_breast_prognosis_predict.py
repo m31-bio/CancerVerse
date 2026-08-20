@@ -3,7 +3,7 @@
 import pytest
 
 from cancerverse_baseline.breast.prognosis import predict_breast
-from cancerverse_baseline.breast.prognosis.predict_breast import (
+from cancerverse_baseline.breast.prognosis.predict import (
     CHEMO_BETA,
     ER_NEG,
     ER_POS,
@@ -27,8 +27,12 @@ def test_survival_is_a_probability_and_decreases_with_time():
 def test_treatment_always_helps_or_is_neutral():
     """Every treatment log-HR in the model is <= 0, so benefit cannot be negative."""
     out = predict_breast(
-        **CASE, chemo_generation=3, hormone=True, trastuzumab=True,
-        bisphosphonate=True, years=10,
+        **CASE,
+        chemo_generation=3,
+        hormone=True,
+        trastuzumab=True,
+        bisphosphonate=True,
+        years=10,
     )
     assert out["benefit"] > 0
     assert out["survival_with_treatment"] > out["survival_no_treatment"]
@@ -79,10 +83,10 @@ def test_worse_tumour_features_lower_survival():
 
 def test_er_negative_uses_different_fractional_polynomials_not_just_betas():
     """The ER strata differ in transform, not only in coefficient value."""
-    assert "age_mfp2_center" in ER_POS      # ER+ has a second age FP term
+    assert "age_mfp2_center" in ER_POS  # ER+ has a second age FP term
     assert "age_mfp2_center" not in ER_NEG  # ER- has a plain linear age term
     assert ER_POS["size_beta"] != ER_NEG["size_beta"]
-    assert ER_NEG["screen_beta"] == 0.0     # screen detection unused when ER-
+    assert ER_NEG["screen_beta"] == 0.0  # screen detection unused when ER-
 
 
 def test_er_negative_collapses_grade_to_binary():

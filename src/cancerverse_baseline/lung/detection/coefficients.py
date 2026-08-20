@@ -59,7 +59,7 @@ MODEL_CITATION = (
 )
 
 # Risk thresholds reported in the development paper (PLCO control smokers),
-# kept for reference — they are selection cut-points, not part of the equation.
+# kept for reference, they are selection cut-points, not part of the equation.
 THRESHOLD_NLST_EQUIVALENT_VOLUME = 0.013455  # matches NLST-eligible screening volume
 THRESHOLD_SENSITIVITY_90 = 0.00948
 THRESHOLD_SENSITIVITY_80 = 0.016082

@@ -1,4 +1,4 @@
-CancerVerse
+baseline
 Copyright 2026 M31 Biomedical AI
 
 Licensed under the Apache License, Version 2.0. See LICENSE.
@@ -13,6 +13,29 @@ place in the source paper where the equation sits. This repository claims no
 ownership of the underlying models, and the Apache licence above covers only
 this reimplementation.
 
+
+Model sources whose licence makes attribution a condition of use
+-----------------------------------------------------------------
+Every model here is cited. For the sources below, citing is not courtesy,
+their licence terms require attribution, so using the model without naming the
+source is a licence breach rather than a lapse of manners. Listed separately
+for that reason, and generated from `license_basis` in registry/models.yaml so
+the list cannot fall behind the registry.
+
+    amap  —  CC BY-NC-ND 4.0
+        Fan, R., Papatheodoridis, G., Sun, J., Innes, H., Toyoda, H., Xie, Q., Mo, S., Sypsa, V., Guha, I. N., Kumada, T., Niu, J., Dalekos, G., Yasuda, S., Barnes, E., Lian, J., Suri, V., Idilman, R., Barclay, S. T., Dou, X., . . . Hou, J. (2020). aMAP risk score predicts hepatocellular carcinoma development in patients with chronic hepatitis. Journal of Hepatology, 73(6), 1368-1378. https://doi.org/10.1016/j.jhep.2020.07.025
+    atria_stroke_2013  —  CC BY-NC
+        Singer, D. E., Chang, Y., Borowsky, L. H., Fang, M. C., Pomernacki, N. K., Udaltsova, N., Reynolds, K., & Go, A. S. (2013). A new risk scheme to predict ischemic stroke and other thromboembolism in atrial fibrillation: the ATRIA study stroke risk score. Journal of the American Heart Association, 2(3), e000250. https://doi.org/10.1161/JAHA.113.000250
+    hap  —  CC BY-NC
+        Kadalayil, L., Benini, R., Pallan, L., O'Beirne, J., Marelli, L., Yu, D., Hackshaw, A., Fox, R., Johnson, P., Burroughs, A. K., Palmer, D. H., & Meyer, T. (2013). A simple prognostic scoring system for patients receiving transarterial embolisation for hepatocellular cancer. Annals of Oncology, 24(10), 2565-2570. https://doi.org/10.1093/annonc/mdt247
+    iota_adnex  —  CC BY-NC 3.0
+        Van Calster, B., Van Hoorde, K., Valentin, L., Testa, A. C., Fischerova, D., Van Holsbeke, C., Savelli, L., Franchi, D., Epstein, E., Kaijser, J., Van Belle, V., Czekierdowski, A., Guerriero, S., Fruscio, R., Lanzani, C., Scala, F., Bourne, T., Timmerman, D., & International Ovarian Tumour Analysis Group (2014). Evaluating the risk of ovarian cancer before surgery using the ADNEX model to differentiate between benign, borderline, early and advanced stage invasive, and secondary metastatic tumours: prospective multicentre diagnostic study. BMJ (Clinical Research Ed.), 349, g5920. https://doi.org/10.1136/bmj.g5920
+    kunzmann  —  CC BY-NC-ND
+        Kunzmann, A. T., Thrift, A. P., Cardwell, C. R., Lagergren, J., Xie, S., Johnston, B. T., Anderson, L. A., Busby, J., McMenamin, Ú. C., Spence, A. D., & Coleman, H. G. (2018). Model for Identifying Individuals at Risk for Esophageal Adenocarcinoma. Clinical Gastroenterology and Hepatology, 16(8), 1229-1236.e4. https://doi.org/10.1016/j.cgh.2018.03.014
+    msk_rectal  —  CC BY
+        Weiser, M. R., Chou, J. F., Keshinro, A., Chapman, W. C., Bauer, P. S., Mutch, M. G., Parikh, P. J., Cercek, A., Saltz, L. B., Gollub, M. J., Romesser, P. B., Crane, C. H., Shia, J., Markowitz, A. J., Garcia-Aguilar, J., Gönen, M., & Colorectal Cancer Disease Management Team of Memorial Sloan Kettering Cancer Center (2021). Development and Assessment of a Clinical Calculator for Estimating the Likelihood of Recurrence and Survival Among Patients With Locally Advanced Rectal Cancer Treated With Chemotherapy, Radiotherapy, and Surgery. JAMA Network Open, 4(11), e2133457. https://doi.org/10.1001/jamanetworkopen.2021.33457
+    pbcg_extended  —  CC BY 4.0
+        Neumair, M., Kattan, M. W., Freedland, S. J., Haese, A., Guerrios-Rivera, L., De Hoedt, A. M., Liss, M. A., Leach, R. J., Boorjian, S. A., Cooperberg, M. R., Poyet, C., Saba, K., Herkommer, K., Meissner, V. H., Vickers, A. J., & Ankerst, D. P. (2022). Accommodating heterogeneous missing data patterns for prostate cancer risk prediction. BMC Medical Research Methodology, 22(1), 200. https://doi.org/10.1186/s12874-022-01674-x
 
 Third-party reference implementations
 -------------------------------------
@@ -30,7 +53,7 @@ tests/parity/reference/, so the test suite passes without them.
 
 BCRA and PLCOm2012 are released under the GPL, a copyleft licence, while this
 repository is Apache-2.0. The GPL's obligations attach to distribution rather
-than to use, so not redistributing them is what keeps the two compatible --
+than to use, so not redistributing them is what keeps the two compatible,
 which costs nothing here, because they are a verification tool rather than a
 dependency.
 
@@ -38,3 +61,35 @@ Nothing in src/ imports, links against, or derives from any of them:
 the implementations here are plain Python written from the published equations,
 and these packages were used only to generate the reference values the parity
 tests compare against.
+
+
+Files NOT covered by this repository's Apache-2.0 licence
+---------------------------------------------------------
+THIS REPOSITORY IS MIXED-LICENCE. The files listed below copy arithmetic
+verbatim from ClevelandClinicQHS/riskcalc-website, which is licensed PolyForm
+Noncommercial 1.0.0. The LICENSE file in this repository does NOT apply to
+them, and cannot: nobody may relicense someone else's work by placing it in
+their tree.
+
+    tests/parity/reference/crc_pro_reference.R
+    tests/parity/reference/dutasteride_extract.py
+    tests/parity/reference/dutasteride_reference.R
+    tests/parity/reference/msk_gastric_reference.R
+    tests/parity/reference/msk_ovarian_reference.R
+    tests/parity/reference/msk_pancreatic_reference.R
+    tests/parity/reference/pbcg_reference.R
+
+Each carries the same notice at the top of the file. They may be used only for
+a noncommercial purpose, which PolyForm defines as "any noncommercial purpose"
+regardless of who is doing the using.
+
+These were withheld from this repository until 2026-08-18, on the reasoning
+that a company repository could not have a noncommercial purpose. That tested
+the wrong thing. PolyForm gates on purpose, not on the identity of the user,
+and this project's use is academic research only. If that ever stops being
+true, these files must be removed again. scripts/sync_public_repo.py asserts
+that every one of them carries its notice, and fails the sync if any does not.
+
+Nothing under src/ derives from them. They are tools for regenerating test
+fixtures, are never imported, and are never run by the test suite, which
+compares against captured JSON instead.

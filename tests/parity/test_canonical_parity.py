@@ -68,7 +68,7 @@ def test_plcom2012_resplab_worked_example():
 
 # Two web-calculator placeholders were removed here on 2026-08-18. Both were
 # `xfail(strict=False)` around `expected_risk = None; assert expected_risk is
-# not None` -- bodies that could never pass, so they reported nothing whether
+# not None`, bodies that could never pass, so they reported nothing whether
 # the model was right or wrong, and they inflated the test count with two
 # entries that asserted nothing about the library.
 #
@@ -77,7 +77,7 @@ def test_plcom2012_resplab_worked_example():
 # 2026-08-05, and its TODO asked a future reader to obtain SWOP outputs that
 # the same registry entry records as unobtainable (the calculator is a 2011
 # Flash SWF and Flash is EOL). Parity there was established by extracting all
-# six constants from that SWF directly -- a claim about the model rather than
+# six constants from that SWF directly, a claim about the model rather than
 # about one output. See tests/parity/reference/swop_rc3_swf_extract.py.
 #
 # The score2 one wanted a Cambridge chart vignette; SCORE2 was checked against
@@ -86,27 +86,37 @@ def test_plcom2012_resplab_worked_example():
 #
 # If a second, independent parity route is ever wanted for either model, the
 # place to record that intent is the model's registry entry, not a test that
-# cannot run. `test_no_test_can_never_pass` in tests/test_test_hygiene.py
-# now fails if a placeholder of this shape is added back.
+# cannot run. `test_no_test_can_never_pass` in tests/test_test_hygiene.py now fails
+# if a placeholder of this shape is added back.
+
 
 
 def test_grace_published_worked_examples():
     """Both worked examples from Granger et al. 2003, Figure 4.
 
-    Example 1's published total (196) is an arithmetic slip — the components
+    Example 1's published total (196) is an arithmetic slip, the components
     the paper itself lists sum to 195. We reproduce every component exactly,
     which is the real parity claim; see the module docstring.
     """
     ex1 = grace_predict(
-        killip_class=2, sbp=100, heart_rate=100, age=65, creatinine_mg_dl=1.0,
-        cardiac_arrest_at_admission=False, st_segment_deviation=True,
+        killip_class=2,
+        sbp=100,
+        heart_rate=100,
+        age=65,
+        creatinine_mg_dl=1.0,
+        cardiac_arrest_at_admission=False,
+        st_segment_deviation=True,
         elevated_cardiac_enzymes=True,
     )
     assert list(ex1["components"].values()) == [20, 53, 15, 58, 7, 0, 28, 14]
-    assert ex1["risk"] == pytest.approx(0.16, abs=0.01)   # paper: "about 16%"
+    assert ex1["risk"] == pytest.approx(0.16, abs=0.01)  # paper: "about 16%"
 
     ex2 = grace_predict(
-        killip_class=1, sbp=80, heart_rate=60, age=55, creatinine_mg_dl=0.4,
+        killip_class=1,
+        sbp=80,
+        heart_rate=60,
+        age=55,
+        creatinine_mg_dl=0.4,
     )
-    assert ex2["score"] == 103                             # paper: 103
+    assert ex2["score"] == 103  # paper: 103
     assert ex2["risk"] == pytest.approx(0.009, abs=0.001)  # paper: "about 0.9%"

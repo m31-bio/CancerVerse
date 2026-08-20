@@ -7,7 +7,7 @@ at Risk for Esophageal Adenocarcinoma." Clin Gastroenterol Hepatol.
 No worked patient is published, and the full text is paywalled (this check was
 blocked on paper access until the PDF was supplied). But the paper states how
 the points were built, which makes the WHOLE model re-derivable rather than one
-point of it — a stronger check than a worked example would have been:
+point of it, a stronger check than a worked example would have been:
 
     Methods: "Points-based models were created from the coefficient-based model
     by dividing the coefficient of each variable by the smallest coefficient in
@@ -17,14 +17,14 @@ point of it — a stronger check than a worked example would have been:
     nearest 0.5)."
 
 So for every row: points == round_to_half(ln(OR) / d), for the divisor d the
-paper says it used. All 10 reproduce — but only for one of the two values the
+paper says it used. All 10 reproduce, but only for one of the two values the
 paper gives.
 
 THE PAPER CONTRADICTS ITSELF ON THE DIVISOR, AND THE TABLE DECIDES IT
 ----------------------------------------------------------------------
 The Methods worked example divides by **0.40**. The Table 2 footnote says the
 smallest coefficient is **0.41**. They cannot both be right, and it is not
-cosmetic — it changes a published point value:
+cosmetic, it changes a published point value:
 
     divisor 0.40   10/10 rows reproduce
     divisor 0.41    9/10  — "Smoking, former" comes out 1.5, published 2.0
@@ -44,7 +44,7 @@ So the Methods figure is right and the footnote is the typo. The interval also
 explains where the footnote came from: 0.4055 rounds to 0.41, so whoever wrote
 the footnote recomputed ln(1.50) from the printed odds ratio instead of reading
 the fitted coefficient. And since the true divisor is below 0.4046, the real
-BMI 25-<30 odds ratio must be about 1.492-1.499 — printed as 1.50.
+BMI 25-<30 odds ratio must be about 1.492-1.499, printed as 1.50.
 
 Our module docstring previously repeated the footnote's 0.41; corrected.
 """
@@ -81,6 +81,7 @@ TABLE_2 = [
     ("Esophageal condition", 1.88, 1.5),
 ]
 
+
 def _round_to_half(x: float) -> float:
     return round(x * 2) / 2
 
@@ -90,8 +91,9 @@ def _points_from(odds_ratio: float, divisor: float = SMALLEST_COEFFICIENT) -> fl
     return _round_to_half(math.log(odds_ratio) / divisor)
 
 
-@pytest.mark.parametrize("label,odds_ratio,published", TABLE_2,
-                         ids=[r[0] for r in TABLE_2])
+@pytest.mark.parametrize(
+    "label,odds_ratio,published", TABLE_2, ids=[r[0] for r in TABLE_2]
+)
 def test_every_published_point_is_re_derivable_from_its_odds_ratio(
     label, odds_ratio, published
 ):
@@ -126,21 +128,23 @@ def test_the_table_itself_pins_the_divisor_and_excludes_the_footnote():
     assert lo < SMALLEST_COEFFICIENT <= hi, "the Methods divisor must be admissible"
     assert not (lo < 0.41 <= hi), "the footnote divisor must be excluded"
     # ln(1.50) is where the footnote's 0.41 plausibly came from, and it is also
-    # outside — narrowly. That is the tell that it was recomputed, not read.
+    # outside, narrowly. That is the tell that it was recomputed, not read.
     assert not (lo < math.log(1.50) <= hi)
 
 
 def test_the_footnote_divisor_breaks_exactly_one_row():
-    """Pinned so nobody 'corrects' the module back to 0.41 — and so the cost of
+    """Pinned so nobody 'corrects' the module back to 0.41, and so the cost of
     doing so is on the record."""
     failures = [
-        label for label, odds_ratio, published in TABLE_2
+        label
+        for label, odds_ratio, published in TABLE_2
         if _points_from(odds_ratio, divisor=0.41) != published
     ]
     assert failures == ["Smoking former"], failures
 
 
 # ------------------------------------- our point table vs. Table 2 directly ---
+
 
 def test_our_age_points_match_table_2():
     assert age_points(50) == 0.0
@@ -168,12 +172,14 @@ def test_the_published_maximum_and_threshold():
     """Figure 2 is captioned "out of total of 15"; the referral cut is 8+."""
     assert MAX_POINTS == 15.0
     assert REFERRAL_THRESHOLD == 8.0
-    worst = kunzmann_predict(age=70, male=True, bmi=40, smoking="current",
-                             esophageal_condition=True)
+    worst = kunzmann_predict(
+        age=70, male=True, bmi=40, smoking="current", esophageal_condition=True
+    )
     assert worst["score"] == MAX_POINTS
     assert worst["refer_for_screening"] is True
-    best = kunzmann_predict(age=50, male=False, bmi=22, smoking="never",
-                            esophageal_condition=False)
+    best = kunzmann_predict(
+        age=50, male=False, bmi=22, smoking="never", esophageal_condition=False
+    )
     assert best["score"] == 0.0
     assert best["refer_for_screening"] is False
 
@@ -182,7 +188,8 @@ def test_the_referral_threshold_is_inclusive():
     """The paper reports "8+ points" as the cutoff, so exactly 8 refers."""
     # male 4.0 + age 65+ 3.5 + esophageal condition 1.5 = 9.0; drop to exactly 8
     # via male 4.0 + age 60-65 2.5 + smoking former 2.0 - no, use 4.0+2.5+1.5 = 8.0
-    out = kunzmann_predict(age=62, male=True, bmi=22, smoking="never",
-                           esophageal_condition=True)
+    out = kunzmann_predict(
+        age=62, male=True, bmi=22, smoking="never", esophageal_condition=True
+    )
     assert out["score"] == 8.0
     assert out["refer_for_screening"] is True

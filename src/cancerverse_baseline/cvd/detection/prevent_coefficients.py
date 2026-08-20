@@ -1,10 +1,10 @@
-"""AHA PREVENT coefficient tables — all 100 published coefficient sets.
+"""AHA PREVENT coefficient tables, all 100 published coefficient sets.
 
 Equation source
 ---------------
 Khan SS, Matsushita K, Sang Y, et al. "Development and Validation of the
 American Heart Association's PREVENT Equations." Circulation. 2024;149(6):430-449.
-doi:10.1161/CIRCULATIONAHA.123.067626 -- supplemental appendix coefficient tables.
+doi:10.1161/CIRCULATIONAHA.123.067626, supplemental appendix coefficient tables.
 
 Values transcribed from the MIT-licensed CRAN package `preventr`
 (Martin Mayer, https://github.com/martingmayer/preventr, `R/sysdata.rda`), whose
@@ -212,7 +212,7 @@ EGFR_KNOT, EGFR_MIN_CENTER, EGFR_MAX_CENTER, EGFR_SCALE = 60.0, 60.0, 90.0, -15.
 # Extended-model centering. Confirmed against preventr's R/estimate_risk.R:
 # ln(UACR) enters UNCENTERED (`ln_uacr = log(uacr)`); HbA1c is centered on 5.3%
 # (`hba1c_dm = hba1c - 5.3`). An earlier draft of this file wrongly assumed a
-# ln(3.7) centering for UACR -- there is none in the source implementation.
+# ln(3.7) centering for UACR, there is none in the source implementation.
 HBA1C_CENTER = 5.3
 
 OUTCOMES = ("total_cvd", "ascvd", "heart_failure", "chd", "stroke")

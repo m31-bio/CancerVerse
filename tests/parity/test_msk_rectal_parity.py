@@ -23,7 +23,7 @@ The published correction notice for this article (PMC8759003) fixes only three
 collaborator names, so the discrepancy stands uncorrected.
 
 That left a real question: which artifact does the actual model use? This test
-answers it with route 6 — MSK hosts the deployed model at
+answers it with route 6. MSK hosts the deployed model at
 mskcc.org/nomograms/rectal/post-treatment and the tool's own "Supporting
 Publication" block cites this exact paper. Our eFigure-based implementation
 reproduces the hosted tool on all 12 captured cases, so the eFigure is the
@@ -47,7 +47,7 @@ CASES_FILE = Path(__file__).parent / "reference" / "msk_rectal_cases.json"
 # The tool displays whole percentages. A displayed 83 means [82.5, 83.5), so
 # half a point is the exact rounding half-width; 1.0 absorbs any difference in
 # rounding convention (round-half-up vs. banker's) without letting a real
-# coefficient error through — the smallest coefficient in the model moves a
+# coefficient error through, the smallest coefficient in the model moves a
 # typical patient by far more than a point.
 TOLERANCE_PCT = 1.0
 
@@ -76,7 +76,9 @@ def _ours(case: dict, endpoint: str) -> float:
     return out["survival"] * 100.0
 
 
-@pytest.mark.parametrize("case", _cases(), ids=lambda c: f"age{c['age']}-{c['t_stage']}-n{c['nodes']}")
+@pytest.mark.parametrize(
+    "case", _cases(), ids=lambda c: f"age{c['age']}-{c['t_stage']}-n{c['nodes']}"
+)
 @pytest.mark.parametrize("endpoint", ["rfs", "os"])
 def test_matches_the_hosted_msk_calculator(endpoint, case):
     ours = _ours(case, endpoint)

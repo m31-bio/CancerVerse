@@ -60,7 +60,11 @@ def test_heart_failure_uses_bmi_but_not_lipids():
 
 
 def test_extended_variants_carry_their_extra_term():
-    for variant, term in (("uacr", "ln_acr"), ("hba1c", "hba1c_dm"), ("sdi", "sdi_4_6")):
+    for variant, term in (
+        ("uacr", "ln_acr"),
+        ("hba1c", "hba1c_dm"),
+        ("sdi", "sdi_4_6"),
+    ):
         for key, betas in C.PREVENT_TABLES[(variant, 10)].items():
             assert term in betas, (variant, key)
         for key, betas in C.PREVENT_TABLES[("base", 10)].items():
@@ -90,11 +94,11 @@ def test_statin_and_low_egfr_move_risk_in_expected_direction():
 
 
 def test_sbp_below_knot_is_j_shaped_at_base_10yr():
-    """Below the 110 mm Hg knot the SBP slope is negative — lower SBP raises risk.
+    """Below the 110 mm Hg knot the SBP slope is negative, lower SBP raises risk.
 
     This J-curve is a genuine feature of the published equations, not a sign
     error: the `SBP <110 per 20 mmHg` beta is negative for every base 10-year
-    model. It is NOT universal across all 100 coefficient sets — several
+    model. It is NOT universal across all 100 coefficient sets, several
     30-year extended-model female outcomes (ascvd/chd/stroke) have a beta
     that is slightly positive but near zero, i.e. the curve goes essentially
     flat rather than reversing; that is data, not a transcription error.
@@ -178,19 +182,52 @@ def test_sdi_decile_bucketing():
     # differ only in sdi_decile, and seeing that difference on the page is the
     # point of the test.
     lp_low = linear_predictor(
-        sex="female", outcome="total_cvd", variant="sdi", sdi_decile=2,
-        age=50, total_chol_mg_dl=200, hdl_mg_dl=45, sbp=160, diabetes=True,
-        smoker=False, bmi=35, egfr=90, htn_meds=True, statin=False,
+        sex="female",
+        outcome="total_cvd",
+        variant="sdi",
+        sdi_decile=2,
+        age=50,
+        total_chol_mg_dl=200,
+        hdl_mg_dl=45,
+        sbp=160,
+        diabetes=True,
+        smoker=False,
+        bmi=35,
+        egfr=90,
+        htn_meds=True,
+        statin=False,
     )
     lp_mid = linear_predictor(
-        sex="female", outcome="total_cvd", variant="sdi", sdi_decile=5,
-        age=50, total_chol_mg_dl=200, hdl_mg_dl=45, sbp=160, diabetes=True,
-        smoker=False, bmi=35, egfr=90, htn_meds=True, statin=False,
+        sex="female",
+        outcome="total_cvd",
+        variant="sdi",
+        sdi_decile=5,
+        age=50,
+        total_chol_mg_dl=200,
+        hdl_mg_dl=45,
+        sbp=160,
+        diabetes=True,
+        smoker=False,
+        bmi=35,
+        egfr=90,
+        htn_meds=True,
+        statin=False,
     )
     lp_high = linear_predictor(
-        sex="female", outcome="total_cvd", variant="sdi", sdi_decile=9,
-        age=50, total_chol_mg_dl=200, hdl_mg_dl=45, sbp=160, diabetes=True,
-        smoker=False, bmi=35, egfr=90, htn_meds=True, statin=False,
+        sex="female",
+        outcome="total_cvd",
+        variant="sdi",
+        sdi_decile=9,
+        age=50,
+        total_chol_mg_dl=200,
+        hdl_mg_dl=45,
+        sbp=160,
+        diabetes=True,
+        smoker=False,
+        bmi=35,
+        egfr=90,
+        htn_meds=True,
+        statin=False,
     )
     # Deciles 1-3 are the reference (no indicator fires); 4-6 and 7-10 each add
     # their own positive beta for this model/sex, so risk should not collapse
@@ -201,29 +238,63 @@ def test_sdi_decile_bucketing():
 
 def test_hba1c_uses_diabetes_specific_slope():
     """The hba1c_dm / hba1c_no_dm split means the same HbA1c value enters via a
-    different beta depending on diabetes status — never both."""
+    different beta depending on diabetes status, never both."""
     lp_dm = linear_predictor(
-        sex="male", outcome="total_cvd", variant="hba1c", hba1c=7.5,
-        age=55, total_chol_mg_dl=190, hdl_mg_dl=45, sbp=130, diabetes=True,
-        smoker=False, bmi=28, egfr=80, htn_meds=False, statin=False,
+        sex="male",
+        outcome="total_cvd",
+        variant="hba1c",
+        hba1c=7.5,
+        age=55,
+        total_chol_mg_dl=190,
+        hdl_mg_dl=45,
+        sbp=130,
+        diabetes=True,
+        smoker=False,
+        bmi=28,
+        egfr=80,
+        htn_meds=False,
+        statin=False,
     )
     lp_no_dm = linear_predictor(
-        sex="male", outcome="total_cvd", variant="hba1c", hba1c=7.5,
-        age=55, total_chol_mg_dl=190, hdl_mg_dl=45, sbp=130, diabetes=False,
-        smoker=False, bmi=28, egfr=80, htn_meds=False, statin=False,
+        sex="male",
+        outcome="total_cvd",
+        variant="hba1c",
+        hba1c=7.5,
+        age=55,
+        total_chol_mg_dl=190,
+        hdl_mg_dl=45,
+        sbp=130,
+        diabetes=False,
+        smoker=False,
+        bmi=28,
+        egfr=80,
+        htn_meds=False,
+        statin=False,
     )
     assert lp_dm != lp_no_dm
 
 
 def test_missing_lab_scores_via_missing_indicator_not_a_crash():
     """Full model with all three labs absent must equal the base-model logit
-    plus each variant's own constant/structure — at minimum it must run and
+    plus each variant's own constant/structure, at minimum it must run and
     each 'missing' indicator must be the only nonzero extended term."""
     lp = linear_predictor(
-        sex="male", outcome="total_cvd", variant="full",
-        uacr=None, hba1c=None, sdi_decile=None,
-        age=55, total_chol_mg_dl=190, hdl_mg_dl=45, sbp=130, diabetes=False,
-        smoker=False, bmi=28, egfr=80, htn_meds=False, statin=False,
+        sex="male",
+        outcome="total_cvd",
+        variant="full",
+        uacr=None,
+        hba1c=None,
+        sdi_decile=None,
+        age=55,
+        total_chol_mg_dl=190,
+        hdl_mg_dl=45,
+        sbp=130,
+        diabetes=False,
+        smoker=False,
+        bmi=28,
+        egfr=80,
+        htn_meds=False,
+        statin=False,
     )
     assert isinstance(lp, float)
 
@@ -249,9 +320,18 @@ def test_bmi_only_affects_the_heart_failure_outcome():
     from cancerverse_baseline.cvd.detection import prevent_predict
     from cancerverse_baseline.cvd.detection.prevent import BMI_ONLY_AFFECTS
 
-    common = dict(sex="female", age=55, total_chol_mg_dl=200, hdl_mg_dl=50,
-                  sbp=130, diabetes=False, smoker=False, egfr=90,
-                  htn_meds=False, statin=False)
+    common = dict(
+        sex="female",
+        age=55,
+        total_chol_mg_dl=200,
+        hdl_mg_dl=50,
+        sbp=130,
+        diabetes=False,
+        smoker=False,
+        egfr=90,
+        htn_meds=False,
+        statin=False,
+    )
     for outcome in C.OUTCOMES:
         lean = prevent_predict(**common, bmi=20, outcome=outcome)["risk"]
         obese = prevent_predict(**common, bmi=40, outcome=outcome)["risk"]
@@ -263,9 +343,13 @@ def test_bmi_only_affects_the_heart_failure_outcome():
     # And the same split holds in the coefficient tables themselves.
     nonzero = [
         (v, h, o)
-        for v in C.VARIANTS for h in C.HORIZONS for o in C.OUTCOMES
-        if any(C.PREVENT_TABLES[(v, h)][f"female_{o}"].get(k, 0.0) != 0.0
-               for k in ("bmi_min", "bmi_max", "age_bmi_max"))
+        for v in C.VARIANTS
+        for h in C.HORIZONS
+        for o in C.OUTCOMES
+        if any(
+            C.PREVENT_TABLES[(v, h)][f"female_{o}"].get(k, 0.0) != 0.0
+            for k in ("bmi_min", "bmi_max", "age_bmi_max")
+        )
     ]
     assert {o for _, _, o in nonzero} == set(BMI_ONLY_AFFECTS)
     assert len(nonzero) == len(C.VARIANTS) * len(C.HORIZONS)

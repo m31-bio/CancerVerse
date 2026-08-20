@@ -1,0 +1,46 @@
+Logistic Regression Model
+
+lrm(formula = pCR ~ Pre_CRT_N_stage + Pre_CRT_T_stage + Pre_CRT_MRI_EMVI + 
+    Total_neoadjuvant_therapy + Histopathology + Pre_CRT_CEA, 
+    data = data, x = T, y = T, maxit = 5000)
+
+                       Model Likelihood      Discrimination    Rank Discrim.    
+                             Ratio Test             Indexes          Indexes    
+Obs          1579    LR chi2     202.40      R2       0.184    C       0.737    
+ 0           1229    d.f.             9     R2(9,1579)0.115    Dxy     0.473    
+ 1            350    Pr(> chi2) <0.0001    R2(9,817.3)0.211    gamma   0.473    
+max |deriv| 7e-08                            Brier    0.151    tau-a   0.163    
+
+                                                                  Coef   
+Intercept                                                         -0.0131
+Pre_CRT_N_stage=cN1                                               -0.4513
+Pre_CRT_N_stage=cN2                                               -0.6596
+Pre_CRT_T_stage=cT3                                                0.5773
+Pre_CRT_T_stage=cT4                                                0.0587
+Pre_CRT_T_stage=cTcT1                                              1.3364
+Pre_CRT_MRI_EMVI=Positive                                         -1.1061
+Total_neoadjuvant_therapy=Yes                                      0.7642
+Histopathology=Signet-ring cell carcinoma/Mucinous adenocarcinoma -1.4323
+Pre_CRT_CEA                                                       -0.0584
+                                                                  S.E.   Wald Z
+Intercept                                                         0.2588 -0.05 
+Pre_CRT_N_stage=cN1                                               0.1581 -2.85 
+Pre_CRT_N_stage=cN2                                               0.1853 -3.56 
+Pre_CRT_T_stage=cT3                                               0.2603  2.22 
+Pre_CRT_T_stage=cT4                                               0.2832  0.21 
+Pre_CRT_T_stage=cTcT1                                             0.7792  1.72 
+Pre_CRT_MRI_EMVI=Positive                                         0.1500 -7.37 
+Total_neoadjuvant_therapy=Yes                                     0.2940  2.60 
+Histopathology=Signet-ring cell carcinoma/Mucinous adenocarcinoma 0.3022 -4.74 
+Pre_CRT_CEA                                                       0.0126 -4.63 
+                                                                  Pr(>|Z|)
+Intercept                                                         0.9597  
+Pre_CRT_N_stage=cN1                                               0.0043  
+Pre_CRT_N_stage=cN2                                               0.0004  
+Pre_CRT_T_stage=cT3                                               0.0266  
+Pre_CRT_T_stage=cT4                                               0.8359  
+Pre_CRT_T_stage=cTcT1                                             0.0863  
+Pre_CRT_MRI_EMVI=Positive                                         <0.0001 
+Total_neoadjuvant_therapy=Yes                                     0.0093  
+Histopathology=Signet-ring cell carcinoma/Mucinous adenocarcinoma <0.0001 
+Pre_CRT_CEA                                                       <0.0001 

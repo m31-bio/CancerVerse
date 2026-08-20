@@ -1,4 +1,4 @@
-"""GRACE risk score — in-hospital mortality in acute coronary syndromes.
+"""GRACE risk score, in-hospital mortality in acute coronary syndromes.
 
 Equation source
 ---------------
@@ -22,11 +22,11 @@ in-hospital death probability through a published lookup.
     ST-segment deviation          28
     Elevated cardiac enzymes      14
 
-Note the SBP scale runs BACKWARD — low blood pressure scores highest (<=80
+Note the SBP scale runs BACKWARD, low blood pressure scores highest (<=80
 mm Hg is 58 points, >=200 is 0). It encodes cardiogenic shock, not
 hypertension.
 
-BAND BOUNDARIES ARE AMBIGUOUS AS PRINTED — read this before touching them
+BAND BOUNDARIES ARE AMBIGUOUS AS PRINTED, read this before touching them
 ---------------------------------------------------------------------------
 The nomogram prints bands like "80-99" then "100-119". Taken literally, SBP of
 exactly 100 lands in the 100-119 band and scores 43. **The paper's own worked
@@ -35,7 +35,7 @@ examples say otherwise**: it assigns SBP 100 -> 53 (the "80-99" band), SBP 80 ->
 
 So each printed band's true upper edge is the NEXT band's printed lower label,
 inclusive. Coded literally, this model returns the wrong points for boundary
-values -- and 100 mm Hg is one of the most common systolic readings there is.
+values, and 100 mm Hg is one of the most common systolic readings there is.
 The two published worked examples are the only thing that disambiguates this,
 which is exactly why both are pinned as parity tests.
 
@@ -46,8 +46,8 @@ Version
 -------
 This is the ORIGINAL 2003 points nomogram for **in-hospital** mortality. Two
 other things are also called "GRACE" and are NOT this:
-  - Fox KAA et al., BMJ 2006 — 6-month post-discharge mortality, different points
-  - GRACE 2.0 — replaced the points system with a non-linear continuous model
+  - Fox KAA et al., BMJ 2006, 6-month post-discharge mortality, different points
+  - GRACE 2.0, replaced the points system with a non-linear continuous model
 Using this score where a guideline specifies GRACE 2.0 will give different
 numbers. The registry records which version is implemented.
 
@@ -68,27 +68,54 @@ ELEVATED_ENZYMES_POINTS = 14
 
 CREATININE_MG_DL_TO_UMOL_L = 88.4
 
-# (upper bound INCLUSIVE, points), per the worked examples — see the docstring.
+# (upper bound INCLUSIVE, points), per the worked examples, see the docstring.
 # The final entry of each tuple set is the open-ended top band.
-_SBP_BANDS = ((80.0, 58), (100.0, 53), (120.0, 43), (140.0, 34),
-              (160.0, 24), (199.999, 10))
-_SBP_TOP = 0            # >= 200
-_HR_BANDS = ((50.0, 0), (70.0, 3), (90.0, 9), (110.0, 15),
-             (150.0, 24), (199.999, 38))
-_HR_TOP = 46            # >= 200
-_AGE_BANDS = ((30.0, 0), (40.0, 8), (50.0, 25), (60.0, 41),
-              (70.0, 58), (80.0, 75), (89.999, 91))
-_AGE_TOP = 100          # >= 90
-_CREAT_BANDS = ((0.40, 1), (0.80, 4), (1.20, 7), (1.60, 10),
-                (2.00, 13), (4.00, 21))
-_CREAT_TOP = 28         # > 4.0
+_SBP_BANDS = (
+    (80.0, 58),
+    (100.0, 53),
+    (120.0, 43),
+    (140.0, 34),
+    (160.0, 24),
+    (199.999, 10),
+)
+_SBP_TOP = 0  # >= 200
+_HR_BANDS = ((50.0, 0), (70.0, 3), (90.0, 9), (110.0, 15), (150.0, 24), (199.999, 38))
+_HR_TOP = 46  # >= 200
+_AGE_BANDS = (
+    (30.0, 0),
+    (40.0, 8),
+    (50.0, 25),
+    (60.0, 41),
+    (70.0, 58),
+    (80.0, 75),
+    (89.999, 91),
+)
+_AGE_TOP = 100  # >= 90
+_CREAT_BANDS = ((0.40, 1), (0.80, 4), (1.20, 7), (1.60, 10), (2.00, 13), (4.00, 21))
+_CREAT_TOP = 28  # > 4.0
 
 # Published risk lookup: total points -> probability of in-hospital death.
 RISK_TABLE = (
-    (60, 0.002), (70, 0.003), (80, 0.004), (90, 0.006), (100, 0.008),
-    (110, 0.011), (120, 0.016), (130, 0.021), (140, 0.029), (150, 0.039),
-    (160, 0.054), (170, 0.073), (180, 0.098), (190, 0.13), (200, 0.18),
-    (210, 0.23), (220, 0.29), (230, 0.36), (240, 0.44), (250, 0.52),
+    (60, 0.002),
+    (70, 0.003),
+    (80, 0.004),
+    (90, 0.006),
+    (100, 0.008),
+    (110, 0.011),
+    (120, 0.016),
+    (130, 0.021),
+    (140, 0.029),
+    (150, 0.039),
+    (160, 0.054),
+    (170, 0.073),
+    (180, 0.098),
+    (190, 0.13),
+    (200, 0.18),
+    (210, 0.23),
+    (220, 0.29),
+    (230, 0.36),
+    (240, 0.44),
+    (250, 0.52),
 )
 
 MODEL_CITATION = (

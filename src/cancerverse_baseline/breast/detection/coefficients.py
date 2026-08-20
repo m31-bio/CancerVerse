@@ -2,7 +2,7 @@
 
 Source
 ------
-NCI DCEG `BCRA` R package, version 2.1.2 — the reference implementation of
+NCI DCEG `BCRA` R package, version 2.1.2, the reference implementation of
 the algorithm behind the public NCI Breast Cancer Risk Assessment Tool
 (https://bcrisktool.cancer.gov/). Every number below is transcribed from:
 
@@ -19,7 +19,7 @@ retrieved 2026-08-05. The linear-predictor formula printed in
 
 and ``absolute.risk.R`` combines it with the baseline hazards as
 ``lambda_j = lambda1[band]*(1-AR)*RR_Star[j] + lambda2[band]`` before
-integrating one year at a time — see ``bcrat.py``.
+integrating one year at a time, see ``bcrat.py``.
 
 Underlying development papers
 ------------------------------

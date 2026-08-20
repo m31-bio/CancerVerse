@@ -1,4 +1,4 @@
-"""Dutasteride chemoprevention — benefit and harm, side by side.
+"""Dutasteride chemoprevention, benefit and harm, side by side.
 
 Equation source
 ---------------
@@ -13,8 +13,7 @@ which is the model hosted at riskcalc.org.
 
 Why this is a *response* model and not another risk model
 ----------------------------------------------------------
-It predicts **nine outcomes under two arms** — on dutasteride and off it — so
-the quantity of interest is the difference, not either number. Four of the nine
+It predicts **nine outcomes under two arms**, on dutasteride and off it, so the quantity of interest is the difference, not either number. Four of the nine
 are harms:
 
     benefit    high-grade prostate cancer, any prostate cancer, HGPIN, ASAP,
@@ -35,14 +34,14 @@ Two asymmetries in the published model, reproduced not smoothed
 1. **ASAP has only the dutasteride arm.** There is no off-treatment comparator
    in the source, so no difference can be computed for it. `difference` is None
    there rather than 0.
-2. **HGPIN on dutasteride is a CONSTANT 3.838831%** — no predictors at all,
+2. **HGPIN on dutasteride is a CONSTANT 3.838831%.** No predictors at all,
    the same number for everyone in scope. The off-treatment arm is a full
    28-term model. That is what the source says; it is recorded as a constant
    rather than forced into the Cox shape.
 
 Coefficients are machine-extracted
 -----------------------------------
-315 coefficients is past the point where hand-copying is safe — this project
+315 coefficients is past the point where hand-copying is safe, this project
 has already shipped one wrong coefficient (ALBI's -0.0852) from a far smaller
 transcription. `tests/parity/reference/dutasteride_extract.py` parses them out
 of the R, and the parity test proves the extraction faithful against that same
@@ -52,7 +51,7 @@ Scope
 -----
 Men with a **prior negative 6- to 12-core biopsy in the past 6 months**, the
 REDUCE trial's population. Every sub-model carries its own applicability bounds
-and returns None outside them, exactly as the tool returns "Not Applicable" —
+and returns None outside them, exactly as the tool returns "Not Applicable",
 because the bounds differ per outcome, a patient can be in scope for some
 outcomes and not others.
 """
@@ -70,11 +69,13 @@ MODEL_ID = "dutasteride"
 #: The 315 coefficients ship WITH the package, not from tests/.
 #:
 #: They lived under `tests/parity/reference/` and were read from there at
-#: runtime, which made the library depend on its own test tree -- an installed
+#: runtime, which made the library depend on its own test tree, an installed
 #: wheel that excluded tests would import and then fail on first call. It also
 #: put product data in the one directory whose contents are most likely to be
 #: dropped from a distribution.
-_COEFFICIENTS = Path(__file__).resolve().parent / "data" / "dutasteride_coefficients.json"
+_COEFFICIENTS = (
+    Path(__file__).resolve().parent / "data" / "dutasteride_coefficients.json"
+)
 
 ARMS = ("dutasteride", "nodutasteride")
 
@@ -111,7 +112,7 @@ INPUTS = {
 }
 
 MODEL_CITATION = (
-    "Nguyen CT, Isariyawongse B, Yu C, Kattan MW — predictive models for men "
+    "Nguyen CT, Isariyawongse B, Yu C, Kattan MW, predictive models for men "
     "with a prior negative prostate biopsy considering dutasteride (REDUCE). "
     "Coefficients from the deployed model's published R source at riskcalc.org."
 )
@@ -123,9 +124,11 @@ def _models() -> dict:
 
 
 def _used_variables(spec: dict) -> set[str]:
-    return (set(spec["linear"])
-            | {s["var"] for s in spec["splines"]}
-            | {i["var"] for i in spec["indicators"]})
+    return (
+        set(spec["linear"])
+        | {s["var"] for s in spec["splines"]}
+        | {i["var"] for i in spec["indicators"]}
+    )
 
 
 def _applicable(spec: dict, values: dict) -> bool:
@@ -133,7 +136,7 @@ def _applicable(spec: dict, values: dict) -> bool:
     its declared bounds.
 
     The bounds and the `!= "Unknown"` checks come from the source, but they do
-    not cover every predictor — a variable can be used with no bound declared.
+    not cover every predictor, a variable can be used with no bound declared.
     In R a missing value there would propagate NA silently; here it must be an
     honest None, so every USED variable is required, not just the bounded ones.
     """
@@ -197,7 +200,7 @@ def dutasteride_predict(
     Only `age` and `psa` are always needed; the rest are optional because the
     sub-models use different subsets. An outcome whose predictors are missing,
     or whose values fall outside its own bounds, comes back None rather than
-    guessed — the hosted tool shows "Not Applicable" in the same situations,
+    guessed, the hosted tool shows "Not Applicable" in the same situations,
     and the bounds differ per outcome, so a patient can be answerable for some
     and not others.
 

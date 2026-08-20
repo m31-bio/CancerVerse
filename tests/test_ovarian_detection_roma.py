@@ -48,27 +48,35 @@ def test_risk_group_uses_the_stratum_specific_cutoff():
     post = roma_predict(he4_pmol_l=52.0, ca125_u_ml=30.0, postmenopausal=True)
     assert pre["cutoff"] == 0.131
     assert post["cutoff"] == 0.277
-    # Same inputs, different thresholds — verify the threshold is actually applied.
+    # Same inputs, different thresholds, verify the threshold is actually applied.
     for out in (pre, post):
         assert out["risk_group"] == ("high" if out["risk"] > out["cutoff"] else "low")
 
 
 def test_premenopausal_model_is_driven_by_he4_not_ca125():
     """CA125's premenopausal coefficient (0.0626) is near-negligible next to
-    HE4's (2.38) — the model encoding that CA125 is confounded by benign
+    HE4's (2.38), the model encoding that CA125 is confounded by benign
     gynaecological disease in premenopausal women."""
     assert PREMENOPAUSAL["ln_ca125"] < 0.1
     assert PREMENOPAUSAL["ln_he4"] > 2.0
     # Postmenopausally CA125 carries real weight.
     assert POSTMENOPAUSAL["ln_ca125"] > 0.7
 
-    low_ca = roma_predict(he4_pmol_l=80.0, ca125_u_ml=10.0, postmenopausal=False)["risk"]
-    high_ca = roma_predict(he4_pmol_l=80.0, ca125_u_ml=500.0, postmenopausal=False)["risk"]
-    assert abs(high_ca - low_ca) < 0.05     # barely moves premenopausally
+    low_ca = roma_predict(he4_pmol_l=80.0, ca125_u_ml=10.0, postmenopausal=False)[
+        "risk"
+    ]
+    high_ca = roma_predict(he4_pmol_l=80.0, ca125_u_ml=500.0, postmenopausal=False)[
+        "risk"
+    ]
+    assert abs(high_ca - low_ca) < 0.05  # barely moves premenopausally
 
-    low_ca_p = roma_predict(he4_pmol_l=80.0, ca125_u_ml=10.0, postmenopausal=True)["risk"]
-    high_ca_p = roma_predict(he4_pmol_l=80.0, ca125_u_ml=500.0, postmenopausal=True)["risk"]
-    assert high_ca_p - low_ca_p > 0.2       # moves a lot postmenopausally
+    low_ca_p = roma_predict(he4_pmol_l=80.0, ca125_u_ml=10.0, postmenopausal=True)[
+        "risk"
+    ]
+    high_ca_p = roma_predict(he4_pmol_l=80.0, ca125_u_ml=500.0, postmenopausal=True)[
+        "risk"
+    ]
+    assert high_ca_p - low_ca_p > 0.2  # moves a lot postmenopausally
 
 
 def test_risk_rises_with_both_markers():
@@ -106,14 +114,16 @@ def test_coefficients_corroborated_by_the_assay_insert():
 
 
 def test_paper_and_assay_cutoffs_differ_and_cross_over():
-    """Same equation, two published thresholds — and they disagree in opposite
+    """Same equation, two published thresholds, and they disagree in opposite
     directions by menopausal status. Premenopausally the commercial cut is more
     sensitive (11.4 vs 13.1); postmenopausally it is less (29.9 vs 27.7).
     """
     from cancerverse_baseline.ovarian.detection.roma import CUTOFFS
 
     assert CUTOFFS["paper"]["premenopausal"] > CUTOFFS["assay_insert"]["premenopausal"]
-    assert CUTOFFS["paper"]["postmenopausal"] < CUTOFFS["assay_insert"]["postmenopausal"]
+    assert (
+        CUTOFFS["paper"]["postmenopausal"] < CUTOFFS["assay_insert"]["postmenopausal"]
+    )
 
 
 def test_cutoff_source_changes_the_call_for_a_borderline_patient():
@@ -121,14 +131,15 @@ def test_cutoff_source_changes_the_call_for_a_borderline_patient():
     kw = dict(he4_pmol_l=57.0, ca125_u_ml=25.0, postmenopausal=False)
     paper = roma_predict(**kw, cutoff_source="paper")
     insert = roma_predict(**kw, cutoff_source="assay_insert")
-    assert paper["risk"] == pytest.approx(insert["risk"])       # same equation
+    assert paper["risk"] == pytest.approx(insert["risk"])  # same equation
     assert paper["cutoff"] == 0.131 and insert["cutoff"] == 0.114
-    if 0.114 < paper["risk"] <= 0.131:                          # the disputed band
+    if 0.114 < paper["risk"] <= 0.131:  # the disputed band
         assert paper["risk_group"] == "low"
         assert insert["risk_group"] == "high"
 
 
 def test_invalid_cutoff_source():
     with pytest.raises(ValueError, match="cutoff_source"):
-        roma_predict(he4_pmol_l=60.0, ca125_u_ml=30.0, postmenopausal=True,
-                     cutoff_source="bogus")
+        roma_predict(
+            he4_pmol_l=60.0, ca125_u_ml=30.0, postmenopausal=True, cutoff_source="bogus"
+        )

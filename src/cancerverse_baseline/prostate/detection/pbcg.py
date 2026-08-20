@@ -19,7 +19,7 @@ PBCG is the contemporary successor to PCPTRC 2.0 and reports better
 discrimination (AUC 75.5% internal, 72.3% external, against roughly 70-73% for
 the older calculators). Two properties matter more than recency:
 
-1. **It predicts three outcomes, not one** — no cancer, low-grade
+1. **It predicts three outcomes, not one.** No cancer, low-grade
    (Gleason 6), high-grade (Gleason 7+). The clinically actionable question is
    the high-grade one, and a binary any-cancer model cannot answer it.
 2. **It degrades gracefully.** Eight coefficient sets cover every pattern of
@@ -48,7 +48,7 @@ A display quirk of the hosted tool, reproduced only on request
 ---------------------------------------------------------------
 riskcalc.org rounds P(no cancer) and P(low grade) to whole percent and then
 computes high grade as ``100 - no - low``, so **all the rounding error lands on
-the high-grade estimate** — the one the decision turns on. This module returns
+the high-grade estimate**, the one the decision turns on. This module returns
 unrounded probabilities; `rounded_like_riskcalc()` reproduces the tool.
 """
 
@@ -62,31 +62,81 @@ MODEL_ID = "pbcg"
 #: Coefficient vectors keyed by which optional predictors are supplied, in the
 #: order (prior_biopsy, dre, family_history). Term order within each vector is
 #: intercept, log2(PSA), age, african_ancestry, then the supplied optionals in
-#: that same order — which is how the source builds its data vector.
+#: that same order, which is how the source builds its data vector.
 COEFFICIENTS: dict[tuple[bool, bool, bool], dict[str, tuple[float, ...]]] = {
     (True, True, True): {
-        "low": (-2.44052108, 0.13617244, 0.01780617, 0.78721039, -0.83613721,
-                0.04612721, 0.33233636),
-        "high": (-6.36851856, 0.79996510, 0.05566536, 0.61596975, -1.27437249,
-                 0.85780143, 0.61003848),
+        "low": (
+            -2.44052108,
+            0.13617244,
+            0.01780617,
+            0.78721039,
+            -0.83613721,
+            0.04612721,
+            0.33233636,
+        ),
+        "high": (
+            -6.36851856,
+            0.79996510,
+            0.05566536,
+            0.61596975,
+            -1.27437249,
+            0.85780143,
+            0.61003848,
+        ),
     },
     (True, True, False): {
-        "low": (-2.29687989, 0.13785591, 0.01758914, 0.63876791, -0.86200471,
-                0.07193350),
-        "high": (-6.06621401, 0.76053930, 0.05509847, 0.51701373, -1.38390751,
-                 0.83442202),
+        "low": (
+            -2.29687989,
+            0.13785591,
+            0.01758914,
+            0.63876791,
+            -0.86200471,
+            0.07193350,
+        ),
+        "high": (
+            -6.06621401,
+            0.76053930,
+            0.05509847,
+            0.51701373,
+            -1.38390751,
+            0.83442202,
+        ),
     },
     (True, False, True): {
-        "low": (-2.64840984, 0.13125283, 0.02044166, 0.81792881, -0.98610357,
-                0.31447017),
-        "high": (-6.70538152, 0.77635003, 0.06542705, 0.52401464, -1.43681965,
-                 0.55443478),
+        "low": (
+            -2.64840984,
+            0.13125283,
+            0.02044166,
+            0.81792881,
+            -0.98610357,
+            0.31447017,
+        ),
+        "high": (
+            -6.70538152,
+            0.77635003,
+            0.06542705,
+            0.52401464,
+            -1.43681965,
+            0.55443478,
+        ),
     },
     (False, True, True): {
-        "low": (-2.16147411, 0.07409519, 0.01322988, 0.76131045, 0.05397516,
-                0.29246219),
-        "high": (-5.99897055, 0.70727793, 0.04992968, 0.56485952, 0.89154384,
-                 0.56910873),
+        "low": (
+            -2.16147411,
+            0.07409519,
+            0.01322988,
+            0.76131045,
+            0.05397516,
+            0.29246219,
+        ),
+        "high": (
+            -5.99897055,
+            0.70727793,
+            0.04992968,
+            0.56485952,
+            0.89154384,
+            0.56910873,
+        ),
     },
     (True, False, False): {
         "low": (-2.49050385, 0.12961272, 0.02020429, 0.67674970, -0.97275826),
@@ -128,8 +178,11 @@ def linear_predictors(
     if age <= 0:
         raise ValueError(f"age must be > 0, got {age}")
 
-    key = (prior_biopsy is not None, dre_abnormal is not None,
-           family_history is not None)
+    key = (
+        prior_biopsy is not None,
+        dre_abnormal is not None,
+        family_history is not None,
+    )
     betas = COEFFICIENTS[key]
 
     x = [1.0, math.log2(psa), float(age), 1.0 if african_ancestry else 0.0]
@@ -165,7 +218,7 @@ def pbcg_predict(
     Probability of no cancer, low-grade and high-grade cancer on biopsy.
 
     `prior_biopsy`, `dre_abnormal` and `family_history` may each be None,
-    meaning "not known" — the model then uses the coefficient set fitted
+    meaning "not known", the model then uses the coefficient set fitted
     without that predictor rather than imputing a value. PSA, age and ancestry
     are mandatory.
 
@@ -173,8 +226,11 @@ def pbcg_predict(
     decision turns on. All three are in `probabilities`.
     """
     s1, s2 = linear_predictors(
-        psa=psa, age=age, african_ancestry=african_ancestry,
-        prior_biopsy=prior_biopsy, dre_abnormal=dre_abnormal,
+        psa=psa,
+        age=age,
+        african_ancestry=african_ancestry,
+        prior_biopsy=prior_biopsy,
+        dre_abnormal=dre_abnormal,
         family_history=family_history,
     )
     denom = 1.0 + math.exp(s1) + math.exp(s2)
@@ -182,13 +238,18 @@ def pbcg_predict(
     p_low = math.exp(s1) / denom
     p_high = math.exp(s2) / denom
 
-    known = [n for n, v in (("prior_biopsy", prior_biopsy),
-                            ("dre_abnormal", dre_abnormal),
-                            ("family_history", family_history)) if v is not None]
+    known = [
+        n
+        for n, v in (
+            ("prior_biopsy", prior_biopsy),
+            ("dre_abnormal", dre_abnormal),
+            ("family_history", family_history),
+        )
+        if v is not None
+    ]
     return {
         "risk": p_high,
-        "probabilities": {"no_cancer": p_no, "low_grade": p_low,
-                          "high_grade": p_high},
+        "probabilities": {"no_cancer": p_no, "low_grade": p_low, "high_grade": p_high},
         "linear_predictors": {"low_grade": s1, "high_grade": s2},
         "submodel": tuple(known),
         "model_id": MODEL_ID,
@@ -205,7 +266,7 @@ def rounded_like_riskcalc(result: dict) -> dict[str, int]:
 
     riskcalc.org rounds no-cancer and low-grade to whole percent and derives
     high grade as the remainder, so every rounding error accumulates on the
-    high-grade figure — the clinically decisive one. Use this only to compare
+    high-grade figure, the clinically decisive one. Use this only to compare
     against that tool.
     """
     p = result["probabilities"]

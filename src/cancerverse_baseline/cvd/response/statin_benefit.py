@@ -1,4 +1,4 @@
-"""Absolute benefit of LDL lowering — a COMPOSITION, not a published model.
+"""Absolute benefit of LDL lowering, a COMPOSITION, not a published model.
 
 Read this before using it. Every other model in this repository is a published
 equation reimplemented and checked against an external source. This one is not.
@@ -11,7 +11,7 @@ implementation to be checked against, because nobody published it as a model.
 
 Both inputs are published and both were read:
 
-  baseline_risk   from any verified risk model in this library — PREVENT or
+  baseline_risk   from any verified risk model in this library. PREVENT or
                   SCORE2 for cardiovascular events. Supplied by the caller
                   rather than computed here, so the choice of risk model, its
                   horizon and its scope stay visible.
@@ -45,8 +45,8 @@ What the composition assumes, and where it strains
    it says nothing about uncertainty in the baseline risk estimate, which is
    usually the larger source.
 
-None of that makes the calculation wrong — it is what NICE, USPSTF and the AHA
-do — but it is why this module reports its assumptions in the result and why
+None of that makes the calculation wrong, it is what NICE, USPSTF and the AHA
+do, but it is why this module reports its assumptions in the result and why
 its registry row is marked `derived_not_published` rather than verified.
 """
 
@@ -67,7 +67,7 @@ MMOL_PER_MG_DL = 1.0 / 38.67
 
 MODEL_CITATION = (
     "Cholesterol Treatment Trialists' Collaboration. Lancet. "
-    "2010;376(9753):1670-1681. PMID 21067804 — rate ratio per 1.0 mmol/L "
+    "2010;376(9753):1670-1681. PMID 21067804, rate ratio per 1.0 mmol/L "
     "LDL-C reduction, applied to a baseline risk from a separate model."
 )
 
@@ -97,7 +97,7 @@ def cvd_statin_benefit_predict(
     """
     Absolute risk reduction and NNT from lowering LDL-C.
 
-    `baseline_risk` is an untreated absolute risk in [0, 1] — take it from
+    `baseline_risk` is an untreated absolute risk in [0, 1], take it from
     `predict("prevent", ...)` or `predict("score2", ...)`, whose horizon and
     scope then govern the answer. It is not computed here on purpose: this
     function must not hide which risk model it was applied to.
@@ -114,9 +114,7 @@ def cvd_statin_benefit_predict(
     if outcome not in RATE_RATIO:
         raise ValueError(f"outcome must be one of {OUTCOMES}, got {outcome!r}")
 
-    delta = ldl_reduction_mmol(
-        mmol_l=ldl_reduction_mmol_l, mg_dl=ldl_reduction_mg_dl
-    )
+    delta = ldl_reduction_mmol(mmol_l=ldl_reduction_mmol_l, mg_dl=ldl_reduction_mg_dl)
     rr, rr_lo, rr_hi = RATE_RATIO[outcome]
 
     def _arr(ratio: float) -> float:
@@ -127,7 +125,7 @@ def cvd_statin_benefit_predict(
     arr_hi, arr_lo = _arr(rr_lo), _arr(rr_hi)
 
     return {
-        "risk": None,  # this is a benefit, not a risk — see notes
+        "risk": None,  # this is a benefit, not a risk, see notes
         "absolute_risk_reduction": arr,
         "arr_ci": (arr_lo, arr_hi),
         "relative_risk_reduction": 1.0 - rr**delta,

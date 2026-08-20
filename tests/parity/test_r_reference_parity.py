@@ -5,8 +5,8 @@ The expected values below were produced by the scripts in
 `WintonCentre/predictv30r` on 2026-08-05. They are pinned here so the check
 runs in CI without an R toolchain; re-run those scripts to refresh them.
 
-Full narrative of how these were obtained — including two defects the
-comparison exposed — is in `docs/VERIFICATION.md`.
+Full narrative of how these were obtained, including two defects the
+comparison exposed, is in `docs/VERIFICATION.md`.
 """
 
 from __future__ import annotations
@@ -23,16 +23,56 @@ TOL = 1e-5
 # --- BCRAT vs CRAN `BCRA::absolute.risk()` -----------------------------------
 
 BCRA_CASES = [
-    (dict(start_age=50, end_age=55, n_biopsies=0, atypical_hyperplasia="unknown",
-          age_menarche=13, age_first_birth=25, n_relatives=0), 1.072818),
-    (dict(start_age=45, end_age=50, n_biopsies=1, atypical_hyperplasia="no",
-          age_menarche=11, age_first_birth=30, n_relatives=1), 2.858841),
+    (
+        dict(
+            start_age=50,
+            end_age=55,
+            n_biopsies=0,
+            atypical_hyperplasia="unknown",
+            age_menarche=13,
+            age_first_birth=25,
+            n_relatives=0,
+        ),
+        1.072818,
+    ),
+    (
+        dict(
+            start_age=45,
+            end_age=50,
+            n_biopsies=1,
+            atypical_hyperplasia="no",
+            age_menarche=11,
+            age_first_birth=30,
+            n_relatives=1,
+        ),
+        2.858841,
+    ),
     # Exercises every non-default path at once: nulliparity sentinel (98),
     # atypical hyperplasia, two affected relatives, oldest age band.
-    (dict(start_age=65, end_age=70, n_biopsies=2, atypical_hyperplasia="yes",
-          age_menarche=14, age_first_birth=98, n_relatives=2), 14.607879),
-    (dict(start_age=40, end_age=45, n_biopsies=0, atypical_hyperplasia="unknown",
-          age_menarche=12, age_first_birth=22, n_relatives=0), 0.497614),
+    (
+        dict(
+            start_age=65,
+            end_age=70,
+            n_biopsies=2,
+            atypical_hyperplasia="yes",
+            age_menarche=14,
+            age_first_birth=98,
+            n_relatives=2,
+        ),
+        14.607879,
+    ),
+    (
+        dict(
+            start_age=40,
+            end_age=45,
+            n_biopsies=0,
+            atypical_hyperplasia="unknown",
+            age_menarche=12,
+            age_first_birth=22,
+            n_relatives=0,
+        ),
+        0.497614,
+    ),
 ]
 
 
@@ -48,10 +88,17 @@ def test_bcrat_matches_cran_bcra(kwargs, expected):
 # survival (it scales the baseline breast hazard by a relapse factor) and does
 # not match this model. Using it cost 5.5 percentage points of apparent error.
 
-ER_POS = dict(age=57, size_mm=29, nodes=5, grade=2, er_positive=True,
-              her2=1, ki67=1, screen_detected=0)
-FULL_RX = dict(chemo_generation=3, hormone=True, trastuzumab=True,
-               bisphosphonate=True)
+ER_POS = dict(
+    age=57,
+    size_mm=29,
+    nodes=5,
+    grade=2,
+    er_positive=True,
+    her2=1,
+    ki67=1,
+    screen_detected=0,
+)
+FULL_RX = dict(chemo_generation=3, hormone=True, trastuzumab=True, bisphosphonate=True)
 
 
 def test_predict_untreated_survival_er_positive():
@@ -66,7 +113,7 @@ def test_predict_treatment_benefit_er_positive_10y():
 
 def test_predict_standard_vs_extended_endocrine_are_distinct_arms():
     """The reference emits both `hctb` and `h10ctb`; they diverge only after
-    year 10. Conflating them silently changes the patient's regimen — which is
+    year 10. Conflating them silently changes the patient's regimen, which is
     exactly the bug this test was written to prevent recurring.
     """
     standard = predict_breast(**ER_POS, **FULL_RX, years=15)
@@ -77,14 +124,23 @@ def test_predict_standard_vs_extended_endocrine_are_distinct_arms():
 
     # At 10 years the extended arm has not yet diverged.
     s10 = predict_breast(**ER_POS, **FULL_RX, years=10)["benefit_percentage_points"]
-    e10 = predict_breast(**ER_POS, **FULL_RX, extended_hormone=True,
-                         years=10)["benefit_percentage_points"]
+    e10 = predict_breast(**ER_POS, **FULL_RX, extended_hormone=True, years=10)[
+        "benefit_percentage_points"
+    ]
     assert e10 == pytest.approx(s10, abs=TOL)
 
 
 def test_predict_er_negative_case():
-    kw = dict(age=45, size_mm=15, nodes=0, grade=1, er_positive=False,
-              her2=0, ki67=9, screen_detected=1)
+    kw = dict(
+        age=45,
+        size_mm=15,
+        nodes=0,
+        grade=1,
+        er_positive=False,
+        her2=0,
+        ki67=9,
+        screen_detected=1,
+    )
     out = predict_breast(**kw, chemo_generation=2, years=10)
     assert out["survival_no_treatment"] * 100 == pytest.approx(90.734652, abs=TOL)
     assert out["benefit_percentage_points"] == pytest.approx(1.353950, abs=TOL)
@@ -99,14 +155,44 @@ def test_predict_er_negative_case():
 SCORE2_TOL = 0.05
 
 SCORE2_CASES = [
-    ("low", dict(sex="male", age=50, sbp=140, total_chol_mmol=6.0,
-                 hdl_mmol=1.0, smoker=True), 7.4),
-    ("moderate", dict(sex="male", age=50, sbp=140, total_chol_mmol=6.0,
-                      hdl_mmol=1.0, smoker=True), 9.6),
-    ("high", dict(sex="female", age=65, sbp=130, total_chol_mmol=5.5,
-                  hdl_mmol=1.4, smoker=False), 8.0),
-    ("very_high", dict(sex="female", age=45, sbp=160, total_chol_mmol=7.0,
-                       hdl_mmol=0.9, smoker=True), 22.6),
+    (
+        "low",
+        dict(
+            sex="male", age=50, sbp=140, total_chol_mmol=6.0, hdl_mmol=1.0, smoker=True
+        ),
+        7.4,
+    ),
+    (
+        "moderate",
+        dict(
+            sex="male", age=50, sbp=140, total_chol_mmol=6.0, hdl_mmol=1.0, smoker=True
+        ),
+        9.6,
+    ),
+    (
+        "high",
+        dict(
+            sex="female",
+            age=65,
+            sbp=130,
+            total_chol_mmol=5.5,
+            hdl_mmol=1.4,
+            smoker=False,
+        ),
+        8.0,
+    ),
+    (
+        "very_high",
+        dict(
+            sex="female",
+            age=45,
+            sbp=160,
+            total_chol_mmol=7.0,
+            hdl_mmol=0.9,
+            smoker=True,
+        ),
+        22.6,
+    ),
 ]
 
 
@@ -122,10 +208,13 @@ def test_score2_regional_recalibration_is_ordered():
     """All four ESC risk regions, same patient: risk must increase low -> very high."""
     from cancerverse_baseline.cvd.detection import score2_predict
 
-    kw = dict(sex="male", age=50, sbp=140, total_chol_mmol=6.0,
-              hdl_mmol=1.0, smoker=True)
-    risks = [score2_predict(**kw, region=r)["risk"]
-             for r in ("low", "moderate", "high", "very_high")]
+    kw = dict(
+        sex="male", age=50, sbp=140, total_chol_mmol=6.0, hdl_mmol=1.0, smoker=True
+    )
+    risks = [
+        score2_predict(**kw, region=r)["risk"]
+        for r in ("low", "moderate", "high", "very_high")
+    ]
     assert risks == sorted(risks)
 
 
@@ -133,7 +222,7 @@ def test_riskscorescvd_grace_is_a_different_model_and_is_not_our_reference():
     """Guard against a tempting but wrong parity target.
 
     `RiskScorescvd::GRACE_scores` takes `Gender` and `presentation_hstni`
-    (high-sensitivity troponin) — neither appears in the Granger 2003 points
+    (high-sensitivity troponin), neither appears in the Granger 2003 points
     nomogram this project implements. Fed our worked example 2 (Killip I,
     SBP 80, HR 60, age 55, creatinine 0.4 mg/dL, no arrest / ST depression /
     enzyme rise), it returns **79** where the published nomogram gives **103**.
@@ -144,10 +233,11 @@ def test_riskscorescvd_grace_is_a_different_model_and_is_not_our_reference():
     """
     from cancerverse_baseline.cvd.prognosis import grace_predict
 
-    ours = grace_predict(killip_class=1, sbp=80, heart_rate=60, age=55,
-                         creatinine_mg_dl=0.4)
-    assert ours["score"] == 103          # Granger 2003 Fig 4, worked example 2
-    assert ours["score"] != 79           # what RiskScorescvd returns
+    ours = grace_predict(
+        killip_class=1, sbp=80, heart_rate=60, age=55, creatinine_mg_dl=0.4
+    )
+    assert ours["score"] == 103  # Granger 2003 Fig 4, worked example 2
+    assert ours["score"] != 79  # what RiskScorescvd returns
 
 
 # --- ERSPC RC3 vs SWOP's official Flash calculator ---------------------------
@@ -157,7 +247,7 @@ def test_riskscorescvd_grace_is_a_different_model_and_is_not_our_reference():
 # the calculator no longer runs. The SWF is still served, and its ActionScript
 # stores numeric literals as raw IEEE-754 doubles.
 #
-# Extracting them verifies the MODEL rather than a single output — a stronger
+# Extracting them verifies the MODEL rather than a single output, a stronger
 # check, since it covers the whole input space at once. Values below were
 # recovered by `tests/parity/reference/swop_rc3_swf_extract.py` on 2026-08-05;
 # worst deviation 2.2e-06, i.e. float round-tripping, not disagreement.
@@ -190,7 +280,8 @@ def test_erspc_rc3_coefficients_match_swop_flash_calculator(name, pair):
 # `tests/parity/reference/mdcalc_extract.py`.
 #
 # This is corroboration, not proof: MDCalc is secondary. It is decisive when the
-# two DISAGREE — that is how the ALBI `-0.0852` error was found.
+# two DISAGREE, that is how the ALBI `-0.0852` error was found.
+
 
 def test_capra_point_table_matches_mdcalc():
     from cancerverse_baseline.prostate.prognosis.capra import (
@@ -213,9 +304,15 @@ def test_capra_point_table_matches_mdcalc():
 def test_cha2ds2_vasc_point_table_matches_mdcalc():
     from cancerverse_baseline.cvd.prognosis import cha2ds2_vasc_score
 
-    base = dict(heart_failure=False, hypertension=False, age=50, diabetes=False,
-                prior_stroke_tia_thromboembolism=False, vascular_disease=False,
-                female=False)
+    base = dict(
+        heart_failure=False,
+        hypertension=False,
+        age=50,
+        diabetes=False,
+        prior_stroke_tia_thromboembolism=False,
+        vascular_disease=False,
+        female=False,
+    )
     # MDCalc: age <65=0, 65-74=1, >=75=2
     assert cha2ds2_vasc_score(**{**base, "age": 64}) == 0
     assert cha2ds2_vasc_score(**{**base, "age": 70}) == 1
@@ -227,6 +324,114 @@ def test_cha2ds2_vasc_point_table_matches_mdcalc():
     assert cha2ds2_vasc_score(**{**base, "prior_stroke_tia_thromboembolism": True}) == 2
     assert cha2ds2_vasc_score(**{**base, "vascular_disease": True}) == 1
     assert cha2ds2_vasc_score(**{**base, "diabetes": True}) == 1
+
+
+def test_ukb_hnc_coefficients_match_published_table_3():
+    """Every cell of Table III, McCarthy et al. Int J Oncol 2020;57(5):1192-1202.
+
+    Transcribed from the article on 2026-08-17.
+    There is no reference implementation to run, the model exists only as a
+    printed table, so the table IS what parity is against, the same footing
+    as CHA2DS2-VASc and ATRIA above.
+
+    The intercept is the part worth guarding. It sits in the table CAPTION
+    rather than in a row, which is why three earlier passes over this paper
+    recorded the model as unimplementable; if a future edit loses it, the model
+    silently becomes a ranking function instead of a risk model.
+    """
+    from cancerverse_baseline.head_neck.detection import ukb_hnc as m
+
+    assert m.INTERCEPT == -9.54
+    assert m.INTERCEPT_CI == (-11.2, -7.88)
+
+    # continuous terms, per unit
+    assert m.OR_AGE_PER_YEAR == 1.04
+    assert m.OR_BMI_PER_UNIT == 0.96  # protective; see module docstring
+    assert m.OR_MALE == 1.81
+
+    # never is the reference on both exposure histories
+    assert m.OR_SMOKING == {"never": 1.00, "previous": 1.59, "current": 3.10}
+    assert m.OR_ALCOHOL == {"never": 1.00, "previous": 3.26, "current": 1.42}
+
+    # Townsend quintiles, 1 = least deprived = reference. Q4 > Q5, not a typo.
+    assert m.OR_TDI == {1: 1.00, 2: 1.30, 3: 1.14, 4: 1.81, 5: 1.66}
+    assert m.OR_TDI[4] > m.OR_TDI[5]
+
+    assert m.OR_EXERCISE == {"none": 1.00, "1-4_days": 0.68, "5_or_more_days": 0.66}
+    assert m.OR_FRUIT_VEG == {"under_5": 1.00, "5_or_more": 0.71}
+
+    # the horizon is part of the model, not a caller's choice
+    assert m.HORIZON_YEARS == 7
+
+
+def test_atria_point_table_matches_published_table_3():
+    """Every cell of Table 3, Singer et al. JAHA 2013 (PMC3698792).
+
+    Transcribed from the article twice on 2026-08-14, the second time asking
+    for the table cell by cell, and the two readings agreed. There is no
+    reference implementation to run. ATRIA ships as a point table, not as
+    code, so the table itself is what parity is against, which is the same
+    footing as CHA2DS2-VASc above.
+    """
+    from cancerverse_baseline.cvd.prognosis import atria_score
+
+    base = dict(
+        age=50,
+        prior_stroke=False,
+        female=False,
+        diabetes=False,
+        heart_failure=False,
+        hypertension=False,
+        proteinuria=False,
+        egfr_under_45_or_esrd=False,
+    )
+
+    # Table 3, age column WITHOUT prior stroke: <65=0, 65-74=3, 75-84=5, >=85=6
+    assert atria_score(**{**base, "age": 64}) == 0
+    assert atria_score(**{**base, "age": 65}) == 3
+    assert atria_score(**{**base, "age": 74}) == 3
+    assert atria_score(**{**base, "age": 75}) == 5
+    assert atria_score(**{**base, "age": 84}) == 5
+    assert atria_score(**{**base, "age": 85}) == 6
+
+    # Table 3, age column WITH prior stroke: <65=8, 65-74=7, 75-84=7, >=85=9.
+    # Non-monotonic across the first two bands, which is the giveaway that
+    # this is a fitted interaction and not age-plus-a-constant.
+    stroke = {**base, "prior_stroke": True}
+    assert atria_score(**{**stroke, "age": 64}) == 8
+    assert atria_score(**{**stroke, "age": 65}) == 7
+    assert atria_score(**{**stroke, "age": 84}) == 7
+    assert atria_score(**{**stroke, "age": 85}) == 9
+
+    # Table 3, the six 1-point rows, each worth 1 in both stroke columns.
+    for factor in (
+        "female",
+        "diabetes",
+        "heart_failure",
+        "hypertension",
+        "proteinuria",
+        "egfr_under_45_or_esrd",
+    ):
+        assert atria_score(**{**base, factor: True}) == 1, factor
+        assert atria_score(**{**stroke, "age": 50, factor: True}) == 9, factor
+
+    # Published score ranges: 0-12 without prior stroke, 7-15 with one.
+    everything = dict(
+        female=True,
+        diabetes=True,
+        heart_failure=True,
+        hypertension=True,
+        proteinuria=True,
+        egfr_under_45_or_esrd=True,
+    )
+    assert atria_score(**{**base, "age": 90, **everything}) == 12
+    assert atria_score(**{**stroke, "age": 90, **everything}) == 15
+    # Floor of the stroke range is 7, and it sits at ages 65-84 rather than at
+    # the youngest band, under-65 with a prior stroke scores 8. A reading of
+    # Table 3 that treated age as monotonic would put this floor in the wrong
+    # place, so it is asserted explicitly.
+    assert atria_score(**{**stroke, "age": 70}) == 7
+    assert atria_score(**{**stroke, "age": 50}) == 8
 
 
 def test_albi_formula_matches_mdcalc_statement():

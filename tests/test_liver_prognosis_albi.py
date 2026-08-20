@@ -12,7 +12,7 @@ def test_formula_matches_published_coefficients():
     """Johnson 2015 (PMC4322258) prints, verbatim:
         "linear predictor = (log10 bilirubin x 0.66) + (albumin x -0.085)"
     This module previously shipped -0.0852, taken from a search summary rather
-    than the paper. Corrected 2026-08-05; see the module docstring.
+    than the paper; see the module docstring.
     """
     bili, alb = 20.0, 40.0
     expected = 0.66 * math.log10(bili) - 0.085 * alb
@@ -36,7 +36,9 @@ def test_worse_liver_function_raises_score_and_grade():
 
 
 def test_us_units_convert_to_si():
-    si = albi_predict(bilirubin_umol_l=1.0 * A.BILIRUBIN_MG_DL_TO_UMOL_L, albumin_g_l=40.0)
+    si = albi_predict(
+        bilirubin_umol_l=1.0 * A.BILIRUBIN_MG_DL_TO_UMOL_L, albumin_g_l=40.0
+    )
     us = albi_predict(bilirubin_mg_dl=1.0, albumin_g_dl=4.0)
     assert us["score"] == pytest.approx(si["score"])
     assert us["bilirubin_umol_l"] == pytest.approx(17.1)

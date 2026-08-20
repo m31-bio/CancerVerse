@@ -35,7 +35,9 @@ def test_rc3_hand_calculation():
     psa, vc = 4.0, 40.0
     lp = -1.826 + 1.024 * (math.log(psa, 2) - 2.0) - 1.50 * (math.log(vc, 2) - 5.4)
     out = erspc_rc3_predict(psa=psa, volume_ml=35.0, dre_positive=False)
-    assert linear_predictor_rc3(psa=psa, volume_ml=35.0, dre_positive=False) == pytest.approx(lp)
+    assert linear_predictor_rc3(
+        psa=psa, volume_ml=35.0, dre_positive=False
+    ) == pytest.approx(lp)
     assert out["risk"] == pytest.approx(logit_risk(lp))
     assert out["axis"] == "detection"
     assert out["model_id"] == "erspc_rc3"

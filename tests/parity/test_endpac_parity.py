@@ -28,7 +28,7 @@ Gastroenterology. 2018;155(3):730-739.e3, NIH author manuscript):
                  PC-NOD   77% + 21% +  2% = 100%
 
              This module implemented the abstract's "<0", so a score of exactly
-             0 was reported as intermediate rather than extremely low risk —
+             0 was reported as intermediate rather than extremely low risk,
              the boundary between "reassure" and "needs follow-up". Fixed.
 """
 
@@ -49,24 +49,37 @@ from cancerverse_baseline.pancreatic.detection.endpac import (
 
 # ---------------------------------------------------------------- Table 1 ---
 
-# "Blood Glucose (BG) Categories" — representative mg/dL value -> printed score
+# "Blood Glucose (BG) Categories", representative mg/dL value -> printed score
 TABLE1_BG = [
-    (60, 1), (99, 1),            # <100
-    (100, 2), (109, 2),          # 100-109
-    (110, 3), (125, 3),          # 110-125
-    (126, 4), (160, 4),          # 126-160
-    (161, 5), (400, 5),          # >160
+    (60, 1),
+    (99, 1),  # <100
+    (100, 2),
+    (109, 2),  # 100-109
+    (110, 3),
+    (125, 3),  # 110-125
+    (126, 4),
+    (160, 4),  # 126-160
+    (161, 5),
+    (400, 5),  # >160
 ]
 
-# "Delta Weight Categories" — kg change -> printed score. LOSS is positive.
+# "Delta Weight Categories", kg change -> printed score. LOSS is positive.
 TABLE1_WEIGHT = [
-    (-10.0, 6), (-6.0, 6),       # <= -6.0
-    (-5.9, 4), (-4.0, 4),        # -5.9 to -4.0
-    (-3.9, 2), (-2.0, 2),        # -3.9 to -2.0
-    (-1.9, 0), (0.0, 0), (1.9, 0),   # -1.9 to +1.9
-    (2.0, -2), (3.9, -2),        # +2.0 to +3.9
-    (4.0, -4), (5.9, -4),        # +4.0 to +5.9
-    (6.0, -6), (12.0, -6),       # >= +6.0
+    (-10.0, 6),
+    (-6.0, 6),  # <= -6.0
+    (-5.9, 4),
+    (-4.0, 4),  # -5.9 to -4.0
+    (-3.9, 2),
+    (-2.0, 2),  # -3.9 to -2.0
+    (-1.9, 0),
+    (0.0, 0),
+    (1.9, 0),  # -1.9 to +1.9
+    (2.0, -2),
+    (3.9, -2),  # +2.0 to +3.9
+    (4.0, -4),
+    (5.9, -4),  # +4.0 to +5.9
+    (6.0, -6),
+    (12.0, -6),  # >= +6.0
 ]
 
 # "Age (years) at glycemically-defined new-onset diabetes"
@@ -90,11 +103,11 @@ def test_table1_age_categories(age, expected):
 
 def test_table1_printed_subscore_ranges():
     """Table 1 prints a "Score Range" column for each block. Reproduce all three."""
-    assert GLUCOSE_SCORE_RANGE == (1, 4)                       # printed "1-4"
+    assert GLUCOSE_SCORE_RANGE == (1, 4)  # printed "1-4"
     weights = [weight_score(k) for k, _ in TABLE1_WEIGHT]
-    assert (min(weights), max(weights)) == (-6, 6)             # printed "-6 to +6"
+    assert (min(weights), max(weights)) == (-6, 6)  # printed "-6 to +6"
     ages = [age_score(a) for a, _ in TABLE1_AGE]
-    assert (min(ages), max(ages)) == (-1, 1)                   # printed "-1 to +1"
+    assert (min(ages), max(ages)) == (-1, 1)  # printed "-1 to +1"
 
 
 # ------------------------------------------------- the banding, via route 5 ---
@@ -123,7 +136,9 @@ def test_the_three_groups_partition_the_whole_score_line():
         in_high = total >= HIGH_RISK_THRESHOLD
         in_mid = total in INTERMEDIATE_SCORES
         in_low = total <= LOW_RISK_AT_OR_BELOW
-        assert sum((in_high, in_mid, in_low)) == 1, f"score {total} is not in exactly one group"
+        assert sum((in_high, in_mid, in_low)) == 1, (
+            f"score {total} is not in exactly one group"
+        )
 
 
 def test_score_of_exactly_zero_is_extremely_low_risk_not_intermediate():
@@ -132,23 +147,32 @@ def test_score_of_exactly_zero_is_extremely_low_risk_not_intermediate():
     intermediate, following a typo in the abstract."""
     # glucose 1 (category 3 -> 4), weight 0, age -1  ->  total 0
     out = endpac_predict(
-        glucose_at_diabetes_mg_dl=130,          # category 4
-        glucose_one_year_before_mg_dl=120,      # category 3  -> A = 1
-        weight_change_kg=0.0,                   # B = 0
-        age_at_diabetes_onset=55,               # C = -1
+        glucose_at_diabetes_mg_dl=130,  # category 4
+        glucose_one_year_before_mg_dl=120,  # category 3  -> A = 1
+        weight_change_kg=0.0,  # B = 0
+        age_at_diabetes_onset=55,  # C = -1
     )
     assert out["score"] == 0
     assert out["risk_band"] == "very_low"
 
 
 def test_the_bands_either_side_of_zero():
-    common = dict(glucose_at_diabetes_mg_dl=130, glucose_one_year_before_mg_dl=120,
-                  age_at_diabetes_onset=55)
+    common = dict(
+        glucose_at_diabetes_mg_dl=130,
+        glucose_one_year_before_mg_dl=120,
+        age_at_diabetes_onset=55,
+    )
     # A=1, C=-1, so total = B
-    assert endpac_predict(**common, weight_change_kg=+3.0)["risk_band"] == "very_low"      # -2
-    assert endpac_predict(**common, weight_change_kg=0.0)["risk_band"] == "very_low"       #  0
-    assert endpac_predict(**common, weight_change_kg=-2.0)["risk_band"] == "intermediate"  # +2
-    assert endpac_predict(**common, weight_change_kg=-4.0)["risk_band"] == "high"          # +4
+    assert (
+        endpac_predict(**common, weight_change_kg=+3.0)["risk_band"] == "very_low"
+    )  # -2
+    assert (
+        endpac_predict(**common, weight_change_kg=0.0)["risk_band"] == "very_low"
+    )  #  0
+    assert (
+        endpac_predict(**common, weight_change_kg=-2.0)["risk_band"] == "intermediate"
+    )  # +2
+    assert endpac_predict(**common, weight_change_kg=-4.0)["risk_band"] == "high"  # +4
 
 
 def test_intermediate_is_exactly_one_and_two():

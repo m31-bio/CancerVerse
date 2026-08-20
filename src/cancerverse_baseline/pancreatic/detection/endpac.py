@@ -1,4 +1,4 @@
-"""END-PAC — pancreatic cancer risk in new-onset diabetes (Sharma et al., 2018).
+"""END-PAC, pancreatic cancer risk in new-onset diabetes (Sharma et al., 2018).
 
 Equation source
 ---------------
@@ -8,7 +8,7 @@ Pancreatic Cancer in Patients With New-Onset Diabetes." Gastroenterology.
 NIH author manuscript.
 
 Around 1% of people over 50 with new-onset diabetes are diagnosed with
-pancreatic cancer within 3 years — diabetes can be a *consequence* of the
+pancreatic cancer within 3 years, diabetes can be a *consequence* of the
 tumour rather than a risk factor for it. END-PAC separates that group from
 ordinary type 2 diabetes using three signals available in routine records.
 
@@ -21,9 +21,20 @@ ordinary type 2 diabetes using three signals available in routine records.
        score range as 1-4. That is not a free 1-5 scale on both sides: by the
        definition of glycemically-defined new-onset diabetes the earlier
        reading is below 126 mg/dL and the later one is at or above it. The
-       module enforces this (see `_check_glucose_pair`) — without it, an
+       module enforces this (see `_check_glucose_pair`), without it, an
        out-of-scope pair such as a FALL from diabetic to normal silently yields
        a score far outside the published range.
+
+       CAUTION, added 2026-08-18: that guard is OURS, not the paper's, and it
+       is stricter than the paper's own data. Sharma et al. never state the
+       rule; it was inferred from Table 1's category labelling. Table 3
+       ("Univariate model for predictors of pancreatic cancer in new-onset
+       diabetes") has a "Blood Glucose category at -1y" block whose top row is
+       ">=126 (Category 4)", holding 3 (5%) of PC-NOD and 45 (23%) of T2-NOD
+       subjects. So roughly a fifth of the paper's own discovery cohort had a
+       >=126 reading a year before onset and was still scored, and this module
+       would refuse every one of them. Treat the guard as an implementation
+       choice under review, not as a published constraint.
 
     B. Weight change (kg over the preceding year), LOSS scores positive:
        <= -6.0 -> +6,  -5.9..-4.0 -> +4,  -3.9..-2.0 -> +2,  -1.9..+1.9 -> 0,
@@ -34,16 +45,31 @@ ordinary type 2 diabetes using three signals available in routine records.
     Total = A + B + C
 
 Thresholds from the paper: **>= 3** is the high-risk cut (80% sensitivity and
-specificity in discovery; in validation it caught 7/9 cancers at 85%
-specificity, with a 3.6% cancer prevalence — 4.4x the base rate). The
-low-risk group is **<= 0**, and the intermediate group is exactly **1 or 2**.
+specificity in discovery; in validation it caught 7/9 cancers, sensitivity
+78%, with a 3.6% cancer prevalence, 4.4x the base rate). The low-risk group
+is **<= 0**, and the intermediate group is exactly **1 or 2**.
+
+The validation SPECIFICITY is stated twice and differently, 2026-08-18
+------------------------------------------------------------------------
+The abstract says the >= 3 cut had "**85% specificity**"; the Results say
+"sensitivity of 78%, **specificity of 82%**" for the same cohort and the same
+cut-off. Both cannot be right, and the paper never reconciles them. This
+module used to quote the abstract's 85%, which is the same source the
+abstract's "<0" typo came from, and this project already decided against it
+once (below). The Results figure is preferred for the same reason: it is the
+fuller statement, giving sensitivity and specificity together in the section
+that reports the validation. **Neither figure is used in any computation** —
+END-PAC emits a score and a band, not a probability, so this is a
+documentation correction, not a behavioural one. It is recorded rather than
+silently swapped because the discrepancy is a fact about the paper that the
+next reader will hit too.
 
 The <= 0 boundary is worth defending, because the paper states it both ways
 -----------------------------------------------------------------------------
 The abstract writes "An END-PAC score **<0** (in 49% of subjects) meant that
 patients had an extremely low-risk", but the Results write "Two PC-NODs
 subjects (2%) had an END-PAC score **<=0** to 632 T2-NOD subjects (**49%**)".
-Same 49%, two different inequalities — so one of them is a slip.
+Same 49%, two different inequalities, so one of them is a slip.
 
 The paper's own group proportions settle it. Its three groups are quoted as
 ">=3", "1 or 2" and "<=0", and they sum to exactly 100% in both cohorts:
@@ -58,7 +84,7 @@ group and could not sum to 100%. The Results text is right and the abstract's
 <=0").
 
 This module previously implemented the abstract's "<0", which put a score of
-exactly 0 in the intermediate group — the boundary between "extremely low risk,
+exactly 0 in the intermediate group, the boundary between "extremely low risk,
 reassure" and "needs follow-up".
 
 Two details that are easy to get wrong
@@ -72,7 +98,7 @@ Two details that are easy to get wrong
 
 Population: adults (the validation work is in >= 50-year-olds) with
 glycemically-defined new-onset diabetes. Not a general-population screening
-tool — it enriches an already-selected group.
+tool, it enriches an already-selected group.
 """
 
 from __future__ import annotations
@@ -81,7 +107,7 @@ AXIS = "detection"
 MODEL_ID = "endpac"
 
 HIGH_RISK_THRESHOLD = 3
-# The paper's three groups are ">=3", "1 or 2" and "<=0" — an exhaustive,
+# The paper's three groups are ">=3", "1 or 2" and "<=0", an exhaustive,
 # non-overlapping partition whose proportions sum to exactly 100% in both
 # cohorts. See the module docstring: the abstract's "<0" is a typo.
 LOW_RISK_AT_OR_BELOW = 0
@@ -91,7 +117,7 @@ INTERMEDIATE_SCORES = (1, 2)
 # at diabetes onset. Score range for the glucose term is therefore 1-4.
 DIABETES_GLUCOSE_MG_DL = 126.0
 GLUCOSE_SCORE_RANGE = (1, 4)
-TOTAL_SCORE_RANGE = (1 - 6 - 1, 4 + 6 + 1)   # A + B + C  ->  -6 .. 11
+TOTAL_SCORE_RANGE = (1 - 6 - 1, 4 + 6 + 1)  # A + B + C  ->  -6 .. 11
 
 MODEL_CITATION = (
     "Sharma A, Kandlakunta H, Nagpal SJS, et al. Gastroenterology. "

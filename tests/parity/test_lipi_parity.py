@@ -1,6 +1,6 @@
 """Parity: LIPI checked against two independent published statements of the rule.
 
-LIPI publishes no worked example — it is a two-item binary index, so there is
+LIPI publishes no worked example, it is a two-item binary index, so there is
 no arithmetic to reproduce beyond the rule itself. What CAN be verified, and
 what actually matters, is that our thresholds and their comparison direction
 match what the literature states. Route 3: compare against a second (here,
@@ -64,8 +64,7 @@ def _call(dnlr: float, ldh: float, uln: float = 250.0):
 @pytest.mark.parametrize("dnlr_high,ldh_high", list(PUBLISHED_TRUTH_TABLE))
 def test_every_cell_of_the_published_truth_table(dnlr_high, ldh_high):
     expected_score, expected_group = PUBLISHED_TRUTH_TABLE[(dnlr_high, ldh_high)]
-    out = _call(dnlr=4.0 if dnlr_high else 2.0,
-                ldh=300.0 if ldh_high else 200.0)
+    out = _call(dnlr=4.0 if dnlr_high else 2.0, ldh=300.0 if ldh_high else 200.0)
     assert out["score"] == expected_score
     assert out["group"] == expected_group
 
@@ -92,7 +91,7 @@ def test_ldh_exactly_at_uln_scores_zero():
 def test_dnlr_formula_matches_the_published_definition():
     """Front Immunol 2025: "neutrophil count/(white blood cell count -
     neutrophil count)". The denominator is the NON-neutrophil white count,
-    which is what makes this "derived" NLR — it needs no lymphocyte count.
+    which is what makes this "derived" NLR, it needs no lymphocyte count.
     Using the plain leukocyte count as the denominator is the classic error.
     """
     neutrophils, leukocytes = 6.0, 9.0
@@ -105,8 +104,9 @@ def test_dnlr_formula_matches_the_published_definition():
 
 
 def test_counts_and_direct_dnlr_agree():
-    from_counts = lipi_predict(neutrophils=8.0, leukocytes=10.0, ldh=300.0,
-                               ldh_upper_limit_normal=250.0)
+    from_counts = lipi_predict(
+        neutrophils=8.0, leukocytes=10.0, ldh=300.0, ldh_upper_limit_normal=250.0
+    )
     direct = lipi_predict(dnlr=4.0, ldh=300.0, ldh_upper_limit_normal=250.0)
     assert from_counts["dnlr"] == pytest.approx(direct["dnlr"])
     assert from_counts["score"] == direct["score"] == 2
@@ -114,7 +114,7 @@ def test_counts_and_direct_dnlr_agree():
 
 def test_the_index_is_symmetric_between_its_two_items():
     """Both sources define grade 1 with an OR, so either single item alone
-    gives exactly 1 — neither is weighted above the other."""
+    gives exactly 1, neither is weighted above the other."""
     only_dnlr = _call(dnlr=5.0, ldh=200.0)
     only_ldh = _call(dnlr=1.0, ldh=400.0)
     assert only_dnlr["score"] == only_ldh["score"] == 1

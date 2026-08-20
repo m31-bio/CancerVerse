@@ -1,4 +1,4 @@
-"""CHA2DS2-VASc — stroke risk in atrial fibrillation (Lip et al., Chest 2010).
+"""CHA2DS2-VASc, stroke risk in atrial fibrillation (Lip et al., Chest 2010).
 
 Equation source
 ---------------
@@ -36,9 +36,7 @@ MODEL_ID = "cha2ds2_vasc"
 
 MAX_SCORE = 9
 
-MODEL_CITATION = (
-    "Lip GYH et al. Chest. 2010;137(2):263-272 (CHA2DS2-VASc)."
-)
+MODEL_CITATION = "Lip GYH et al. Chest. 2010;137(2):263-272 (CHA2DS2-VASc)."
 
 
 def cha2ds2_vasc_score(
@@ -70,7 +68,7 @@ def risk_category(score: int, *, female: bool) -> str:
     """Guideline-level category, not a numeric stroke rate (see module docstring).
 
     A lone point from female sex alone (score 1, no other factor) is generally
-    treated as low risk — sex category only counts as a true risk modifier
+    treated as low risk, sex category only counts as a true risk modifier
     when it accompanies at least one other risk factor.
     """
     if score == 0:

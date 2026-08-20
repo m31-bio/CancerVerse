@@ -1,4 +1,4 @@
-"""HAP score — prognosis and TACE candidacy in hepatocellular carcinoma.
+"""HAP score, prognosis and TACE candidacy in hepatocellular carcinoma.
 
 Equation source
 ---------------
@@ -26,7 +26,7 @@ Axis placement
 --------------
 Registered on `response` because its clinical use is selecting who benefits
 from TACE (and, via ART/ABCR, whether to repeat it). It is equally a
-prognostic score — the derivation paper frames it as prognosis. Filed under
+prognostic score, the derivation paper frames it as prognosis. Filed under
 response because that is the cell it unblocks; see also [[ALBI]] on the
 prognosis axis, which grades liver function rather than TACE benefit.
 
@@ -35,10 +35,19 @@ Caveats
 The published median survivals are the derivation cohort's (UK patients).
 External validation in European and Asian cohorts supported discrimination
 but produced different absolute survivals, and prompted the mHAP / mHAP-II /
-mHAP-III modifications, which are not implemented here. The albumin threshold
-is printed as "<36 g/dl" in some renderings of the abstract; 36 g/dL is not a
-physiological albumin concentration and the intended unit is g/L, which is
-what this module requires.
+mHAP-III modifications, which are not implemented here.
+
+The albumin unit
+----------------
+The paper prints the threshold as "<36 g/dl", and it does so in Table 3, in
+Table 2 ("Albumin (g/dl)"), in the abstract, and in the Methods. Four places,
+so this is the paper's uniform usage rather than a slip in one rendering of
+one section.
+
+It is still a unit error. 36 g/dL is not a physiological albumin concentration,
+it is off by a factor of ten, while 36 g/L is the lower bound of the normal
+range and is the threshold every independent restatement of the score uses.
+This module therefore requires **g/L**, deliberately and not by oversight.
 """
 
 from __future__ import annotations
@@ -46,10 +55,10 @@ from __future__ import annotations
 AXIS = "response"
 MODEL_ID = "hap"
 
-ALBUMIN_CUTOFF_G_L = 36.0       # < 36 g/L scores 1
+ALBUMIN_CUTOFF_G_L = 36.0  # < 36 g/L scores 1
 BILIRUBIN_CUTOFF_UMOL_L = 17.0  # > 17 umol/L scores 1
-AFP_CUTOFF_NG_ML = 400.0        # > 400 ng/mL scores 1
-TUMOUR_SIZE_CUTOFF_CM = 7.0     # > 7 cm scores 1
+AFP_CUTOFF_NG_ML = 400.0  # > 400 ng/mL scores 1
+TUMOUR_SIZE_CUTOFF_CM = 7.0  # > 7 cm scores 1
 
 # Unit conversions, for callers working in US units.
 BILIRUBIN_MG_DL_TO_UMOL_L = 17.1
@@ -86,7 +95,7 @@ def hap_predict(
     HAP score and grade for a patient being considered for TACE.
 
     Accepts SI units (albumin g/L, bilirubin umol/L) or US units
-    (albumin g/dL, bilirubin mg/dL) — supply exactly one form of each.
+    (albumin g/dL, bilirubin mg/dL), supply exactly one form of each.
     """
     if albumin_g_l is None:
         if albumin_g_dl is None:

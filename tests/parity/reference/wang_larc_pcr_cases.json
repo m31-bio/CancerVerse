@@ -1,0 +1,153 @@
+{
+  "source": "https://pcrpredict.shinyapps.io/LARC2/",
+  "tool": "Wang 2024 dynamic nomogram for pCR in locally advanced rectal cancer (R/Shiny, DynNom)",
+  "supporting_publication": "Wang G, Li J, Huang Y, Guo Y. Cancer Med. 2024;13(11):e7251, PMCID PMC11141331 - the app URL is printed in the article",
+  "captured": "2026-08-14",
+  "resolution": "3 decimal places, as printed by the app's Numerical Summary tab",
+  "capture_script": "wang_larc_pcr_fetch.py",
+  "cases": [
+    {
+      "n_stage": "cN0",
+      "t_stage": "cT2",
+      "mri_emvi": "Negative",
+      "tnt": "No",
+      "histopathology": "Adenocarcinoma",
+      "cea_ng_ml": 0.0,
+      "prediction": 0.497,
+      "lower_bound": 0.373,
+      "upper_bound": 0.621
+    },
+    {
+      "n_stage": "cN0",
+      "t_stage": "cT2",
+      "mri_emvi": "Negative",
+      "tnt": "No",
+      "histopathology": "Adenocarcinoma",
+      "cea_ng_ml": 24.0,
+      "prediction": 0.196,
+      "lower_bound": 0.107,
+      "upper_bound": 0.329
+    },
+    {
+      "n_stage": "cN0",
+      "t_stage": "cT2",
+      "mri_emvi": "Negative",
+      "tnt": "No",
+      "histopathology": "Adenocarcinoma",
+      "cea_ng_ml": 5.0,
+      "prediction": 0.424,
+      "lower_bound": 0.309,
+      "upper_bound": 0.548
+    },
+    {
+      "n_stage": "cN1",
+      "t_stage": "cT2",
+      "mri_emvi": "Negative",
+      "tnt": "No",
+      "histopathology": "Adenocarcinoma",
+      "cea_ng_ml": 5.0,
+      "prediction": 0.319,
+      "lower_bound": 0.228,
+      "upper_bound": 0.427
+    },
+    {
+      "n_stage": "cN2",
+      "t_stage": "cT2",
+      "mri_emvi": "Negative",
+      "tnt": "No",
+      "histopathology": "Adenocarcinoma",
+      "cea_ng_ml": 5.0,
+      "prediction": 0.276,
+      "lower_bound": 0.183,
+      "upper_bound": 0.394
+    },
+    {
+      "n_stage": "cN0",
+      "t_stage": "cT3",
+      "mri_emvi": "Negative",
+      "tnt": "No",
+      "histopathology": "Adenocarcinoma",
+      "cea_ng_ml": 5.0,
+      "prediction": 0.568,
+      "lower_bound": 0.489,
+      "upper_bound": 0.643
+    },
+    {
+      "n_stage": "cN0",
+      "t_stage": "cT4",
+      "mri_emvi": "Negative",
+      "tnt": "No",
+      "histopathology": "Adenocarcinoma",
+      "cea_ng_ml": 5.0,
+      "prediction": 0.439,
+      "lower_bound": 0.347,
+      "upper_bound": 0.535
+    },
+    {
+      "n_stage": "cN0",
+      "t_stage": "cTcT1",
+      "mri_emvi": "Negative",
+      "tnt": "No",
+      "histopathology": "Adenocarcinoma",
+      "cea_ng_ml": 5.0,
+      "prediction": 0.737,
+      "lower_bound": 0.382,
+      "upper_bound": 0.927
+    },
+    {
+      "n_stage": "cN0",
+      "t_stage": "cT2",
+      "mri_emvi": "Positive",
+      "tnt": "No",
+      "histopathology": "Adenocarcinoma",
+      "cea_ng_ml": 5.0,
+      "prediction": 0.196,
+      "lower_bound": 0.12,
+      "upper_bound": 0.304
+    },
+    {
+      "n_stage": "cN0",
+      "t_stage": "cT2",
+      "mri_emvi": "Negative",
+      "tnt": "Yes",
+      "histopathology": "Adenocarcinoma",
+      "cea_ng_ml": 5.0,
+      "prediction": 0.613,
+      "lower_bound": 0.428,
+      "upper_bound": 0.77
+    },
+    {
+      "n_stage": "cN0",
+      "t_stage": "cT2",
+      "mri_emvi": "Negative",
+      "tnt": "No",
+      "histopathology": "Signet-ring cell carcinoma/Mucinous adenocarcinoma",
+      "cea_ng_ml": 5.0,
+      "prediction": 0.15,
+      "lower_bound": 0.078,
+      "upper_bound": 0.268
+    },
+    {
+      "n_stage": "cN2",
+      "t_stage": "cT4",
+      "mri_emvi": "Positive",
+      "tnt": "No",
+      "histopathology": "Signet-ring cell carcinoma/Mucinous adenocarcinoma",
+      "cea_ng_ml": 24.0,
+      "prediction": 0.01,
+      "lower_bound": 0.005,
+      "upper_bound": 0.023
+    },
+    {
+      "n_stage": "cN0",
+      "t_stage": "cTcT1",
+      "mri_emvi": "Negative",
+      "tnt": "Yes",
+      "histopathology": "Adenocarcinoma",
+      "cea_ng_ml": 0.0,
+      "prediction": 0.89,
+      "lower_bound": 0.613,
+      "upper_bound": 0.976
+    }
+  ]
+}
