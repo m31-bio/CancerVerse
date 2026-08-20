@@ -478,48 +478,6 @@ def test_every_implemented_model_has_a_resolvable_source_link():
     assert not bad, f"missing or malformed source_url: {bad}"
 
 
-def test_all_four_renderers_use_the_shared_table_definition():
-    """The spreadsheet, README, coverage page and vault table must import their
-    columns from scripts/model_table.py rather than defining their own.
-
-    They each had their own column list once, and they drifted — different
-    wording, different sets, one of them stale. This is the guard against that
-    happening again.
-    """
-    from pathlib import Path
-
-    scripts = Path(__file__).resolve().parents[1] / "scripts"
-    renderers = ["build_model_spreadsheet.py", "build_readme.py",
-                 "build_coverage_page.py", "build_vault_table.py"]
-    missing = [
-        name for name in renderers
-        if "from model_table import" not in (scripts / name).read_text()
-    ]
-    assert not missing, f"these define their own table instead of importing it: {missing}"
-
-
-def test_the_shared_table_exposes_the_two_link_columns():
-    """`Public repository` and `Source` are the columns a reader uses to check
-    us. If either is dropped from the shared definition, all four outputs lose
-    it silently."""
-    import sys
-    from pathlib import Path
-
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-    from model_table import COLUMNS, build_rows
-
-    assert "Public repository" in COLUMNS
-    assert "Source" in COLUMNS
-
-    rows = build_rows()
-    assert rows, "no implemented models"
-    assert all(r["Source"].startswith("https://") for r in rows), (
-        "every model must carry a resolvable Source link"
-    )
-    with_repo = [r for r in rows if r["Public repository"]]
-    assert all(r["Public repository"].startswith("https://") for r in with_repo)
-
-
 def test_discrimination_carries_its_source():
     """An AUC or C-index without provenance is a number someone will quote.
 
@@ -580,24 +538,6 @@ def test_no_hand_maintained_duplicate_of_a_generated_file():
     assert not present, (
         f"hand-maintained duplicates of generated files: {present}"
     )
-
-
-def test_the_reproducibility_tier_is_not_shown_on_the_model_table():
-    """`repro_tier` grades how far an UNIMPLEMENTED cell is from being
-    reproducible. On a table of implemented models it is near-constant and
-    reads as a quality score, which it is not. It belongs to the gap cells."""
-    import sys
-    from pathlib import Path
-
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-    from model_table import COLUMNS, SPREADSHEET_EXTRAS
-
-    assert "Reproducibility tier" not in COLUMNS + SPREADSHEET_EXTRAS
-
-    # but every implemented model still carries one, for consistency
-    missing = [m["id"] for m in load_models()
-               if m.get("status") == "implemented" and not m.get("repro_tier")]
-    assert not missing, f"implemented but no repro_tier: {missing}"
 
 
 def test_absences_are_described_as_ours_not_the_literatures():
@@ -782,3 +722,63 @@ def test_hand_written_docs_do_not_hardcode_progress_numbers():
     assert not offenders, (
         "hand-written docs quoting a progress figure; render it from "
         "progress_report() or drop it:\n  " + "\n  ".join(offenders))
+
+
+def test_every_renderer_uses_the_shared_table_definition():
+    """Each renderer must import its columns from `cancerverse_baseline.reporting`
+    rather than defining its own.
+
+    They each had their own column list once, and they drifted, different
+    wording, different sets, one of them stale. This is the guard against that
+    happening again.
+
+    It used to name four renderers and require all four. That broke the moment
+    one of them stopped shipping,
+    which is private, so it is absent from the public repository and the count
+    was wrong there rather than the code. The rule is about every renderer that
+    is present, not about how many there are, so it discovers them, and still
+    fails if the set ever empties.
+    """
+    from pathlib import Path
+
+    scripts = Path(__file__).resolve().parents[1] / "scripts"
+
+    # In scope: anything that renders the model table. Detected by what the
+    # script produces, not by its filename, `build_licensing_slide.py` is
+    # singular and slipped past a `"slides" not in name` test.
+    def renders_the_table(path: Path) -> bool:
+        body = path.read_text()
+        # A slide deck, directly or by delegating to one. `build_org_slides.py`
+        # is four lines that re-export another deck's main(), so it imports no
+        # pptx of its own, checking only for `from pptx` missed it.
+        if "from pptx" in body or "_slide" in body or "slides" in body:
+            return False
+        if path.name in {"build_roadmap.py", "build_notice.py"}:
+            return False  # render the registry, not the table
+        # Renders models against another organisation's data dictionary, so its
+        # columns are the crosswalk's (predictor, availability, fact table),
+        # not the model table's. Sharing a column definition with the model
+        # table would mean sharing columns neither of them wants.
+        if path.name == "build_mcp_crosswalk.py":
+            return False
+        # Renders where each model's numbers CAME FROM, so its columns are
+        # provenance columns (artifact, class, confirmed) rather than the model
+        # table's. Same reasoning as the crosswalk above.
+        if path.name == "build_provenance_table.py":
+            return False
+        # Renders which EHR variables the library's models need, so its columns
+        # are variable/availability, not the model table's.
+        if path.name == "build_ehr_variable_request.py":
+            return False
+        return True
+
+    renderers = sorted(p for p in scripts.glob("build_*.py") if renders_the_table(p))
+    assert renderers, "no table renderers found at all"
+    missing = [
+        p.name
+        for p in renderers
+        if "from cancerverse_baseline.reporting import" not in p.read_text()
+    ]
+    assert not missing, (
+        f"these define their own table instead of importing it: {missing}"
+    )

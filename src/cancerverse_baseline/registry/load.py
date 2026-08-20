@@ -100,11 +100,7 @@ def cell_tiers(
         key = (m["disease"], m["axis"])
         if key not in best or _TIER_RANK[tier] < _TIER_RANK[best[key]]:
             best[key] = tier
-    return {
-        (d["id"], a): best.get((d["id"], a), "?")
-        for d in diseases
-        for a in AXES
-    }
+    return {(d["id"], a): best.get((d["id"], a), "?") for d in diseases for a in AXES}
 
 
 def progress_report(
@@ -177,7 +173,9 @@ def progress_report(
     }
 
 
-def open_source_queues(models: list[dict[str, Any]] | None = None) -> dict[str, list[str]]:
+def open_source_queues(
+    models: list[dict[str, Any]] | None = None,
+) -> dict[str, list[str]]:
     """Queue 1: does an open upstream implementation exist?"""
     models = models if models is not None else load_models()
     out: dict[str, list[str]] = {"available": [], "web_only": [], "none": []}

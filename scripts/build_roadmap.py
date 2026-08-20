@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate docs/ROADMAP.md from the registry.
 
-Hand-maintained roadmaps go stale — docs/TODO.md was still asking for work on
+Hand-maintained roadmaps go stale, docs/TODO.md was still asking for work on
 ERSPC RC3 and SCORE2 long after both were verified. This reads the registry so
 it cannot.
 
@@ -16,10 +16,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from cancerverse_baseline.registry.load import load_models, progress_report  # noqa: E402
-
-sys.path.insert(0, str(ROOT / "scripts"))
-from model_table import DISEASE_LABEL  # noqa: E402
+from cancerverse_baseline.registry.load import (  # noqa: E402
+    load_models,
+    progress_report,
+)
+from cancerverse_baseline.reporting import DISEASE_LABEL  # noqa: E402
+from cancerverse_baseline.reporting.atomic import write_text_atomically  # noqa: E402
 
 
 def main() -> int:
@@ -27,19 +29,22 @@ def main() -> int:
     models = load_models()
     report = progress_report()
     impl = [m for m in models if m.get("status") == "implemented"]
-    unchecked = [m for m in impl
-                 if m.get("parity_status") not in {"checked", "matched"}]
+    unchecked = [
+        m for m in impl if m.get("parity_status") not in {"checked", "matched"}
+    ]
 
     notes = {}
     for m in models:
         if m.get("status") in {"gap", "catalog"}:
-            notes.setdefault((m.get("disease"), m.get("axis")), m.get("tier_note")
-                             or m.get("title", ""))
+            notes.setdefault(
+                (m.get("disease"), m.get("axis")),
+                m.get("tier_note") or m.get("title", ""),
+            )
 
     lines = [
         "# Roadmap",
         "",
-        "**Generated from `registry/models.yaml` — do not edit by hand.**",
+        "**Generated from `registry/models.yaml`, do not edit by hand.**",
         "Regenerate with `python scripts/build_roadmap.py`.",
         "",
         f"{len(impl)} models implemented; "
@@ -49,7 +54,7 @@ def main() -> int:
         "",
         "Disease × question pairs where a published equation exists and we have not",
         "implemented one yet. Nothing is excluded: the exclusion this line used",
-        "to describe -- cells with no published equation at all -- no longer has",
+        "to describe, cells with no published equation at all, no longer has",
         "any members, so every one of the 36 counts.",
         "",
         "| Disease | Question | What is known |",
@@ -99,7 +104,7 @@ def main() -> int:
             "",
             f"{len(contested)} of {len(cells)}. Each has one default; the others are",
             "peers with a recorded reason to prefer them in some situations. Two of",
-            "these are not really contests at all — see the notes.",
+            "these are not really contests at all, see the notes.",
             "",
         ]
         for (dis, axis), models in sorted(contested.items()):
@@ -107,8 +112,10 @@ def main() -> int:
             lines.append("")
             for m in sorted(models, key=lambda x: x.get("role") != "flagship"):
                 tag = "**default**" if m.get("role") == "flagship" else "alternative"
-                lines.append(f"- `{m['id']}` — {tag}. "
-                             f"{' '.join(str(m.get('flagship_note', '')).split())}")
+                lines.append(
+                    f"- `{m['id']}`. {tag}. "
+                    f"{' '.join(str(m.get('flagship_note', '')).split())}"
+                )
             lines.append("")
 
     # The discrimination gap, named model by model so it is actionable rather
@@ -119,15 +126,16 @@ def main() -> int:
         "## Models with no recorded discrimination",
         "",
         f"{len(no_disc)} of {len(impl)}. An AUC or C-index enters this registry only",
-        "from a paper actually read — the same rule as every coefficient — so these",
+        "from a paper actually read, the same rule as every coefficient, so these",
         "are blank rather than filled from a search summary.",
         "",
         "| Model | Year | Paper to read |",
         "|---|---|---|",
     ]
     for m in sorted(no_disc, key=lambda x: x.get("year", 0)):
-        lines.append(f"| `{m['id']}` | {m.get('year', '')} "
-                     f"| {m.get('source_url', '—')} |")
+        lines.append(
+            f"| `{m['id']}` | {m.get('year', '')} | {m.get('source_url', '—')} |"
+        )
 
     lines += [
         "",
@@ -137,7 +145,7 @@ def main() -> int:
         "you can send is a correction: if a coefficient here disagrees with its",
         "source, open an issue with the citation and the exact table.",
     ]
-    out.write_text("\n".join(lines) + "\n")
+    write_text_atomically(out, "\n".join(lines) + "\n")
     print(f"wrote {out}")
     return 0
 
