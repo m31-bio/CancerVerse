@@ -1,0 +1,1420 @@
+# Applicability constraints for each flagship model, sourced to its paper.
+#
+# Peer to models.yaml and maintained the same way: by hand, under review. It is
+# not generated, because the `applies_to` line for each model is an editorial
+# judgement about which limit matters most to a reader, and that cannot be
+# derived from anything.
+#
+# Per model:
+#   applies_to  one line: who the model is for, and the limit most likely to be
+#               violated by someone reaching for it
+#   sources     up to five sentences FROM THE PAPER that establish those limits,
+#               each with the section it appears in and, where the retrieved
+#               format genuinely had one, its page number
+#   access      `open` or `closed`, whether a reader can reach the full text
+#
+# THE PAGE FIELD IS OPTIONAL AND USUALLY ABSENT. Most of these papers were
+# retrieved as HTML or JATS XML, formats with section headings and no printed
+# pagination, so there is no page number to give and the key is simply not
+# there. It used to carry the string "no pagination in retrieved format" on
+# every such entry, which was 24 of 34 models repeating a non-answer; the
+# section heading was doing all the work already.
+#
+# Only `amap` and `msk_pancreatic` were read from genuinely paginated sources,
+# and only their entries carry the key. Where it is present it is a real page
+# in the printed article and can be checked. Never fill it from a citation's
+# page range: that produces a number that looks checkable and is not.
+#
+# PROVENANCE. docs/MODEL_CONSTRAINTS_SOURCES.md is the full record, every
+# sourced quote across all 34 flagships, each retrieved independently and then
+# re-fetched by a second reader trying to refute it. docs/MODEL_CONSTRAINTS.md
+# is the audit those constraints were extracted from, including the constraints
+# the CODE fails to enforce. The subset here is what the coverage page renders,
+# capped so a table cell stays readable.
+constraints:
+  pbcg_extended:
+    applies_to: Men referred for prostate biopsy. Predicts HIGH-GRADE disease only (Gleason grade group
+      ≥ 2), not any cancer.
+    scope:
+      sex: >-
+        Men
+      point_in_care: >-
+        At the biopsy decision
+      disease: >-
+        Predicts HIGH-GRADE disease only (Gleason grade group >= 2), not any cancer
+    access: open
+    full_text: https://pmc.ncbi.nlm.nih.gov/articles/PMC9306143/
+    doi: https://doi.org/10.1186/s12874-022-01674-x
+    sources:
+    - claim: Population is men referred for prostate biopsy, drawn from the Prostate Biopsy Collaborative
+        Group across ten international cohorts.
+      section: Methods
+      quote: The study was based on risk factor and outcome data collected from January 2006 to December
+        2019 from trans-rectal systematic 10–12 core biopsies from 10 PBCG cohorts spanning North America
+        and Europe used for training and one PBCG European cohort used for validation (Figs. 1, 2, and
+        S1).
+    - claim: The model is for a biopsy-referred population, not for screening in an unreferred population.
+      section: Methods
+      quote: Included data came from patients who had received a prostate biopsy following a PSA test
+        under local standard-of-care and may be seen as representative of patients in North America, including
+        Puerto Rico, and Europe.
+    - claim: Outcome is high-grade / clinically significant prostate cancer, defined as Gleason grade
+        group >= 2 found on biopsy.
+      section: Methods
+      quote: Clinically significant prostate cancer was defined as Gleason grade group ≥ 2 on biopsy [13].
+    - claim: Age and PSA are mandatory inputs; the other ten predictors are optional.
+      section: Methods
+      quote: 'For users of the developed risk calculator, two risk factors were mandatory: PSA and age.
+        Ten risk factors were optional: DRE, prostate volume, prior negative biopsy, 5-alpha-reductase-inhibitor
+        use, prior PSA screen (yes/no), African ancestry, Hispanic ethnicity, first- and second-degree
+        prostate cancer- and first-degree breast cancer-family history.'
+    - claim: 'Sub-model sample sizes: the smallest (PSA + age) is fitted on 12,703 biopsies from 10 cohorts,
+        the full 12-factor model on only 1,334 biopsies from 3 cohorts.'
+      section: Results
+      quote: The smallest model only contains PSA and age, utilizing all 12,703 biopsies from the 10 PBCG
+        cohorts since these two risk factors were measured for all individuals. The largest model contains
+        all 12 risk factors and was constructed from only 1,334 biopsies from 3 PBCG cohorts, as these
+        were the only complete cases.
+    n_sourced_total: 11
+  dutasteride:
+    applies_to: Men with a prior negative 6–12 core biopsy in the past 6 months (REDUCE). Each of the
+      9 outcomes has its own applicability bounds.
+    scope:
+      sex: >-
+        Men
+      prior_treatment: >-
+        A negative 6-12 core biopsy within the past 6 months (REDUCE)
+      misuse: >-
+        Each of the nine outcomes has its own applicability bounds
+    access: open
+    full_text: https://www.frontiersin.org/journals/oncology/articles/10.3389/fonc.2012.00138/full
+    doi: null
+    sources:
+    - claim: 'Development population is the REDUCE trial biopsy cohort: 6729 men who had at least one
+        biopsy or prostate surgery, split into dutasteride (N=3305) and placebo (N=3424) arms.'
+      section: Materials and methods
+      quote: 'Data from 6729 patients from the REDUCE trial who had at least one biopsy or prostate surgery
+        were included in this study (Andriole et al., 2010). This cohort was split into two sub-groups:
+        (1) patients who received dutasteride (N = 3305) and (2) patients who received placebo (N = 3424).'
+    - claim: Population is men with a prior NEGATIVE prostate biopsy (the repo card's 'prior negative
+        ... biopsy' scope).
+      section: Discussion
+      quote: The REDUCE metagram can theoretically provide estimates of outcomes relevant to dutasteride
+        treatment that are tailored to a man at risk for developing PCa (i.e., older men with elevated
+        PSA and a history of previous negative biopsy).
+    - claim: 'Histology / subtype restriction: outcome definitions are histologic and mutually conditioned,
+        high-grade PCa is Gleason sum >=7; HGPIN counts only when no previous or concurrent ASAP or
+        PCa; ASAP counts only in the absence of PCa.'
+      section: Materials and methods
+      quote: The pathological endpoints included PCa, high grade prostate cancer (HGPCa) that was defined
+        as Gleason score sum ≥7, high grade prostatic intraepithelial neoplasia (HGPIN), and atypical
+        small acinar proliferation (ASAP). In this study, HGPIN was counted as an independent endpoint
+        only if there was no previous or concurrent ASAP or PCa. Similarly, ASAP was counted only in the
+        absence of PCa.
+    - claim: 'Outcome definition: nine endpoints, each predicted twice (on and off dutasteride), giving
+        18 nomograms.'
+      section: Abstract > Results
+      quote: A total of 18 nomograms assessing the risks of cancer, high grade cancer, high grade prostatic
+        intraepithelial neoplasia (HGPIN), atypical small acinar proliferation (ASAP), erectile dysfunction
+        (ED), acute urinary retention (AUR), gynecomastia, urinary tract infection (UTI) and BPH-related
+        surgery either on or off dutasteride were created.
+    - claim: Four of the nine outcomes have concordance at or below chance in at least one arm, and the
+        paper says so.
+      section: Results
+      quote: Several of the nomograms (e.g., those for UTI, gynecomastia, HGPIN, ASAP) demonstrate poor
+        discrimination and are based on those models that contained a large proportion of non-predictive
+        variables. Values of less than 0.5 reflect poor discrimination by a given nomogram and are an
+        artifact of random assignment of risk scores to patients.
+    n_sourced_total: 12
+  capra:
+    applies_to: Pre-operative, clinically localized disease. T1/T2/T3a only - T3b and T4 are refused.
+      The 0-2/3-5/6-10 risk banding this returns is a downstream convention, NOT defined in Cooperberg
+      2005, which groups scores as 0-1/2/3/4/5/6/>=7.
+    scope:
+      point_in_care: >-
+        Pre-operative
+      disease: >-
+        Clinically localized; T1/T2/T3a only, T3b and T4 are refused
+      misuse: >-
+        The 0-2 / 3-5 / 6-10 banding is a downstream convention, not Cooperberg 2005's, which
+        groups 0-1/2/3/4/5/6/>=7
+    access: open
+    full_text: https://pmc.ncbi.nlm.nih.gov/articles/PMC2948569/
+    doi: https://doi.org/10.1097/01.ju.0000158155.33890.e7
+    sources:
+    - claim: Population is preoperative and confined to clinically localized disease (repo card bullet
+        1, first half).
+      section: Methods > Patient cohort
+      quote: We included patients diagnosed between 1992 and 2001 with clinically localized disease (clinical
+        stage T1c-3a, N0/x, M0/x) who did not receive neoadjuvant or adjuvant radiation or hormonal therapy
+        (N=2154).
+    - claim: Outcome definition.
+      section: Methods > Variable definitions
+      quote: Disease recurrence after radical prostatectomy (RP) was defined as two consecutive PSA values
+        ≥0.2 ng/ml at any time postoperatively or any additional treatment more than six months after
+        RP. The date of recurrence was defined as the earlier of the second PSA ≥0.2 ng/ml or the date
+        additional treatment was initiated. If disease recurrence did not occur, the patient's follow-up
+        time was censored at the date of the last recorded PSA.
+    - claim: The code accepts any T1 or T2 substage (T1a, T1b included) as 0 points, matching Table 1's
+        'T1/T2' row.
+      section: Methods > Development of the UCSF Cancer of the Prostate Risk Assessment (UCSF-CAPRA)
+      quote: T-stage as T1c, T2a, T2b, T2c, T3a
+    - claim: All five inputs (PSA, both Gleason patterns, T stage, % positive cores, age) are mandatory
+        - none may be missing.
+      section: Methods > Patient cohort
+      quote: We excluded patients with unknown PSA, Gleason score, clinical T-stage, or PPB.
+    - claim: Domain check on age is only 'age > 0'; age 0.5 and age 150 both produce a score.
+      section: Methods > Development of the UCSF Cancer of the Prostate Risk Assessment (UCSF-CAPRA)
+      quote: age as <50, 50-54, 55-59, 60-64, 65-69, ≥70
+    n_sourced_total: 18
+  prevent:
+    applies_to: US adults 30-79 - the paper's one range, stated for both horizons. We additionally refuse
+      the 30-year horizon above age 59, which is stricter than the paper and stricter than preventr, which
+      warns there and still answers. Race-free by design; use SCORE2 for a European patient.
+    scope:
+      age: >-
+        30-79, the paper's one range for both horizons; the 30-year horizon is additionally
+        refused above 59, which is stricter than the paper
+      population: >-
+        US adults. Race-free by design; use SCORE2 for a European patient
+    access: open
+    full_text: https://pmc.ncbi.nlm.nih.gov/articles/PMC10910659/
+    doi: https://doi.org/10.1161/CIRCULATIONAHA.123.067626
+    sources:
+    - claim: 'Outcome definition: total CVD = composite of fatal and non-fatal ASCVD and HF; ASCVD = CHD
+        (MI and fatal CHD) plus stroke.'
+      section: 'Methods > Outcome Ascertainment: Total CVD, CVD Subtypes, and Mortality'
+      quote: 'The primary outcome was incident total CVD, which was defined as a composite of fatal and
+        non-fatal ASCVD and HF events.2, 34 ASCVD included coronary heart disease (CHD: myocardial infarction
+        and fatal CHD) and stroke as a composite outcome similar to the PCEs.2'
+    - claim: BMI moves only the heart-failure outcome; BMI coefficients are zero for total CVD / ASCVD
+        / CHD / stroke.
+      section: Methods > Statistical Analysis
+      quote: Given observational data demonstrating a robust independent association between obesity and
+        incident HF, but not ASCVD, BMI was included as a predictor only in the HF-specific and death
+        models; in contrast, given the limited association between cholesterol values and incident HF
+        in prior studies, cholesterol was not included as a predictor in HF-specific and death models.54,
+        55
+    - claim: Age range of the development / validation cohort is 30-79 years.
+      section: Methods > Study Population
+      quote: Individual-level participant data were included for adults aged 30 to 79 years without known
+        ASCVD or HF at baseline.
+    - claim: 'Stage / treatment-timing restriction: primary prevention only, no known ASCVD or heart
+        failure at baseline. The model is not valid for secondary prevention.'
+      section: Methods > Study Population
+      quote: Individual-level participant data were included for adults aged 30 to 79 years without known
+        ASCVD or HF at baseline.
+    - claim: SDI is entered as decile categories 1-3 / 4-6 / 7-10, and was derived only from a zip-code
+        linkage available in a subset of datasets.
+      section: Methods > Measurement of Traditional and Novel Predictors
+      quote: Analyses with SDI as a predictor were restricted to available OLDW datasets (36 datasets).
+    n_sourced_total: 20
+  cvd_statin_benefit:
+    applies_to: NOT a published model, guideline arithmetic over a baseline risk you supply. Its horizon
+      and endpoint are whatever that model's were.
+    scope:
+      misuse: >-
+        Not a published model. Guideline arithmetic over a baseline risk you supply, so its
+        horizon and endpoint are whatever that model's were
+    access: open
+    full_text: https://pmc.ncbi.nlm.nih.gov/articles/PMC2988224/
+    doi: https://doi.org/10.1016/S0140-6736(10)61350-5
+    sources:
+    - claim: STANDARD DIMENSION, stage / disease-severity / treatment-timing restriction.
+      section: Methods > Study eligibility and outcomes; Results (first two paragraphs)
+      quote: only procedures resulting from recurrent ischaemia^23 or occurring more than 30 days after
+        randomisation^24 (depending on the trial) were included.
+    - claim: STANDARD DIMENSION, sex restriction.
+      section: Results (subgroup paragraph)
+      quote: In particular, there was a highly significant proportional risk reduction of 25% (99% CI
+        18–31; p<0·0001) per 1·0 mmol/L reduction in LDL cholesterol in participants with no previous
+        history of vascular disease, as well as significant reductions of 17% (99% CI 10–24; p<0·0001)
+        among women and of 16% (99% CI 3–27; p=0·002) in people older than 75 years at entry (figure 3).
+    - claim: Explicit INCLUSION criteria of the meta-analysis.
+      section: Methods > Study eligibility and outcomes
+      quote: 'Trials were eligible for inclusion if: the main effect of the intervention was to lower
+        LDL cholesterol; no other differences in risk factor modification were intended; and at least
+        1000 participants were to be recruited with at least 2 years'' scheduled treatment duration.'
+    - claim: Explicit EXCLUSIONS / data unavailable.
+      section: Results (second paragraph)
+      quote: Individual participant data were unavailable from three eligible trials involving 11
+    - claim: CARD BULLET 3b / scope_note, the trial effect is a ~5-year effect (median follow-up 4.8-5.1
+        years), which the repo then carries to a 10-year horizon.
+      section: Results (opening paragraphs)
+      quote: the weighted median follow-up duration among survivors was 5·1 years (2·1 years for patients
+        with acute coronary syndrome and 5·8 years for those with stable disease).
+    n_sourced_total: 13
+  grace:
+    applies_to: An acute coronary syndrome admission. This is the 2003 IN-HOSPITAL score, not the BMJ
+      2006 6-month score and not GRACE 2.0.
+    scope:
+      point_in_care: >-
+        At an acute coronary syndrome admission
+      misuse: >-
+        The 2003 IN-HOSPITAL score. Not the BMJ 2006 6-month score and not GRACE 2.0
+    access: closed
+    full_text: https://pubmed.ncbi.nlm.nih.gov/14581255/
+    doi: https://doi.org/10.1001/archinte.163.19.2345
+    sources:
+    - claim: 'Population: an acute coronary syndrome admission.'
+      section: Abstract > Methods
+      quote: A multivariable logistic regression model was developed using 11 389 patients (including
+        509 in-hospital deaths) with ACS with and without ST-segment elevation enrolled in the Global
+        Registry of Acute Coronary Events (GRACE) from April 1, 1999, through March 31, 2001.
+    - claim: 'Outcome definition and prediction horizon: death during the index hospitalisation (in-hospital
+        mortality); no time horizon beyond discharge.'
+      section: Abstract > Objective; Abstract > Methods
+      quote: To develop a simple model to assess the risk for in-hospital mortality
+    - claim: 'Stated unit for age: years.'
+      section: Abstract > Results
+      quote: age (odds ratio [OR], 1.7 per 10 years)
+    - claim: 'The model has exactly eight predictors: Killip class, SBP, heart rate, age, creatinine,
+        cardiac arrest at admission, ST-segment deviation, elevated cardiac enzymes.'
+      section: Abstract > Results
+      quote: 'The following 8 independent risk factors accounted for 89.9% of the prognostic information:
+        age (odds ratio [OR], 1.7 per 10 years), Killip class (OR, 2.0 per class), systolic blood pressure
+        (OR, 1.4 per 20-mm Hg decrease), ST-segment deviation (OR, 2.4), cardiac arrest during presentation
+        (OR, 4.3), serum creatinine level (OR, 1.2 per 1-mg/dL [88.4- micro mol/L] increase), positive
+        initial cardiac enzyme findings (OR, 1.6), and heart rate (OR, 1.3 per 30-beat/min increase).'
+    - claim: 'ACS subtype / anatomic-site restriction: the model covers the entire ACS spectrum, both
+        with and without ST-segment elevation, i.e. no subtype restriction.'
+      section: Abstract > Methods; Abstract > Conclusions
+      quote: patients (including 509 in-hospital deaths) with ACS with and without ST-segment elevation
+    n_sourced_total: 11
+  atria_stroke_2013:
+    applies_to: Atrial fibrillation, anticoagulation decision. Answers a different question from GRACE
+      despite sharing the cell.
+    scope:
+      point_in_care: >-
+        At the anticoagulation decision in atrial fibrillation
+      misuse: >-
+        Answers a different question from GRACE despite sharing the cell
+    access: open
+    full_text: https://pmc.ncbi.nlm.nih.gov/articles/PMC3698792/
+    doi: https://doi.org/10.1161/JAHA.113.000250
+    sources:
+    - claim: Population is atrial fibrillation, and the model's purpose is the anticoagulation decision.
+      section: Abstract > Background
+      quote: More accurate and reliable stroke risk prediction tools are needed to optimize anticoagulation
+        decision making in patients with atrial fibrillation (AF).
+    - claim: Outcome definition.
+      section: Methods > Outcome Event Identification
+      quote: 'Ischemic stroke was defined as sudden onset of a neurologic deficit lasting >24 hours and
+        not attributable to other identifiable causes.13 Other thromboembolic events were considered valid
+        if they met the following criterion: sudden occlusion of an artery to a visceral organ or extremity
+        documented by imaging, surgery, or pathology and not attributable to concomitant atherosclerosis
+        or other etiology.'
+    - claim: Age enters through an age x prior-stroke interaction, not an age term plus a separate prior-stroke
+        flag.
+      section: Methods > Statistical Analyses > Model derivation and internal validation in the original
+        ATRIA cohort
+      quote: On the basis of univariate analysis results in the derivation cohort, we also tested an additional
+        interaction term of age by prior stroke.
+    - claim: Age range of the development / validation cohort.
+      section: Methods > Cohort Assembly
+      quote: We included all patients ≥18 years old with either 2 or more outpatient AF diagnoses (ICD‐9
+        code 427.31) or 1 outpatient AF diagnosis with ECG validation.
+    - claim: Stage or treatment-timing restriction - the score estimates stroke risk in the ABSENCE of
+        anticoagulation.
+      section: Methods > Cohort Assembly
+      quote: We used only person‐time off warfarin to develop our stroke risk model.
+    n_sourced_total: 14
+  bcsc_v2:
+    applies_to: Women having screening mammography, age 35+. The paper states a LOWER bound only and reports
+      an 80-84 age band, so our 79 ceiling is this library's, not the paper's. Four race groups only;
+      5-year INVASIVE cancer risk.
+    scope:
+      age: >-
+        35 and over. The paper states a lower bound only and reports an 80-84 band, so the 79
+        ceiling is this library's addition
+      sex: >-
+        Women
+      point_in_care: >-
+        At screening mammography
+      population: >-
+        Four race groups only
+      misuse: >-
+        5-year INVASIVE cancer risk
+    access: open
+    full_text: https://pmc.ncbi.nlm.nih.gov/articles/PMC2674327/
+    doi: https://doi.org/10.7326/0003-4819-148-5-200803040-00004
+    sources:
+    - claim: Outcome is INVASIVE breast cancer; DCIS is not an outcome.
+      section: Methods > Model Development
+      quote: Women entered the model 6 months after the index mammogram and were censored at the time
+        of death, diagnosis of ductal carcinoma in situ, or the end of follow-up.
+    - claim: Outcome definition and prediction horizon.
+      section: Discussion (summary paragraph)
+      quote: In summary, we developed a risk prediction model that incorporates breast density to estimate
+        a woman's 5-year risk for invasive breast cancer.
+    - claim: 'Lower age bound: the development cohort was restricted to women age 35 years or older.'
+      section: Methods > Study Population
+      quote: We included 1 095 484 women age 35 years or older who had had at least 1 mammogram with breast
+        density measured by using the Breast Imaging Reporting and Data System (BI-RADS) classification
+        system in any of the 7 mammography registries participating in the National Cancer Institute–funded
+        Breast Cancer Surveillance Consortium (BCSC) (available at http://breastscreening.cancer.gov)
+        (29).
+    - claim: Age range actually represented in the development/validation cohort.
+      section: Results > Table 1. Baseline Patient Characteristics
+      quote: At the time of their earliest mammogram in the BCSC, 46% of women in our study were younger
+        than age 50 years (Table 1).
+    - claim: The density relative hazards split at age 65 (a constraint the repo card does not state but
+        the code implements via DENSITY_AGE_CUTOFF).
+      section: Methods > Model Development
+      quote: The strength of the breast density association with breast cancer was greater for women younger
+        than age 65 years (P for interaction < 0.001). Thus, separate models were fitted for women younger
+        than age 65 years and for women age 65 years or older.
+    n_sourced_total: 17
+  predict_breast:
+    applies_to: Early invasive breast cancer after surgery. ER status is structural, not a coefficient,
+      it selects a different model form.
+    scope:
+      sex: >-
+        Women
+      point_in_care: >-
+        After surgery
+      disease: >-
+        Early invasive breast cancer
+      misuse: >-
+        ER status is structural, not a coefficient: it selects a different model form
+    access: open
+    full_text: https://pmc.ncbi.nlm.nih.gov/articles/PMC5440946/
+    doi: https://doi.org/10.1186/s13058-017-0852-3
+    sources:
+    - claim: Outcome definition and prediction horizon.
+      section: Methods > Patient data > Model development data
+      quote: Vital status was ascertained at the end of June 2013, and all analyses were censored on 31
+        December 2012 to allow for delay in reporting of vital status. Breast cancer-specific mortality
+        was defined as deaths where breast cancer was listed as the cause of death on part 1a, 1b or 1c
+        of the death certificate.
+    - claim: 'Stage / treatment-timing restriction: surgically treated early breast cancer, adjuvant setting.'
+      section: Methods > Patient data > Model development data
+      quote: Patients who did not undergo surgery, patients with incomplete local therapy (wide local
+        excision without radiotherapy) and patients with fewer than four nodes excised with a diagnosis
+        of node-negative disease were excluded from the analyses, leaving a study population of 5738 individuals.
+    - claim: 'Histology / subtype / anatomic site restriction: invasive breast cancer.'
+      section: Methods > Patient data > Model development data
+      quote: The primary analysis was based on data from patients with invasive breast cancer diagnosed
+        in East Anglia, UK, between 1999 and 2003 identified by ECRIC.
+    - claim: Explicit inclusion and exclusion criteria for the development cohort.
+      section: Methods > Patient data > Model development data
+      quote: Information obtained from ECRIC included age at diagnosis, number of lymph nodes sampled
+        and number of lymph nodes positive, tumour size, histological grade, ER status, mode of detection
+        (screening vs. clinical), information on local therapy (wide local excision, mastectomy, radiotherapy),
+        and type of adjuvant systemic therapy (chemotherapy, endocrine therapy, both). Exact chemotherapy
+        regimens are unknown, but the majority of patients with breast cancer in the ECRIC population
+        received first- or second-generation chemotherapy during this time period. Patients who did not
+        undergo surgery, patients with incomplete local therapy (wide local excision without radiotherapy)
+        and patients with fewer than four nodes excised with a diagnosis of node-negative disease were
+        excluded from the analyses, leaving a study population of 5738 individuals. Of these 1977 (34%)
+        had less than 10 years of potential follow-up.
+    - claim: 'ER status is structural, not a coefficient: ER-positive and ER-negative are fitted as separate
+        models, so er_positive is a mandatory input.'
+      section: Methods > Patient data > Statistical methods
+      quote: Separate models were derived for ER-positive and ER-negative breast cancer.
+    n_sourced_total: 7
+  predict_breast_response:
+    applies_to: Same population and inputs as the prognosis cell; reports the absolute benefit of each
+      adjuvant regimen.
+    scope:
+      sex: >-
+        Women
+      point_in_care: >-
+        After surgery
+      misuse: >-
+        Reports the absolute BENEFIT of each adjuvant regimen, not a risk
+    access: open
+    full_text: https://pmc.ncbi.nlm.nih.gov/articles/PMC5440946/
+    doi: https://doi.org/10.1186/s13058-017-0852-3
+    sources:
+    - claim: Outcome definition and prediction horizon.
+      section: Methods > Patient data > Model development data
+      quote: Breast cancer-specific mortality was defined as deaths where breast cancer was listed as
+        the cause of death on part 1a, 1b or 1c of the death certificate.
+    - claim: 'Stage / treatment-timing restriction: surgically treated early breast cancer, adjuvant setting.'
+      section: Methods > Patient data > Validation samples
+      quote: Patients diagnosed between 1990 and 2000 with unilateral stages I–III breast cancer without
+        a previous cancer diagnosis (except non-melanoma skin cancer), for whom complete data on tumour
+        size, nodal status, receipt of adjuvant systemic therapy, and follow-up were available, were included.
+    - claim: 'Histology / anatomic site restriction: invasive breast cancer.'
+      section: Methods > Patient data > Model development data
+      quote: The primary analysis was based on data from patients with invasive breast cancer diagnosed
+        in East Anglia, UK, between 1999 and 2003 identified by ECRIC.
+    - claim: Explicit inclusion and exclusion criteria for the development cohort.
+      section: Methods > Patient data > Model development data
+      quote: Patients who did not undergo surgery, patients with incomplete local therapy (wide local
+        excision without radiotherapy) and patients with fewer than four nodes excised with a diagnosis
+        of node-negative disease were excluded from the analyses, leaving a study population of 5738 individuals.
+    - claim: Stated conditions under which the model is invalid or unreliable.
+      section: Results > Model calibration
+      quote: In contrast, PREDICT v2 slightly over-predicted the number of breast cancer deaths in women
+        diagnosed under the age of 30 years (48 predicted vs. 34 observed, P = 0.047).
+    n_sourced_total: 10
+  plcom2012:
+    applies_to: EVER-SMOKERS only, never-smokers cannot be scored. Developed on PLCO smokers aged 55–74;
+      6-year unscreened natural history.
+    scope:
+      age: >-
+        Developed on PLCO smokers aged 55-74
+      prior_treatment: >-
+        EVER-SMOKERS only. Never-smokers cannot be scored
+      misuse: >-
+        6-year unscreened natural history
+    access: open
+    full_text: https://pmc.ncbi.nlm.nih.gov/articles/PMC3929969/
+    doi: https://doi.org/10.1056/NEJMoa1211776
+    sources:
+    - claim: 'Population: ever-smokers only; the model is not defined for never-smokers.'
+      section: DISCUSSION
+      quote: PLCOM2012 excluded persons who had never smoked. Additional unique predictors and models
+        are required for prediction of lung-cancer risk among persons who have never smoked, and such
+        models have not been developed. Generally, lung-cancer risk among persons who have never smoked
+        is so low that low-dose CT screening of such persons is not currently warranted.
+    - claim: 'Stated condition under which the model is invalid or unvalidated: population socioeconomic
+        composition / generalizability.'
+      section: DISCUSSION
+      quote: The socioeconomic status of the PLCO study population was higher than that of the general
+        population. 27 Although this might theoretically limit generalizability, because most of the predictors
+        appear to have a biologic relationship with lung cancer that is independent of socioeconomic status,
+        the model may still perform well. The PLCOM2012 should be evaluated in different populations and
+        clinical and public health settings in well-designed prospective studies.
+    - claim: Histology / subtype / anatomic-site restriction on the predicted outcome.
+      section: METHODS > STUDY DESIGN
+      quote: All histologically confirmed lung cancers that were diagnosed from study entry through 6
+        years of follow-up were included.
+    - claim: 'Outcome definition and prediction horizon: 6-year probability of a lung-cancer diagnosis.'
+      section: Abstract > METHODS
+      quote: risk was the probability of a diagnosis of lung cancer during the 6-year study period
+    - claim: 'Age range of the development and validation cohort: 55-74 years; performance outside it
+        is uncertain.'
+      section: DISCUSSION
+      quote: In both the PLCO and the NLST, an age between 55 and 74 years was an entry criterion. Therefore,
+        the predictive performance of the PLCOM2012 outside this age range is uncertain, although most
+        lung cancers occur in persons in this age range.
+    n_sourced_total: 15
+  lipi:
+    applies_to: Advanced NSCLC starting an immune checkpoint inhibitor. LDH is compared to the reporting
+      lab's own upper limit of normal.
+    scope:
+      disease: >-
+        Advanced NSCLC
+      prior_treatment: >-
+        Starting an immune checkpoint inhibitor
+      misuse: >-
+        LDH is compared to the reporting lab's own upper limit of normal
+    access: open
+    full_text: https://pmc.ncbi.nlm.nih.gov/articles/PMC5885829/
+    doi: https://doi.org/10.1001/jamaoncol.2017.4771
+    sources:
+    - claim: Population is advanced NSCLC, specifically patients receiving immune checkpoint inhibitors
+        (the 'response' cell).
+      section: Methods > Patients
+      quote: We conducted a multicentric retrospective study of a cohort of 466 patients with advanced
+        NSCLC receiving treatment with PD-1/PD-L1 inhibitors in a variety of settings covering routine
+        clinical care, expanded access, and compassionate-use programs, as well as clinical trials (nivolumab,
+        pembrolizumab, atezolizumab, durvalumab, and durvalumab-ipilimumab).
+    - claim: Outcome definition.
+      section: Methods > Statistical Analysis
+      quote: Disease control rate (DCR) was defined as complete plus partial response plus stable disease,
+        and overall response rate as complete plus partial response. Overall survival was calculated from
+        the date of first immunotherapy administration until death due to any cause. Progression-free
+        survival (PFS) was calculated from the date of first immunotherapy administration until disease
+        progression or death due to any cause.
+    - claim: Age range of the development / validation cohort.
+      section: Abstract > Results
+      quote: median age at diagnosis was 62 (range, 29-86) years
+    - claim: Stage and treatment-timing restriction.
+      section: Results > Pooled LIPI Population
+      quote: The median number of prior lines of therapy administered before ICI therapy was 1 (range,
+        0-11).
+    - claim: Histology / subtype / anatomic site restriction.
+      section: Abstract > Results
+      quote: 270 (58%) had adenocarcinoma and 159 (34%) had squamous histologic subtype
+    n_sourced_total: 13
+  lipi_prognosis:
+    applies_to: Advanced NSCLC. Same two labs as the response cell, read as a prognostic stratifier.
+    scope:
+      disease: >-
+        Advanced NSCLC
+      misuse: >-
+        The same two labs as the response cell, read as a prognostic stratifier
+    access: open
+    full_text: https://pmc.ncbi.nlm.nih.gov/articles/PMC5885829/
+    doi: https://doi.org/10.1001/jamaoncol.2017.4771
+    sources:
+    - claim: 'Population: advanced NSCLC, in patients receiving PD-1/PD-L1 immune checkpoint inhibitors.'
+      section: Methods > Patients
+      quote: We conducted a multicentric retrospective study of a cohort of 466 patients with advanced
+        NSCLC receiving treatment with PD-1/PD-L1 inhibitors in a variety of settings covering routine
+        clinical care, expanded access, and compassionate-use programs, as well as clinical trials (nivolumab,
+        pembrolizumab, atezolizumab, durvalumab, and durvalumab-ipilimumab).
+    - claim: Outcome definition.
+      section: Methods > Statistical Analysis
+      quote: Overall survival was calculated from the date of first immunotherapy administration until
+        death due to any cause. Progression-free survival (PFS) was calculated from the date of first
+        immunotherapy administration until disease progression or death due to any cause.
+    - claim: Age range of the development / validation cohort.
+      section: Abstract > Results
+      quote: median age at diagnosis was 62 (range, 29-86) years
+    - claim: Histology / subtype restriction.
+      section: Results > Pooled LIPI Population (subgroup paragraph)
+      quote: regardless of histologic subtype
+    - claim: 'Treatment-timing restriction: the inputs are baseline, pre-treatment values.'
+      section: Methods > Patients (second paragraph)
+      quote: Complete blood cell counts, LDH, and albumin levels at baseline before ICI treatment (within
+        30 days before the first treatment) were extracted from electronic medical records.
+    n_sourced_total: 15
+  crc_pro:
+    applies_to: Ages 45–85, Multi-Ethnic Cohort ethnicities only. TWO different models by sex, with different
+      predictors; inputs are IMPERIAL.
+    scope:
+      age: >-
+        45-85
+      sex: >-
+        Two different models by sex, with different predictors
+      population: >-
+        Multi-Ethnic Cohort ethnicities only
+      misuse: >-
+        Inputs are IMPERIAL units
+    access: open
+    full_text: https://pmc.ncbi.nlm.nih.gov/articles/PMC4219857/
+    doi: https://doi.org/10.3122/jabfm.2014.01.130040
+    sources:
+    - claim: Development population is the Multi-Ethnic Cohort only.
+      section: Methods (Table 2, general note)
+      quote: The Multiethnic Cohort study enrolled an ethnically diverse mix of residents from Hawaii
+        and California between 1993 and 1996.
+    - claim: Outcome definition and prediction horizon (10-year colorectal cancer risk).
+      section: Results > Figure 1A legend
+      quote: The 10-year risk of colorectal cancer (CRC) is identified where a line drawn straight down
+        from the “total points” axis intersects the “10-year risk of CRC (%).”
+    - claim: Age range of the development cohort.
+      section: Introduction (untitled body text preceding Methods)
+      quote: The MEC is a large, prospective survey of a diverse population of residents from California
+        and Hawaii who are >45 years old.
+    - claim: The model is two entirely different models by sex, not one model with a sex term.
+      section: Methods
+      quote: Because of the potential differences in risk between men and women, we decided to create
+        separate risk calculators for men and women to keep the models simple while allowing the greatest
+        flexibility in the selection of variables without increasing the work required by the end user.
+    - claim: 'The two sexes have different predictor sets: women get NSAIDs and estrogen; men get red
+        meat, physical activity and aspirin.'
+      section: Abstract > Results
+      quote: The final model for men contained age, ethnicity, pack-years of smoking, alcoholic drinks
+        per day, body mass index, years of education, regular use of aspirin, family history of colon
+        cancer, regular use of multivitamins, ounces of red meat intake per day, history of diabetes,
+        and hours of moderate physical activity per day. The final model for women included age, ethnicity,
+        years of education, use of estrogen, history of diabetes, pack-years of smoking, family history
+        of colon cancer, regular use of multivitamins, body mass index, regular use of nonsteroidal anti-inflammatory
+        drugs, and alcoholic drinks per day.
+    n_sourced_total: 13
+  wang_larc_pcr:
+    applies_to: Locally advanced rectal cancer staged BEFORE chemoradiotherapy. `risk` here is a GOOD
+      outcome, probability of complete response.
+    scope:
+      point_in_care: >-
+        Staged BEFORE chemoradiotherapy
+      disease: >-
+        Locally advanced rectal cancer
+      misuse: >-
+        `risk` is a GOOD outcome here: the probability of complete response
+    access: open
+    full_text: https://pmc.ncbi.nlm.nih.gov/articles/PMC11141331/
+    doi: https://doi.org/10.1002/cam4.7251
+    sources:
+    - claim: Population is locally advanced rectal cancer staged BEFORE chemoradiotherapy, in patients
+        who go on to complete nCRT and surgery.
+      section: 2. MATERIALS AND METHODS > 2.1. Patients
+      quote: 'Inclusion criteria: (1) Patients with a pathologically confirmed diagnosis of rectal cancer;
+        (2) clinical stage of cII or cIII (cT3–4 N0–2 M0) (Based on AJCC staging system, phase 8); (3)
+        distance to the anal verge ≤15 cm; (4) received nCRT combined with total mesorectal excision (TME)
+        and postoperative adjuvant chemotherapy if necessary; (5) complete clinicopathological features,
+        imaging, follow‐up, and clinical data.'
+    - claim: Outcome definition.
+      section: 2. MATERIALS AND METHODS > 2.2. Tumor response evaluation
+      quote: Pathologic results were evaluated by two independent pathologists. The pCR was defined as
+        no found tumor cells, complete tumor regression, and only fibroblasts remaining in the resected
+        tumor tissue and regional lymph nodes. (i.e., ypT0N0).
+    - claim: Stage restriction.
+      section: 2. MATERIALS AND METHODS > 2.1. Patients
+      quote: (2) clinical stage of cII or cIII (cT3–4 N0–2 M0) (Based on AJCC staging system, phase 8);
+    - claim: Histology / subtype restriction.
+      section: 2. MATERIALS AND METHODS > 2.1. Patients
+      quote: (1) Patients with a pathologically confirmed diagnosis of rectal cancer;
+    - claim: Anatomic site restriction.
+      section: 2. MATERIALS AND METHODS > 2.1. Patients
+      quote: (3) distance to the anal verge ≤15 cm;
+    n_sourced_total: 14
+  msk_rectal:
+    applies_to: INCOMPLETE pathological responders only. RFS and OS use different ypT reference groups;
+      only 0/60/120/180 months.
+    scope:
+      point_in_care: >-
+        After chemoradiotherapy and surgery
+      disease: >-
+        INCOMPLETE pathological responders only
+      misuse: >-
+        RFS and OS use different ypT reference groups, and only 0/60/120/180 months are defined
+    access: open
+    full_text: https://pmc.ncbi.nlm.nih.gov/articles/PMC8576585/
+    doi: https://doi.org/10.1001/jamanetworkopen.2021.33457
+    sources:
+    - claim: 'Population: the equation applies to INCOMPLETE pathological responders only.'
+      section: Methods > Development of Clinical Calculators
+      quote: an a priori decision was made to obtain RFS and OS estimates from Kaplan-Meier curves using
+        data from patients with complete pathological response and to create risk models for predicting
+        RFS and OS using data from patients with incomplete pathological response.
+    - claim: Outcome definitions for the two endpoints.
+      section: Methods > Characteristics and Outcomes
+      quote: The outcome measures were RFS and OS. Recurrence-free survival was defined as the period
+        from the date of surgery to the date of recurrence or death, and patients alive without recurrence
+        were censored at the last follow-up. Overall survival was defined as the period from the date
+        of surgery to the date of death associated with any cause, and patients alive were censored at
+        the last follow-up.
+    - claim: Age is a covariate of the OS model only and is not in the RFS model.
+      section: Methods > Development of Clinical Calculators
+      quote: For RFS and OS, the final Cox proportional hazards model included ypT category, number of
+        positive lymph nodes, tumor location (distance from the anal verge of <5 cm vs ≥5 cm), presence
+        of venous invasion, and presence of PNI. The OS model also included patient age.
+    - claim: Age range of the development / validation cohorts.
+      section: Results > Cohorts
+      quote: Among 1400 total patients with locally advanced rectal cancer, the median age was 57.8 years
+        (range, 18.0-91.9 years); 863 patients (61.6%) were male, and 537 patients (38.4%) were female,
+        with tumors at a median distance of 6.7 cm (range, 0-15.0 cm) from the anal verge (Table).
+    - claim: 'Stage and staging-modality restriction: AJCC clinical stage II or III, staged by endorectal
+        ultrasonography or MRI.'
+      section: Methods > Patients and Treatments
+      quote: that was diagnosed as AJCC stage II or III disease via endorectal ultrasonography or magnetic
+        resonance imaging
+    n_sourced_total: 19
+  amap:
+    applies_to: Chronic hepatitis. Returns a 0–100 stratifier, not a probability.
+    scope:
+      disease: >-
+        Chronic hepatitis
+      misuse: >-
+        Returns a 0-100 stratifier, not a probability
+    access: open
+    full_text: https://ora.ox.ac.uk/objects/uuid:de233595-872f-425d-aff8-6b4291bca49d/files/rjm214p37t
+    doi: https://doi.org/10.1016/j.jhep.2020.07.025
+    sources:
+    - claim: Population is chronic hepatitis, developed and validated across 11 global prospective cohorts
+        / RCTs (repo card bullet 1).
+      section: Patients and methods (opening paragraph)
+      page: '1369'
+      quote: This study was based on 11 prospective observational cohorts or randomised controlled trials
+        (RCTs) involving patients with chronic HBV (CHB; n = 7), chronic HCV (n = 3) and non-viral hepatitis
+        (NVH; n = 1).
+    - claim: Not general-population HCC screening, the development population was tertiary-hospital,
+        largely treated patients with active disease (repo card bullet 1, second sentence).
+      section: Discussion > limitations paragraph
+      page: '1376'
+      quote: First, the patients were recruited from tertiary hospitals and were especially likely to
+        have active disease before treatment. It is likely that more patients would belong to the low-risk
+        category in a primary care setting, which would further increase the NPV of the score.
+    - claim: Outcome definition and prediction horizon.
+      section: Methods > Statistical analysis (horizon); Methods > Cirrhosis and HCC assessment (outcome
+        definition)
+      page: '1371'
+      quote: The patients from the centre with the largest sample size (Nanfang Hospital, Guangzhou, China)
+        in the Search-B CHB cohort were used as the training cohort to derive a score for predicting HCC
+        within 5 years.
+    - claim: Age is in years (repo card bullet 2, implicit in the units list).
+      section: Results > Derivation of the HCC risk score (units sentence)
+      page: '1372'
+      quote: where age is in year
+    - claim: Stage / treatment-timing restriction.
+      section: Patients and methods > CHB patients (closing paragraph of the CHB cohort descriptions)
+      page: '1369'
+      quote: In the above 7 CHB cohorts/trials, patients with decompensated cirrhosis, HCC, liver transplantation,
+        or co-infection(s) with hepatitis D, HCV or HIV were excluded. The laboratory results collected
+        at enrolment were used for the analysis.
+    n_sourced_total: 17
+  hap:
+    applies_to: HCC patients being considered for TACE. Albumin must be g/L, the paper's printed 'g/dl'
+      is a unit error.
+    scope:
+      point_in_care: >-
+        Being considered for TACE
+      disease: >-
+        Hepatocellular carcinoma
+      misuse: >-
+        Albumin must be g/L. The paper's printed 'g/dl' is a unit error
+    access: open
+    full_text: https://pmc.ncbi.nlm.nih.gov/articles/PMC4023407/
+    doi: https://doi.org/10.1093/annonc/mdt247
+    sources:
+    - claim: 'Population: HCC patients being considered for transarterial chemoembolisation (the score
+        is a pre-treatment / candidacy score for TACE-TAE patients).'
+      section: discussion
+      quote: In summary, we have defined a simple and clinically relevant prognostic index requiring the
+        measurement of two tumour variables and two liver variables, specifically for patients undergoing
+        TACE.
+    - claim: Outcome definition and prediction horizon.
+      section: methods and materials > statistical analysis
+      quote: Overall survival (OS) was measured from the date of first TACE/TAE until death or the date
+        of last follow-up.
+    - claim: 'Histology / subtype / anatomic site restriction: hepatocellular carcinoma only, diagnosed
+        by histology or by imaging under EASL criteria.'
+      section: methods and materials > study population
+      quote: HCC was diagnosed by histology or imaging according to European Association for the Study
+        of the Liver criteria and patients who had surgery or transplantation were excluded.
+    - claim: Explicit inclusion criteria.
+      section: methods and materials > study population
+      quote: We reviewed 114 sequential patients with HCC treated with TAE/TACE at the Royal Free Hospital
+        and University College Hospital between 1997 and 2010, including patients from a recently reported
+        clinical trial []. HCC was diagnosed by histology or imaging according to European Association
+        for the Study of the Liver criteria and patients who had surgery or transplantation were excluded.
+    - claim: Explicit exclusion criteria.
+      section: results > patients
+      quote: Main-branch portal vein thrombosis was an exclusion criterion for TAE/TACE in both institutions,
+        but segmental portal vein involvement was more common in the validation dataset.
+    n_sourced_total: 12
+  albi:
+    applies_to: Grades LIVER FUNCTION, not tumour burden. Used alongside BCLC staging, never instead of
+      it.
+    scope:
+      misuse: >-
+        Grades LIVER FUNCTION, not tumour burden. Used alongside BCLC staging, never instead of
+        it
+    access: open
+    full_text: https://pmc.ncbi.nlm.nih.gov/articles/PMC4322258/
+    doi: https://doi.org/10.1200/JCO.2014.57.9151
+    sources:
+    - claim: Outcome definition.
+      section: Patients and Methods > Table 1 footnote paragraph (immediately following Table 1)
+      quote: Survival was measured from the date of diagnosis (first presentation with HCC) to date of
+        death or last follow-up.
+    - claim: 'Stage restriction: all disease stages are represented, so the model is not stage-limited.'
+      section: Patients and Methods (opening paragraph)
+      quote: The centers were chosen to ensure the inclusion of patients of all disease stages and representative
+        of a broad range of etiologies and geographical regions.
+    - claim: 'Histology / subtype / anatomic site restriction: hepatocellular carcinoma (plus a cirrhosis-only
+        specificity cohort).'
+      section: Discussion
+      quote: We have examined this group specifically for the aforementioned reason, not to suggest that
+        it would have a role outside the area of HCC and chronic liver disease.
+    - claim: 'Treatment-timing restriction: inputs are pre-treatment labs drawn near diagnosis.'
+      section: Patients and Methods > Table 1 footnote paragraph (immediately following Table 1)
+      quote: All parameters investigated in the analysis were measured before any treatment and within
+        6 weeks of diagnosis.
+    - claim: Explicit inclusion criteria.
+      section: Patients and Methods > Patients Entered Onto Clinical Trials
+      quote: The inclusion criteria are given in the published reports.
+    n_sourced_total: 12
+  abc_method:
+    applies_to: Asymptomatic Japanese health-checkup attendees. INVALID after H. pylori eradication; rates
+      are Japanese rates.
+    scope:
+      population: >-
+        Asymptomatic Japanese health-checkup attendees; the rates are Japanese rates
+      prior_treatment: >-
+        INVALID after H. pylori eradication
+    access: open
+    full_text: https://pmc.ncbi.nlm.nih.gov/articles/PMC1774550/
+    doi: https://doi.org/10.1136/gut.2004.055400
+    sources:
+    - claim: Population is asymptomatic Japanese health-checkup endoscopy attendees (repo card bullet
+        1, population half)
+      section: Methods > Enrolment; and Introduction (final paragraph); and Discussion
+      quote: Between March 1995 and February 1997, participants in health examination programmes held
+        by Kameda General Hospital and Makuhari Clinic who underwent upper endoscopy were consecutively
+        enrolled.
+    - claim: Histology / subtype / anatomic site restriction on the outcome
+      section: Methods > Endoscopic and clinicopathological examinations
+      quote: Histopathological assessment of gastric cancer was conducted using surgically resected or
+        endoscopically biopsied samples, categorised as intestinal-type or diffuse-type, according to
+        Lauren’s classification.
+    - claim: Stage restriction / spectrum of the detected outcome
+      section: Results > Gastric cancer development
+      quote: All of the cancers were localised within the submucosa except for one invading the muscularis
+        propria (group B).
+    - claim: Outcome definition
+      section: Abstract > Subjects and methods; and Methods > Enrolment
+      quote: Incidence of gastric cancer was determined by annual endoscopic examination.
+    - claim: Stage / treatment-timing restriction (acid suppression washout, no prior eradication)
+      section: Methods > Enrolment
+      quote: Proton pump inhibitors or H2 blockers had not been prescribed within one month prior to the
+        examination. None had undergone eradication therapy for H pylori.
+    n_sourced_total: 19
+  xu_gastric_trg_score:
+    applies_to: Locally advanced gastric adenocarcinoma on neoadjuvant chemo. HIGHER score = MORE likely
+      to achieve complete regression.
+    scope:
+      disease: >-
+        Locally advanced gastric adenocarcinoma
+      prior_treatment: >-
+        On neoadjuvant chemotherapy
+      misuse: >-
+        A HIGHER score means MORE likely to achieve complete regression
+    access: open
+    full_text: https://pmc.ncbi.nlm.nih.gov/articles/PMC8082104/
+    doi: https://doi.org/10.3389/fonc.2021.607640
+    sources:
+    - claim: Population is gastric adenocarcinoma receiving preoperative (neoadjuvant) chemotherapy followed
+        by gastrectomy, with TRG assessable and pretreatment data available.
+      section: Materials and Methods > Patient Selection and Study Design
+      quote: 'The inclusion criteria were as follows: 1. patients were pathologically confirmed as having
+        gastric adenocarcinoma; 2. patients had successfully undergone PCT before surgery; 3. gastrectomy
+        was performed after PCT; 4. TRG can be assessed; and 5. pretreatment clinicopathological data
+        can be collected. Samples were excluded if the patient did not meet the inclusion criteria.'
+    - claim: 'Outcome definition: Ryan TRG grade 0, complete pathological response of the primary tumour,
+        assessed on the resection specimen.'
+      section: Materials and Methods > Assessment System for Tumor Regression Grade
+      quote: 'TRG of the primary tumor is divided into four categories: grade 0 (complete response: no
+        viable cancer cells), grade 1 (moderate response: single cells or small groups of cancer cells),
+        grade 2 (minimal response: residual cancer outgrown by fibrosis) and grade 3 (poor response: minimal
+        or no tumor cells killed; extensive residual cancer). All histological slides were reexamined
+        by the same pathologist to confirm the TRG grade.'
+    - claim: Higher score means MORE likely to achieve complete regression; the paper's '>13 = high-risk'
+        label attaches to the group with the BETTER outcome.
+      section: Results > Derivation of a Prediction Model for TRG = 0
+      quote: The optimal cut-off point for TRG in the prediction model was 13 points resulting from ROC
+        curve analysis. The patients were divided into a low-risk (≤13 points) and a high-risk (>13 points)
+        TRG group. TRG = 0 was discovered in 0% and 22.35% of the patients in the low-risk and high-risk
+        TRG groups, respectively. The higher the score is, the more likely it indicates TRG = 0.
+    - claim: Repo card says 'locally advanced' gastric adenocarcinoma. The paper's actual stage restriction
+        is cT4N+Mx, which explicitly ADMITS distant metastasis.
+      section: Results > Characteristics of the Study Population
+      quote: All patients’ clinical stages at diagnosis were cT4N+Mx, which indicated that these tumors
+        have invaded the serosal layer of the stomach and have regional lymph node metastasis, with or
+        without distant metastasis.
+    - claim: Age range of the development and validation cohorts.
+      section: Results > Characteristics of the Study Population
+      quote: 'In the retrospective cohort, the study population comprised 224 male and 80 female patients.
+        The median age was 61 years (range: 21-80 years).'
+    n_sourced_total: 14
+  msk_gastric:
+    applies_to: After R0 resection. Depth of invasion is an ordinal 1–7 entered as a number, then splined,
+      reordering silently changes every prediction.
+    scope:
+      point_in_care: >-
+        After R0 resection
+      misuse: >-
+        Depth of invasion is an ordinal 1-7 entered as a number and then splined; reordering it
+        silently changes every prediction
+    access: closed
+    full_text: https://pubmed.ncbi.nlm.nih.gov/14512396/
+    doi: https://doi.org/10.1200/JCO.2003.01.240
+    sources:
+    - claim: 'Population: the model applies to patients after an R0 resection for gastric carcinoma.'
+      section: Abstract > Conclusion
+      quote: A nomogram was developed to predict 5-year disease-specific survival after R0 resection for
+        gastric cancer.
+    - claim: 'Outcome definition: the predicted end point is death from gastric cancer (disease-specific
+        survival), with deaths from other causes not counted as events.'
+      section: Abstract > Methods
+      quote: Death as a result of gastric cancer was the predicted end point.
+    - claim: Stage or treatment-timing restriction.
+      section: Abstract > Purpose
+      quote: Few published studies have addressed individual patient risk after R0 resection for gastric
+        cancer.
+    - claim: Sex restriction.
+      section: Abstract > Methods
+      quote: Nomogram predictor variables included age, sex, primary site (distal one-third, middle one-third,
+        gastroesophageal junction, and proximal one-third), Lauren histotype (diffuse, intestinal, mixed),
+        number of positive lymph nodes resected, number of negative lymph nodes resected, and depth of
+        invasion.
+    - claim: Histology / subtype / anatomic site restriction.
+      section: Abstract > Methods
+      quote: Lauren histotype (diffuse, intestinal, mixed), number of positive lymph nodes resected, number
+        of negative lymph nodes resected, and depth of invasion.
+    n_sourced_total: 7
+  kunzmann:
+    applies_to: ADENOCARCINOMA only, never squamous. UK BIOBANK volunteers aged 50+ (not primary care,
+      as this library said until 2026-08-18); a referral rule at >= 8 of 15 points.
+    scope:
+      age: >-
+        50 and over
+      disease: >-
+        ADENOCARCINOMA only, never squamous
+      population: >-
+        UK Biobank volunteers, not primary care
+      misuse: >-
+        A referral rule at >= 8 of 15 points
+    access: open
+    full_text: https://pureadmin.qub.ac.uk/ws/portalfiles/portal/147669984/OAC_traditional_risk_prediction_FINAL.pdf
+    doi: https://doi.org/10.1016/j.cgh.2018.03.014
+    sources:
+    - claim: Outcome definition and prediction horizon.
+      section: METHODS > Outcome assessment
+      quote: Primary EACs (ICD/10 C15, with ICD-O 8140–8573) diagnosed between 6 months (due to potential
+        diagnostic delays) and 5 years from baseline was the main outcome of interest.
+    - claim: Adenocarcinoma only, never squamous - the model is for oesophageal ADENOCARCINOMA and applying
+        it where ESCC predominates is a category error.
+      section: METHODS > Outcome assessment
+      quote: Primary EACs (ICD/10 C15, with ICD-O 8140–8573) diagnosed between 6 months (due to potential
+        diagnostic delays) and 5 years from baseline was the main outcome of interest. Secondary outcomes
+        included all primary upper gastrointestinal cancers (ICD/10 C15 and C16); esophageal cancer (ICD-10
+        C15, regardless of histology); gastric cancer (ICD-10 C16, regardless of histology) and; esophageal
+        squamous cell carcinoma (ICD-10 C15, ICD-O 8050–8082) diagnosed between 6 months and 5 years from
+        baseline.
+    - claim: Age >= 50 is the developed range; the module refuses ages below 50.
+      section: METHODS > Study design
+      quote: Included in the present study were individuals aged ≥50 years (as upper gastrointestinal
+        cancers are rare aged <50), without a history of cancer (excluding non-melanoma skin cancer) at
+        or before baseline or within 6 months following baseline (to exclude diagnostic delays) and with
+        complete information on relevant risk factors.
+    - claim: Stage or treatment-timing restriction.
+      section: METHODS > Outcome assessment
+      quote: Information on tumour stage was not available.
+    - claim: Definition of the `esophageal_condition` input (reflux / Barrett's etc.).
+      section: 'Results > EAC risk-prediction model: coefficient-based model'
+      quote: the final coefficient-based model for predicting EAC development within 5 years included
+        age at baseline, sex, BMI, smoking status and history of diagnosis or treatment for esophageal
+        conditions (Table 2)
+    n_sourced_total: 14
+  chau_eg:
+    applies_to: Advanced disease starting first-line fluorouracil chemotherapy, 1992–2001. 88% adenocarcinoma
+      NOT a model for squamous disease.
+    scope:
+      point_in_care: >-
+        Starting first-line fluorouracil chemotherapy
+      disease: >-
+        Advanced disease; 88% adenocarcinoma, NOT a model for squamous disease
+      population: >-
+        Recruited 1992-2001
+    access: closed
+    full_text: https://ascopubs.org/doi/10.1200/JCO.2004.08.154
+    doi: https://doi.org/10.1200/JCO.2004.08.154
+    sources:
+    - claim: 'Population is locally advanced or metastatic esophago-gastric cancer (a stage restriction:
+        advanced disease only).'
+      section: Abstract > Purpose
+      quote: To identify baseline prognostic factors and assess whether pretreatment quality of life (QoL)
+        predicts survival in patients with locally advanced or metastatic esophago-gastric cancer.
+    - claim: 'Outcome definition and prediction horizon: overall survival, reported at one year by risk
+        group.'
+      section: Abstract > Results
+      quote: One-year survival for good, moderate, and poor risk groups were 48.5%, 25.7%, and 11%, respectively,
+        and the survival differences among these groups were highly significant
+    - claim: Explicit inclusion criteria.
+      section: Abstract > Patients and Methods
+      quote: All patients were required to complete the European Organization for Research and Treatment
+        of Cancer core QoL questionnaire before random assignment.
+    - claim: 'Stated units and cut-point for alkaline phosphatase: >= 100 U/L.'
+      section: Abstract > Results
+      quote: and alkaline phosphatase ≥ 100 U/L (HR, 1.41; 99% CI, 1.14 to 1.76)
+    - claim: Treatment era of the development cohort is 1992-2001.
+      section: Abstract > Patients and Methods
+      quote: Between 1992 and 2001, 1,080 patients were enrolled into three randomized, controlled trials
+        assessing fluorouracil-based combination chemotherapy.
+    n_sourced_total: 6
+  shapiro_ncrt:
+    applies_to: After CROSS-regimen nCRT plus resection. Cannot be run pre-operatively; cN is TNM 6th
+      ed and binary, ypT/ypN are 7th.
+    scope:
+      point_in_care: >-
+        After CROSS-regimen nCRT plus resection; cannot be run pre-operatively
+      misuse: >-
+        cN is TNM 6th edition and binary, while ypT and ypN are 7th
+    access: closed
+    full_text: https://academic.oup.com/bjs/article-abstract/103/8/1039/6136451
+    doi: https://doi.org/10.1002/bjs.10142
+    sources:
+    - claim: 'Population: patients with oesophageal or oesophagogastric junctional carcinoma treated with
+        neoadjuvant chemoradiotherapy (nCRT) followed by surgical resection.'
+      section: Abstract > Conclusion
+      quote: In patients with oesophageal or oesophagogastric cancer treated with nCRT plus surgery, overall
+        survival can best be estimated using a prediction model based on cN, ypT and ypN categories.
+    - claim: 'Outcome definition: overall survival.'
+      section: Abstract > Methods
+      quote: Multivariable Cox modelling was used to identify prognostic factors for overall survival.
+    - claim: Explicit inclusion criteria.
+      section: Abstract > Methods
+      quote: Patients treated with nCRT plus surgery were included.
+    - claim: Development cohort size.
+      section: Abstract > Results
+      quote: Some 626 patients who underwent nCRT plus surgery were included.
+    - claim: Model inputs are cN, ypT and ypN categories; two of the three are post-resection pathology,
+        so the model cannot be run pre-operatively.
+      section: Abstract > Results
+      quote: The final prognostic model included cN, ypT and ypN categories, and had moderate discrimination
+        (c-index at internal validation 0·63).
+    n_sourced_total: 7
+  iota_adnex:
+    applies_to: A known adnexal mass selected for surgery, not screening. `oncology_centre` is a SITE
+      property, and it moves the answer.
+    scope:
+      sex: >-
+        Women
+      point_in_care: >-
+        A known adnexal mass selected for surgery, not screening
+      misuse: >-
+        `oncology_centre` is a property of the SITE, not the patient, and it moves the answer
+    access: open
+    full_text: https://pmc.ncbi.nlm.nih.gov/articles/PMC4198550/
+    doi: https://doi.org/10.1136/bmj.g5920
+    sources:
+    - claim: 'Population: women with at least one adnexal mass who were examined by ultrasound and then
+        selected for surgery.'
+      section: Methods > Patients
+      quote: We included consecutive patients with at least one adnexal mass judged not to be a physiological
+        cyst, who were examined with transvaginal ultrasound by a principal investigator and later selected
+        for surgical intervention.
+    - claim: 'Development cohort: ''IOTA phase 3 pooled data, 3,506 women with an adnexal mass'' (registry/models.yaml
+        development_cohort, repeated in the module SCOPE string and in the card''s population bullet).'
+      section: Methods > Statistical analysis
+      quote: We developed a prediction model using data from the women included in IOTA phases 1, 1b,
+        and 2 (n=3506) and validated the model on data from the women included in phase 3 (n=2403).
+    - claim: Outcome definition and prediction horizon.
+      section: Abstract > Objectives
+      quote: Objectives To develop a risk prediction model to preoperatively discriminate between benign,
+        borderline, stage I invasive, stage II-IV invasive, and secondary metastatic ovarian tumours.
+    - claim: It estimates what a mass is, not whether one is present, so it is not a screening model and
+        does not apply to masses managed expectantly.
+      section: Discussion > Strengths and weaknesses of this study
+      quote: This could also be regarded as a limitation, because the model is based on patients who were
+        selected for surgery. Hence we cannot be certain that the test performance of the ADNEX model
+        would be maintained if applied to a population of tumours, of which some were selected for expectant
+        management.
+    - claim: 'Output is a distribution over five diagnoses: benign, borderline, stage I invasive, stage
+        II-IV invasive, secondary metastatic.'
+      section: Methods > Data collection and reference standard
+      quote: 'The final diagnosis was divided into five tumour types: benign, borderline, stage I invasive,
+        stage II-IV invasive, and secondary metastatic cancer.'
+    n_sourced_total: 20
+  msk_ovarian:
+    applies_to: Bulky stage IIIC after primary surgery. Residual-disease reference is the MIDDLE category
+      (0.5–1 cm), not 'none'.
+    scope:
+      sex: >-
+        Women
+      point_in_care: >-
+        After primary surgery
+      disease: >-
+        Bulky stage IIIC
+      misuse: >-
+        The residual-disease reference is the MIDDLE category (0.5-1 cm), not 'none'
+    access: closed
+    full_text: https://pubmed.ncbi.nlm.nih.gov/17950784/
+    doi: https://doi.org/10.1016/j.ygyno.2007.09.020
+    sources:
+    - claim: Population is bulky stage IIIC ovarian carcinoma, assessed after primary surgery.
+      section: Abstract > Results
+      quote: A total of 424 evaluable patients with bulky stage IIIC EOC underwent primary surgery at
+        our institution during the study period of 1/89 to 12/03.
+    - claim: 'Outcome definition: disease-specific (EOC-specific) survival, estimated by Kaplan-Meier
+        and modelled with Cox proportional hazards.'
+      section: Abstract > Patients and methods
+      quote: Disease-specific survival was estimated by the Kaplan-Meier method. Cox proportional hazards
+        regression was used for multivariate analysis, which was the basis for the nomogram.
+    - claim: 'Stage restriction: stage IIIC only.'
+      section: Abstract > Objective
+      quote: The objective of this study was to develop a more accurate survival nomogram for patients
+        with bulky stage IIIC EOC.
+    - claim: The six model inputs are age, tumour grade, histologic type, preoperative platelet count,
+        ascites and residual disease.
+      section: Abstract > Patients and methods
+      quote: Nomogram predictor variables included age, tumor grade, histologic type, preoperative platelet
+        count, ascites, and residual disease after primary cytoreduction.
+    - claim: 'Anatomic site and histology class restriction: epithelial ovarian carcinoma.'
+      section: Abstract > Objective
+      quote: To date, only one prediction model has been reported for patients with epithelial ovarian
+        carcinoma (EOC).
+    n_sourced_total: 10
+  cervical_cin_risk:
+    applies_to: Chinese screening population, ages 25–65. Outcome is CIN2+/CIN3+ at colposcopy, not cancer
+      incidence over time.
+    scope:
+      age: >-
+        25-65
+      sex: >-
+        Women
+      point_in_care: >-
+        At screening
+      population: >-
+        Chinese screening population
+      misuse: >-
+        The outcome is CIN2+/CIN3+ at colposcopy, not cancer incidence over time
+    access: open
+    full_text: https://pmc.ncbi.nlm.nih.gov/articles/PMC8414700/
+    doi: https://doi.org/10.1186/s12916-021-02078-2
+    sources:
+    - claim: Population is a Chinese screening population.
+      section: Methods > Study population > Cross-sectional population
+      quote: Participants were recruited from five hospitals in China between 2014 and 2015 and included
+        women attending routine cervical cancer screening programs, outpatients referred for colposcopy,
+        and inpatients planning treatment for CIN2+.
+    - claim: The development sample is enriched with disease, so absolute predicted risks are not calibrated
+        to a general screening population.
+      section: Background (final paragraph)
+      quote: Models were constructed and evaluated in a cross-sectional population enriched with CIN and
+        cervical cancer.
+    - claim: E6 input definition, and the population in which the E6 variants were validated.
+      section: Methods > Statistical analyses > Model development, and Discussion
+      quote: Additional covariates were also added to the base model, including E6 oncoprotein (dichotomous,
+        either HPV16/18 positive vs. both HPV16&18 negative)
+    - claim: Outcome is CIN2+ or CIN3+, a dichotomous histologic endpoint, not invasive cancer incidence.
+      section: Methods > Statistical analyses > Model development
+      quote: CIN2+ or CIN3+, the outcome of interest, was dichotomous.
+    - claim: Outcome is ascertained at colposcopy/biopsy (histology), not by follow-up for cancer.
+      section: Methods > Study population > Cross-sectional population
+      quote: Cervical biopsies were conducted using a protocol as previously described [14]. Local pathologists
+        provided the primary diagnosis, and a panel of five pathologists from each center underwent a
+        diagnostic blind review for consensus.
+    n_sourced_total: 17
+  moore_criteria:
+    applies_to: Advanced/recurrent/metastatic disease starting cisplatin chemotherapy. One of the five
+      inputs is race.
+    scope:
+      sex: >-
+        Women
+      point_in_care: >-
+        Starting cisplatin chemotherapy
+      disease: >-
+        Advanced, recurrent or metastatic disease
+      population: >-
+        One of the five inputs is race
+    access: open
+    full_text: https://pmc.ncbi.nlm.nih.gov/articles/PMC4470610/
+    doi: https://doi.org/10.1016/j.ygyno.2009.09.006
+    sources:
+    - claim: Population is advanced/recurrent/metastatic cervical carcinoma being started on cisplatin-based
+        combination chemotherapy, pooled from GOG 110, 169 and 179 (development) with GOG 149 as external
+        validation.
+      section: Abstract > Methods
+      quote: Four-hundred twenty-eight patients with advanced cervical cancer who received a cisplatin-containing
+        combination in three Gynecologic Oncology Group (GOG) protocols (110, 169 and 179) were evaluated
+        for baseline clinical characteristics and multivariate analysis was conducted to identify factors
+        independently prognostic predictive of response using a Logistic regression model. A predictive
+        model was developed and externally validated using an independent GOG protocol (149) data.
+    - claim: Age range of the development and validation cohorts.
+      section: RESULTS (first paragraph); Table 1
+      quote: Among the 428 eligible patients who enrolled in GOG protocols 110, 169 and 179 that were
+        included for analysis, the median age was 47 years (range 21–84 years) and 64% of them were Caucasians,
+        71% had a performance status of 1–2.
+    - claim: 'Histology / subtype restriction: three of the four contributing protocols admitted squamous
+        cell carcinoma only; GOG 179 also admitted adenocarcinoma.'
+      section: METHODS
+      quote: Eligibility for GOG protocols 110, 149, and 169 was limited to patients with squamous cell
+        carcinomas. Acknowledging no apparent difference in the objective response rates in phase II trials
+        between squamous cell carcinomas and adenocarcinomas of the cervix, eligibility for GOG protocol
+        179 included patients with both histological types.
+    - claim: Explicit inclusion and exclusion criteria for the analysis cohort.
+      section: METHODS
+      quote: The study population for this retrospective analysis was derived from the database of patients
+        who received a cisplatin-containing combination in these studies.
+    - claim: Stated conditions under which the model is invalid or must not be applied.
+      section: DISCUSSION (final paragraph)
+      quote: We advise caution pending further study, and certainly before applying this model to patient
+        management outside the context of clinical trials. The model was derived from a retrospective
+        multivariate analysis of platinum-based regimens, and thus the appropriateness of extrapolating
+        these data to non-platinum-containing regimens, or cisplatin in combination with biologic agents,
+        must be questioned.
+    n_sourced_total: 13
+  cibula_arrm:
+    applies_to: Early-stage cervical cancer after PRIMARY SURGERY. All five inputs are surgical pathology,
+      cannot be run pre-operatively.
+    scope:
+      sex: >-
+        Women
+      point_in_care: >-
+        After PRIMARY SURGERY; cannot be run pre-operatively
+      disease: >-
+        Early-stage cervical cancer
+      misuse: >-
+        All five inputs are surgical pathology
+    access: open
+    full_text: https://pmc.ncbi.nlm.nih.gov/articles/PMC9406128/
+    doi: https://doi.org/10.1016/j.ejca.2021.09.008
+    sources:
+    - claim: Population is early-stage cervical cancer treated by primary surgery, with curative intent.
+      section: Introduction (aim sentence) and Methods > Study design and participants
+      quote: The aim of our study was to develop a comprehensive model that will allow for surveillance
+        tailoring based on prognostic factors in early-stage cervical cancer patients that were referred
+        for surgical treatment with curative intent.
+    - claim: Full explicit inclusion criteria, including that surgery is the primary management and that
+        fertility-sparing surgery and surgery after neoadjuvant chemotherapy are inside the population.
+      section: Methods > Study design and participants
+      quote: 'Patients were retrospectively included if they met the following inclusion criteria: (i)
+        histologically confirmed cervical cancer treated between 2007 and 2016; (ii) TNM stage T1a-T2b
+        (based on the preoperative assessment; American Joint Committee on Cancer – Cervix Uteri Cancer
+        Staging); (iii) primary surgical management, including fertility-sparing procedures/surgical treatment
+        following neoadjuvant chemotherapy; (iv) and at least one year of follow-up data availability
+        (patient underwent surgery ≥1 years before last or follow-up visit or was not lost to follow-up
+        during the first year post-surgery). Patients were eligible irrespective of adjuvant treatment,
+        neoadjuvant chemotherapy, tumour type, lymph node status, or lymph node staging.'
+    - claim: Outcome definition and prediction horizon.
+      section: Methods > Data analyses (endpoint) and Results > Annual recurrence risk model (ARRM) (horizon)
+      quote: The relationship between patient, tumour, and treatment characteristics and the analysed
+        endpoint (disease-free survival) was evaluated by univariable and multivariable Cox proportional
+        hazard models and described by hazard ratios, their 95% confidence intervals, and statistical
+        significance.
+    - claim: 'Stage restriction: TNM T1a-T2b, assessed preoperatively (AJCC cervix uteri staging).'
+      section: Methods > Study design and participants
+      quote: (ii) TNM stage T1a-T2b (based on the preoperative assessment; American Joint Committee on
+        Cancer – Cervix Uteri Cancer Staging);
+    - claim: Tumour diameter is the pathologic measurement, not the imaged one.
+      section: Methods > Data collection
+      quote: Regarding disease characteristics, we collected data about the type and size of the tumour
+        (pathologically confirmed), depth of stromal invasion, pathologic TNM stage, number, and size
+        of removed/positive lymph nodes, parametrial involvement, lymphovascular space invasion, and grade.
+    n_sourced_total: 17
+  endpac:
+    applies_to: Adults with glycemically-defined NEW-ONSET diabetes. Enriches an already-selected group;
+      not a general-population screen.
+    scope:
+      disease: >-
+        Adults with glycemically-defined NEW-ONSET diabetes
+      misuse: >-
+        Enriches an already-selected group; not a general-population screen
+    access: open
+    full_text: https://pmc.ncbi.nlm.nih.gov/articles/PMC6120785/
+    doi: https://doi.org/10.1053/j.gastro.2018.05.023
+    sources:
+    - claim: Population is adults with glycemically-defined new-onset diabetes; the score enriches an
+        already-selected high-risk group and is not a general-population screen.
+      section: Introduction
+      quote: The only known high-risk group for sporadic pancreatic cancer is that of subjects ≥50 years
+        of age with glycemically defined new-onset diabetes2.
+    - claim: Outcome definition and prediction horizon.
+      section: Results > Validation of END-PAC Cohort
+      quote: Of 1096 glycemically-defined new-onset diabetes subjects in the validation set, 9 pancreatic
+        cancers were identified (0.82%). An END-PAC score of ≥3 identified 7 pancreatic cancers with a
+        sensitivity of 78%, specificity of 82% and enriched the pancreatic cancer prevalence of 0.82%
+        in the population-based cohort to 3.6% (4.4 fold) in END-PAC model-defined cohort, (predictiveness
+        curve illustrated in Figure 1).
+    - claim: The development and validation work is in people aged 50 years and over.
+      section: Results > Incidence of pancreatic cancer in new-onset diabetes
+      quote: Between January 1st, 2000 and December 31st, 2015, there were 1561 Olmsted County residents
+        ≥50 years of age who first met the glycemically-defined new-onset diabetes criteria, of whom 16
+        (1.0%) developed pancreatic cancer with 3 years of meeting criteria for new-onset diabetes.
+    - claim: Histology / subtype / anatomic-site restriction on the predicted cancer.
+      section: Discussion
+      quote: All pancreatic cancer diagnoses were manually verified to exclude common mimics (such as
+        IPMN, ampullary cancer, islet cell cancer) that otherwise constitute ~20% of unverified pancreatic
+        cancer cohorts.
+    - claim: Explicit inclusion criteria (how new-onset diabetes was defined and who could be scored).
+      section: Patients and Methods > Cohorts assembled
+      quote: All new-onset diabetes subjects in Olmsted County between January 1st, 2000 to December 31st,
+        2015 (n=1561) were identified using a glycemic definition of diabetes (Supplementary material,
+        Table 1).
+    n_sourced_total: 10
+  msk_pancreatic:
+    applies_to: After resection for pancreatic adenocarcinoma. Size is CENTIMETRES despite the hosted
+      tool's 'mm' label.
+    scope:
+      point_in_care: >-
+        After resection
+      disease: >-
+        Pancreatic adenocarcinoma
+      misuse: >-
+        Size is CENTIMETRES despite the hosted tool's 'mm' label
+    access: open
+    full_text: https://pmc.ncbi.nlm.nih.gov/articles/PMC1356406/
+    doi: https://doi.org/10.1097/01.sla.0000133125.85489.07
+    sources:
+    - claim: 'CARD BULLET - Population: after resection for adenocarcinoma of the pancreas'
+      section: MATERIALS AND METHODS
+      page: '293'
+      quote: From a prospective database of patients resected with pancreatic ductal adenocarcinoma in
+        a single institution between October 1983 and April 2000, we collected clinicopathological and
+        operative data on 555 resected patients. All patients had pathology review to confirm pancreatic
+        adenocarcinoma.
+    - claim: STANDARD - Outcome definition
+      section: Abstract > Results
+      page: '293'
+      quote: Based on a Cox model, we then developed a nomogram that predicts the probability that a patient
+        will survive pancreatic cancer for 1, 2, and 3 years from the time of the initial resection, assuming
+        that there is not death from an alternate cause.
+    - claim: CARD BULLET - T stage is not monotone; reproduce as published, do not 'fix' the ordering
+      section: DISCUSSION
+      page: '297'
+      quote: Similarly, T stage does not appear to be logically ordered. There are ready explanations
+        for this; T stage is inaccurately recorded, as definitive size measurements are difficult and
+        the distinction between T3 and T4 is now (AJCC Cancer Staging Manual , 6th edition) one of resectability
+        rather than size or invasion per se, whereas T3 was previously a comment on extrapancreatic extension
+        (AJCC Cancer Staging Manual , 4th edition, 1992) and T4 was not included. Furthermore, T stage
+        was not statistically significant in the Cox model. Note that statistically insignificant predictors
+        were not omitted from the Cox regression model or resulting nomogram, because doing so actually
+        tends to harm predictive accuracy.
+    - claim: STANDARD - Histology / subtype / anatomic site restriction
+      section: MATERIALS AND METHODS
+      page: '293'
+      quote: From a prospective database of patients resected with pancreatic ductal adenocarcinoma in
+        a single institution between October 1983 and April 2000, we collected clinicopathological and
+        operative data on 555 resected patients. All patients had pathology review to confirm pancreatic
+        adenocarcinoma.
+    - claim: STANDARD - Treatment-timing restriction (when in the care pathway the model may be applied)
+      section: RESULTS
+      page: '294'
+      quote: The nomogram predicts the probability that the patient will survive pancreatic cancer for
+        1, 2, and 3 years from initial surgery, assuming he or she does not die of another cause first.
+    n_sourced_total: 16
+  ukb_hnc:
+    applies_to: UK Biobank, aged 40–69 at entry. LARYNGEAL cancer (C32) is EXCLUDED from the outcome by
+      design.
+    scope:
+      age: >-
+        40-69 at entry
+      disease: >-
+        LARYNGEAL cancer (C32) is EXCLUDED from the outcome by design
+      population: >-
+        UK Biobank
+    access: open
+    full_text: https://www.spandidos-publications.com/10.3892/ijo.2020.5123
+    doi: https://doi.org/10.3892/ijo.2020.5123
+    sources:
+    - claim: Development population is UK Biobank participants aged 40-69 at entry.
+      section: Materials and methods > Data source
+      quote: The UK Biobank recruited over 500,000 individuals aged 40-69 years between 2006 and 2010,
+        in 35 assessment centres.
+    - claim: Outcome is incident head and neck cancer defined by ICD-10 codes C00-C14 and C30-C31.
+      section: Materials and methods > Outcome
+      quote: Cases were defined as patients with a diagnosis of HNC, as defined by International Statistical
+        Classification of Diseases and Related Health Problems-10 codes C00-14 and C30-31 (16), and this
+        was used as the outcome measure.
+    - claim: Laryngeal cancer (C32) is excluded from the outcome by design, because screening for laryngeal
+        cancer needs different expertise and larynx is not visible on routine oral examination.
+      section: Materials and methods > Outcome
+      quote: Laryngeal cancer was excluded when building this model, as screening for oral cancers and
+        laryngeal cancers requires different expertise and laryngeal cancer would not be visible during
+        routine oral examination.
+    - claim: Age enters the model as a continuous, uncentred value in years.
+      section: Materials and methods > Statistical analysis > Data handling; and Results > Multivariate
+        model; and Tables > Table III
+      quote: Continuous variables, such as age, were modelled as continuous to prevent biological implausibility
+        and inefficient use of data (29).
+    - claim: 'Explicit inclusion and exclusion criteria: incident cases only, controls with no registry-recorded
+        HNC as of September 2016, and complete-case analysis (rows with any missing predictor dropped).'
+      section: Materials and methods > Outcome; and Materials and methods > Statistical analysis > Missing
+        data
+      quote: Controls included all participants of the UK Biobank study who did not have a diagnosis of
+        HNC recorded in the Cancer Registries data in September 2016 (15).
+    n_sourced_total: 16
+  ang2010_rpa:
+    applies_to: Oropharyngeal cancer, RTOG 0129 stage III–IV. Needs HPV status and pack-years as a number.
+    scope:
+      disease: >-
+        Oropharyngeal cancer, stage III-IV
+      population: >-
+        RTOG 0129 trial arms
+      misuse: >-
+        Needs HPV status and pack-years as a number
+    access: open
+    full_text: https://pmc.ncbi.nlm.nih.gov/articles/PMC2943767/
+    doi: https://doi.org/10.1056/NEJMoa0912217
+    sources:
+    - claim: Population is oropharyngeal cancer only; the HPV analysis and the risk groups do not apply
+        to other head and neck sites.
+      section: Methods > Laboratory Studies
+      quote: The analysis of tumor HPV status was restricted to patients with oropharyngeal squamous-cell
+        carcinoma because of the low prevalence of HPV among nonoropharyngeal squamous-cell carcinomas.
+    - claim: Outcome definition and prediction horizon.
+      section: Methods > Study End Points
+      quote: The primary end point was overall survival, defined as the time from randomization to death.
+    - claim: RTOG 0129 enrolled stage III-IV disease (so the risk groups were derived only in locally
+        advanced, M0 patients).
+      section: Methods > Study Protocol
+      quote: Eligibility criteria were the presence of untreated, pathologically confirmed, stage III
+        or IV squamous-cell carcinoma of the oral cavity, oropharynx, hypopharynx, or larynx without distant
+        metastases (M0)
+    - claim: Age range of the development cohort.
+      section: Methods > Study Protocol (eligibility); Results > Characteristics of the Patients (Table
+        1, 'Age, yr')
+      quote: age of 18 years or older; and adequate bone marrow, hepatic, and renal function
+    - claim: Histology / subtype restriction.
+      section: Methods > Study Protocol (eligibility); Methods > Laboratory Studies
+      quote: untreated, pathologically confirmed, stage III or IV squamous-cell carcinoma
+    n_sourced_total: 14
